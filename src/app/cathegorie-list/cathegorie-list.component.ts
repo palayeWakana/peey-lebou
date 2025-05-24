@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Categorie, ParametreService } from './../parametre.service';
+import { Categorie, ParametreService } from '../service/parametre.service';
 import { CategorieCreateComponent } from '../cathegorie-create/cathegorie-create.component';
 import { SidebarComponent } from "../sidebar/sidebar.component";
 import { HeaderComponent } from "../header/header.component";

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CampagneService, Campagne, Cotisation, CotisationResponse } from '../campagne.service';
+import { CampagneService, Campagne, Cotisation, CotisationResponse } from '../service/campagne.service';
 import { SidebarComponent } from "../sidebar/sidebar.component";
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';

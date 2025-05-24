@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { InfoService, ContentItem } from './../info.service';
+import { InfoService, ContentItem } from '../service/info.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from "../sidebar/sidebar.component";

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
-import { InfoService, ContentItem } from '../info.service';
+import { InfoService, ContentItem } from '../service/info.service';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({

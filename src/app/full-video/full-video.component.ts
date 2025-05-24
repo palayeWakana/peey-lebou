@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Video, VideoService, VideoCategorie } from '../video.service';
+import { Video, VideoService, VideoCategorie } from '../service/video.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SidebarComponent } from "../sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';

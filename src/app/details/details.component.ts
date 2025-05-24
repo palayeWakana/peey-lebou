@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { InfoService, ContentItem } from '../info.service';
+import { InfoService, ContentItem } from '../service/info.service';
 import { HttpClientModule } from '@angular/common/http';
 import { filter, distinctUntilChanged } from 'rxjs/operators';
 

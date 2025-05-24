@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Categorie, ParametreService } from './../parametre.service';
+import { Categorie, ParametreService } from '../service/parametre.service';
 
 @Component({
   selector: 'app-categorie-create',

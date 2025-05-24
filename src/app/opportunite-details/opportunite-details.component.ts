@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { OpportuniteService, OpportuniteItem } from '../opportinute.service';
+import { OpportuniteService, OpportuniteItem } from '../service/opportinute.service';
 import { HttpClientModule } from '@angular/common/http';
 import { distinctUntilChanged, filter } from 'rxjs';
 

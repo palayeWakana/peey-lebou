@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { OpportuniteService, OpportuniteItem, OpportuniteResponse } from '../opportinute.service';
+import { OpportuniteService, OpportuniteItem, OpportuniteResponse } from '../service/opportinute.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Subscription, filter } from 'rxjs';
 

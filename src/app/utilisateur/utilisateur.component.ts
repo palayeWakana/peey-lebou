@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { UserService } from '../user.service';
+import { UserService } from '../service/user.service';
 
 // Interface User pour typer correctement
 export interface User {

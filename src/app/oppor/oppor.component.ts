@@ -1,16 +1,16 @@
+import { SidebarComponent } from './../sidebar/sidebar.component';
 import { Component, OnInit } from '@angular/core';
-import { OpportuniteService, OpportuniteResponse, OpportuniteItem } from './../opportinute.service';
+import { OpportuniteService, OpportuniteResponse, OpportuniteItem } from '../service/opportinute.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpHeaders } from '@angular/common/http';
 
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from "../sidebar/sidebar.component";
 
 @Component({
   selector: 'app-oppor',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, ReactiveFormsModule],
+  imports: [CommonModule,SidebarComponent, ReactiveFormsModule],
   templateUrl: './oppor.component.html',
   styleUrls: ['./oppor.component.css']
 })

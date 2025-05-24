@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService, User } from '../auth.service'; // Utiliser votre AuthService
+import { AuthService, User } from '../service/auth.service'; // Utiliser votre AuthService
 
 interface MenuItem {
   path: string;
@@ -45,7 +45,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       path: '/campagne', 
       label: 'Campagnes', 
       icon: 'campaigns',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'TREASURER'],
+      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'TREASURER',],
       requiredLevel: 2 // Accès financier requis
     },
     { 

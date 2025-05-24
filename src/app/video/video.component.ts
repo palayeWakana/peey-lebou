@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
-import { VideoService, Video } from '../video.service';
+import { VideoService, Video } from '../service/video.service';
 import { HttpClientModule } from '@angular/common/http';
 import { TrustUrlPipe } from "../trust-url.pipe";
 
