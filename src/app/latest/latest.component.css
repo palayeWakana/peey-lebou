@@ -172,7 +172,7 @@
 }
 
 .voir-plus-btn, .voir-moins-btn {
-  background-color: #20a439;
+  background-color: #01651a;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -183,5 +183,5 @@
 }
 
 .voir-plus-btn:hover, .voir-moins-btn:hover {
-  background-color: #1c782d;
+  background-color: #01651a;
 }
