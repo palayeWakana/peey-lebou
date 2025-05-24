@@ -1,0 +1,229 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #eaefeb 0%, #1a8630 100%);
+    padding: 20px;
+  }
+  
+  .login-card {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    min-height: 500px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .login-left {
+    flex: 1;
+    background: linear-gradient(135deg, #20a439 0%, #178229 100%);
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .login-logo {
+    margin-bottom: 20px;
+  }
+  
+  .login-logo img {
+    width: 100px;
+    height: auto;
+  }
+  
+  .login-left h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .login-left h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+  
+  .login-left p {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+  
+  .login-right {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .login-form-container {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+  
+  .login-form-container h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  .form-group input:focus {
+    border-color: #20a439;
+    outline: none;
+  }
+  
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+  }
+  
+  .remember-me {
+    display: flex;
+    align-items: center;
+  }
+  
+  .remember-me input {
+    margin-right: 8px;
+  }
+  
+  .forgot-password {
+    color: #20a439;
+    text-decoration: none;
+  }
+  
+  .forgot-password:hover {
+    text-decoration: underline;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #20a439;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .login-button:hover {
+    background-color: #178229;
+  }
+  
+  .signup-link {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .signup-link a {
+    color: #20a439;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .signup-link a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .login-card {
+      flex-direction: column;
+    }
+    
+    .login-left {
+      padding: 30px;
+    }
+    
+    .login-right {
+      padding: 30px;
+    }
+    
+    .login-form-container {
+      max-width: 100%;
+    }
+  }
+
+  .error-message {
+    background-color: #ffe8e8;
+    color: #d32f2f;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    border-left: 4px solid #d32f2f;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Ajout d'un style pour le spinner de chargement */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+  
+  /* Amélioration des états des boutons */
+  .login-button:disabled {
+    background-color: #86c994;
+    cursor: not-allowed;
+  }
+  
+  /* Style pour mettre en évidence les champs avec erreur */
+  input.error {
+    border-color: #d32f2f;
+    background-color: #fff8f8;
+  }
+  
+  /* Amélioration du placeholder pour le champ de numéro */
+  input#username::placeholder {
+    font-size: 0.85rem;
+    color: #aaa;
+  }

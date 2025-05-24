@@ -1,0 +1,122 @@
+<div class="flex"> 
+
+  <app-sidebar></app-sidebar>  
+  <div class="categories-container">     
+    <div class="categories-header">       
+      <h1>Unités de mesure</h1>     
+    </div>
+          
+    <div class="categories-content">       
+      <!-- Colonne de gauche: Formulaire d'ajout -->       
+      <div class="column left-column">         
+        <div class="panel">           
+          <h2>Nouvelle Categorie</h2>                      
+          <!-- <div *ngIf="!showAddForm" class="add-category-prompt">             
+            <button class="btn-add" (click)="toggleAddForm()">               
+              Ajouter une nouvelle catégorie             
+            </button>           
+          </div>                       -->
+          <app-categorie-create>           
+          </app-categorie-create>         
+        </div>       
+      </div>              
+      
+      <!-- Colonne de droite: Liste des catégories -->       
+      <div class="column right-column">         
+        <div class="panel">           
+          <div class="panel-header">             
+            <h2>Liste des categories</h2>                          
+            <!-- Filtre par type -->             
+            <div class="filter-options">               
+              <select                  
+                [(ngModel)]="selectedType"                  
+                (change)="filterByType(selectedType)"                  
+                class="filter-select"               
+              >                 
+                <option *ngFor="let type of typeOptions" [value]="type">{{ type }}</option>               
+              </select>
+              
+              <!-- Ajout du sélecteur d'éléments par page -->
+              <select 
+                [(ngModel)]="itemsPerPage" 
+                (change)="changeItemsPerPage(itemsPerPage)" 
+                class="items-per-page"
+              >
+                <option [value]="5">5 par page</option>
+                <option [value]="10">10 par page</option>
+                <option [value]="20">20 par page</option>
+              </select>
+            </div>           
+          </div>                      
+          
+          <!-- Message d'erreur -->           
+          <div *ngIf="error" class="alert alert-danger">             
+            {{ error }}           
+          </div>                      
+          
+          <!-- Indicateur de chargement -->           
+          <div *ngIf="loading" class="loading-indicator">             
+            <div class="spinner"></div>             
+            <span>Chargement...</span>           
+          </div>                      
+          
+          <!-- Liste des catégories -->           
+          <div *ngIf="!loading" class="categories-list">             
+            <div *ngFor="let categorie of displayedCategories" class="category-item">               
+              <div class="category-details">                 
+                <div class="category-name">{{ categorie.libelle }}</div>                 
+                <div class="category-type">({{ categorie.type }})</div>               
+              </div>                              
+              <div class="category-actions">                 
+                <button class="btn-edit" title="Modifier">                   
+                  <i class="edit-icon">✏️</i>                 
+                </button>                 
+                <button class="btn-delete" title="Supprimer" (click)="deleteCategorie(categorie.id!)">                   
+                  <i class="delete-icon">🗑️</i>                 
+                </button>               
+              </div>             
+            </div>                          
+            
+            <div *ngIf="filteredCategories.length === 0 && !loading" class="no-categories">               
+              Aucune catégorie trouvée             
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination-container" *ngIf="totalPages > 1">
+              <div class="pagination">
+                <button 
+                  [disabled]="currentPage === 1" 
+                  (click)="prevPage()" 
+                  class="pagination-btn"
+                >
+                  &laquo;
+                </button>
+                
+                <button 
+                  *ngFor="let page of getPageArray()" 
+                  [class.active]="page === currentPage"
+                  (click)="goToPage(page)" 
+                  class="pagination-btn"
+                >
+                  {{ page }}
+                </button>
+                
+                <button 
+                  [disabled]="currentPage === totalPages" 
+                  (click)="nextPage()" 
+                  class="pagination-btn"
+                >
+                  &raquo;
+                </button>
+              </div>
+              
+              <div class="pagination-info">
+                Page {{ currentPage }} sur {{ totalPages }}
+              </div>
+            </div>
+          </div>         
+        </div>       
+      </div>     
+    </div>   
+  </div> 
+</div>

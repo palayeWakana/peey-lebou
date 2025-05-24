@@ -1,0 +1,75 @@
+/* commitment.component.css */
+.commitment-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  
+  .commitment-title {
+    font-size: 3.3rem;
+    font-weight:normal;
+    color: #877a6f;
+    margin-bottom: 3rem;
+  }
+  
+  .commitment-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .commitment-card {
+    position: relative;
+    padding: 2rem 0;
+  }
+  
+  .card-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0.5px;
+    background-color: #877a6f;
+  }
+  
+  .card-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #877a6f;
+    margin: 1.5rem 0 1rem;
+  }
+  
+  .card-content {
+    padding-right: 2rem;
+    margin-bottom: 2rem;
+    color: #666;
+    line-height: 1.6;
+  }
+  
+  .read-more {
+    display: block;
+    text-align: right;
+    color: #877a6f;
+    text-decoration: none;
+    padding-right: 2rem;
+  }
+  
+  .read-more:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 1024px) {
+    .commitment-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .commitment-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .commitment-title {
+      font-size: 2rem;
+    }
+  }

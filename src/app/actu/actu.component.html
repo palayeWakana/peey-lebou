@@ -1,0 +1,226 @@
+<div class="flex">
+  <app-sidebar></app-sidebar>
+
+  <div class="actu-container">
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Actualités</h2>
+      </div>
+      <button class="add-actu-btn" (click)="toggleAddForm()">
+        <i class="fa fa-plus"></i> Ajouter une actualité
+      </button>
+    </div>
+
+    <!-- Formulaire d'ajout d'actualité -->
+  <!-- Popup Overlay -->
+<div class="popup-overlay" *ngIf="showAddForm" (click)="toggleAddForm()">
+  <!-- Popup Container -->
+  <div class="add-actu-popup" (click)="$event.stopPropagation()">
+    <!-- Popup Header -->
+    <div class="popup-header">
+      <h3>Ajouter une nouvelle actualité</h3>
+      <button class="close-popup-btn" (click)="toggleAddForm()" aria-label="Fermer">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Popup Content -->
+    <div class="popup-content">
+      <form [formGroup]="actualiteForm" (ngSubmit)="submitActualite()" class="compact-form">
+        <!-- Titre -->
+        <div class="form-group">
+          <label for="titre">Titre*</label>
+          <input type="text" id="titre" formControlName="titre" placeholder="Titre de l'actualité">
+          <div class="error-message" *ngIf="actualiteForm.get('titre')?.invalid && actualiteForm.get('titre')?.touched">
+            Le titre est obligatoire (5 caractères minimum)
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="descr">Description*</label>
+          <textarea id="descr" formControlName="descr" rows="3" placeholder="Description de l'actualité"></textarea>
+          <div class="error-message" *ngIf="actualiteForm.get('descr')?.invalid && actualiteForm.get('descr')?.touched">
+            La description est obligatoire (10 caractères minimum)
+          </div>
+        </div>
+
+        <!-- Catégorie et Date -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categorie">Catégorie*</label>
+            <select id="categorie" formControlName="categorie">
+              <option value="">Sélectionner une catégorie</option>
+              <option value="Actualité">Actualité</option>
+              <option value="Événement">Événement</option>
+              <option value="Opportunité">Opportunité</option>
+              <option value="Formation">Formation</option>
+            </select>
+            <div class="error-message" *ngIf="actualiteForm.get('categorie')?.invalid && actualiteForm.get('categorie')?.touched">
+              La catégorie est obligatoire
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="date">Date*</label>
+            <input type="date" id="date" formControlName="date">
+            <div class="error-message" *ngIf="actualiteForm.get('date')?.invalid && actualiteForm.get('date')?.touched">
+              La date est obligatoire
+            </div>
+          </div>
+        </div>
+
+        <!-- Auteur et Lien -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="auteur">Auteur*</label>
+            <input type="text" id="auteur" formControlName="auteur" placeholder="Nom de l'auteur">
+            <div class="error-message" *ngIf="actualiteForm.get('auteur')?.invalid && actualiteForm.get('auteur')?.touched">
+              L'auteur est obligatoire
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lien">Lien externe</label>
+            <input type="url" id="lien" formControlName="lien" placeholder="https://exemple.com">
+          </div>
+        </div>
+
+        <!-- Upload Image -->
+        <div class="form-group">
+          <label for="image">Image*</label>
+          <div class="image-upload-wrapper">
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Prévisualisation">
+              <!-- <button type="button" class="remove-image-btn" (click)="removeImage()"> -->
+                <i class="fa fa-times"></i>
+              <!-- </button> -->
+            </div>
+            <div class="upload-area" [class.has-image]="imagePreview">
+              <input type="file" id="image" (change)="onImageChange($event)" accept="image/*">
+              <label for="image" class="upload-label">
+                <i class="fa fa-cloud-upload-alt"></i>
+                <span>{{ imagePreview ? 'Changer l\'image' : 'Choisir une image' }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkboxes -->
+        <div class="form-checkboxes">
+          <label class="checkbox-container">
+            <input type="checkbox" id="isvalid" formControlName="isvalid">
+            <span class="checkmark"></span>
+            Valider directement
+          </label>
+          
+          <label class="checkbox-container">
+            <input type="checkbox" id="alaune" formControlName="alaune">
+            <span class="checkmark"></span>
+            Mettre à la une
+          </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="toggleAddForm()">Annuler</button>
+          <button type="submit" class="submit-btn" [disabled]="formSubmitting">
+            <span *ngIf="!formSubmitting">Publier</span>
+            <span *ngIf="formSubmitting">
+              <i class="fa fa-spinner fa-spin"></i> Publication...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des actualités...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <p>Une erreur est survenue lors du chargement des actualités. Veuillez réessayer plus tard.</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="actus-list">
+      <div class="actu-card" *ngFor="let actu of actusList" (click)="handleCardClick($event, actu)">
+        <div class="actu-image">
+          <img [src]="baseUrl + actu.img" [alt]="actu.titre" onerror="this.src='assets/images/placeholder.jpg'">
+          <div class="actu-category">
+            <span>{{ actu.categorie }}</span>
+          </div>
+        </div>
+        <div class="actu-content">
+          <h3>{{ actu.titre }}</h3>
+          <p class="actu-description">{{ actu.descr }}</p>
+          <button *ngIf="isDescriptionLong(actu.descr)" class="see-more-btn" (click)="openDescriptionPopup(actu.descr); $event.stopPropagation()">
+            Voir plus
+          </button>
+          <div class="actu-info">
+            <div class="actu-author">
+              <img [src]="baseUrl + actu.auteurimg" [alt]="actu.auteur" onerror="this.src='assets/images/user-placeholder.jpg'">
+              <span>{{ actu.auteur }}</span>
+            </div>
+            <div class="actu-date">
+              <i class="fa fa-calendar"></i>
+              <span>{{ formatDate(actu.date) }}</span>
+            </div>
+          </div>
+          <!-- Bouton de validation -->
+          <button 
+            class="validation-btn" 
+            [class.valid]="actu.isvalid" 
+            [class.invalid]="!actu.isvalid"
+            [disabled]="validationLoading[actu.id]">
+            <span *ngIf="!validationLoading[actu.id]">
+              {{ actu.isvalid ? 'Invalider' : 'Valider' }}
+            </span>
+            <span *ngIf="validationLoading[actu.id]" class="spinner-small"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button 
+        [disabled]="currentPage === 0" 
+        (click)="previousPage()" 
+        class="pagination-btn"
+        [class.disabled]="currentPage === 0">
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      
+      <div class="page-numbers">
+        <button *ngFor="let page of getPageNumbers()" 
+          (click)="goToPage(page)"
+          class="page-number"
+          [class.active]="currentPage === page">
+          {{ page + 1 }}
+        </button>
+      </div>
+      
+      <button 
+        [disabled]="currentPage === totalPages - 1" 
+        (click)="nextPage()" 
+        class="pagination-btn"
+        [class.disabled]="currentPage === totalPages - 1">
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup pour afficher la description complète -->
+<div class="popup-overlay" *ngIf="showPopup" (click)="closeDescriptionPopup()">
+  <div class="description-popup" (click)="$event.stopPropagation()">
+    <button class="close-popup-btn" (click)="closeDescriptionPopup()">&times;</button>
+    <div class="popup-content">
+      <h3>Description complète</h3>
+      <p>{{ popupDescription }}</p>
+    </div>
+  </div>
+</div>

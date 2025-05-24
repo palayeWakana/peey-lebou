@@ -1,0 +1,68 @@
+<div class="categorie-form-container">
+  <h2>Nouvelle catégorie</h2>
+  
+  <form [formGroup]="categorieForm" (ngSubmit)="onSubmit()">
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+    
+    <!-- Message de succès -->
+    <div *ngIf="success" class="alert alert-success">
+      {{ success }}
+    </div>
+    
+    <!-- Champ Libellé -->
+    <div class="form-group">
+      <label for="libelle">Libellé</label>
+      <input 
+        type="text" 
+        id="libelle" 
+        formControlName="libelle" 
+        class="form-control" 
+        placeholder="Ex: Événements"
+        [ngClass]="{ 'is-invalid': submitted && f['libelle'].errors }"
+      >
+      <div *ngIf="submitted && f['libelle'].errors" class="invalid-feedback">
+        <div *ngIf="f['libelle'].errors['required']">Le libellé est requis</div>
+        <div *ngIf="f['libelle'].errors['minlength']">Le libellé doit contenir au moins 2 caractères</div>
+      </div>
+    </div>
+    
+    <!-- Champ Type -->
+    <div class="form-group">
+      <label for="type">Type</label>
+      <select 
+        id="type" 
+        formControlName="type" 
+        class="form-control"
+        [ngClass]="{ 'is-invalid': submitted && f['type'].errors }"
+      >
+        <option value="" disabled selected>Sélectionnez un type</option>
+        <option *ngFor="let type of typeOptions" [value]="type">{{ type }}</option>
+      </select>
+      <div *ngIf="submitted && f['type'].errors" class="invalid-feedback">
+        <div *ngIf="f['type'].errors['required']">Le type est requis</div>
+      </div>
+    </div>
+    
+    <!-- Bouton de soumission -->
+    <div class="form-group">
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="loading"
+      >
+        <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Ajouter
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-secondary ml-2"
+        (click)="resetForm()"
+      >
+        Annuler
+      </button>
+    </div>
+  </form>
+</div>

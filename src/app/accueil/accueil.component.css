@@ -1,0 +1,563 @@
+/* Styles existants */
+.accueil {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+.header {
+    background-color: #ffff;
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 100%;
+    position: relative;
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+}
+
+/* Header en blanc lors du hover */
+.header.white-bg {
+    background-color: white;
+}
+
+.header.white-bg .textcbre,
+.header.white-bg .menu a {
+    color: #877a6f;
+}
+
+.header.white-bg .search-icon {
+    color: #877a6f;
+}
+
+.textcbre {
+    color: #20a439;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 90px;
+    text-align: left;
+    margin: 25px;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+}
+
+.menu ul {
+    display: flex;
+    list-style-type: none;
+    margin: 20px;
+    padding-right: 60px;
+    align-items: center;
+}
+
+.menu li {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.menu a {
+    color: #20a439;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.menu a:hover {
+    background-color: transparent;
+}
+
+/* Dropdown menu */
+.nav-item {
+    position: relative;
+}
+
+/* Styles pour le dropdown menu */
+.dropdown-menu {
+    position: absolute;
+    top: 150%;
+    left: -1300px;
+    height: 50vh;
+    width: 130vw;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-out;
+    margin-left: -60px; /* Ajustement pour l'alignement avec le bord gauche */
+}
+
+.dropdown-menu.show {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Contenu du dropdown */
+.dropdown-content {
+    display: flex;
+    flex-wrap: wrap;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 0;
+}
+/* Styles améliorés pour la partie description dans le dropdown */
+.dropdown-content .description {
+    padding-left: 0; /* Décalage à gauche */
+    position: relative;
+    left: -200px;
+    margin-right: 50px; /* Augmentation de l'espace entre la description et les colonnes */
+    max-width: 300px; /* Contrôle de la largeur maximale */
+    font-size: 20px; /* Augmentation significative de la taille du titre Services */
+
+}
+.logo{
+    height: 70px;
+    align-items: center;
+}
+.dropdown-content .description h1 {
+    font-size: 48px; /* Augmentation significative de la taille du titre Services */
+    font-weight: bold;
+    margin-bottom: 25px;
+    letter-spacing: -0.5px; /* Améliore la lisibilité des grands titres */
+    color: #877a6f;
+}
+
+.dropdown-content .description .description-text {
+    font-size: 19px; /* Légère augmentation de la taille du texte descriptif */
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 500px; /* Augmentation de la largeur du texte */
+    color: #444444; /* Couleur un peu plus foncée pour meilleure lisibilité */
+}
+
+.dropdown-content .description button {
+    background: #877a6f;
+    color: white;
+    padding: 14px 20px; /* Bouton plus grand */
+    border: none;
+    font-size: 17px; /* Texte du bouton légèrement plus grand */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px; /* Légère bordure arrondie */
+    letter-spacing: 0.5px; /* Espacement des lettres */
+}
+
+.dropdown-content .description button:hover {
+    background: #46c333;
+    transform: translateY(-2px); /* Effet de léger soulèvement au survol */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre au survol */
+}
+
+/* Ajustement du layout du dropdown content */
+.dropdown-content {
+    display: flex;
+    flex-wrap: wrap;
+    width: 90%;
+    max-width: 1300px; /* Légère augmentation pour plus d'espace */
+    margin: 0 auto;
+    padding: 40px 0; /* Plus d'espace vertical */
+    align-items: flex-start; /* Aligne les éléments au début */
+   
+}
+
+/* Ajustement de la taille des colonnes */
+.dropdown-content > div {
+    flex: 1;
+    padding: 0 20px;
+}
+
+.dropdown-content .description {
+    flex: 1.8; /* Donne encore plus d'espace à la description */
+}
+
+/* Ajustement des colonnes de liens pour équilibrer avec la description plus grande */
+.dropdown-column {
+    padding-top: 10px; /* Aligne visuellement avec la description */
+}
+
+.dropdown-column h3 {
+    color: #77909c;
+    font-size: 24px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+/* Modification pour aligner les li horizontalement dans le dropdown */
+.dropdown-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;  /* Affiche les éléments en ligne */
+    flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+}
+
+.dropdown-column li {
+    margin: 10px 20px 10px 0; /* Ajoute une marge à droite pour l'espacement */
+    display: inline-block; /* Affiche les éléments en ligne */
+}
+
+.dropdown-column a {
+    color: #877a6f;
+    font-size: 22px;
+    padding: 5px 0;
+    white-space: nowrap; /* Empêche le texte de se couper */
+    transition: color 0.2s;
+}
+
+
+.dropdown-column a:hover {
+    color: #005a5e;
+}
+
+
+/* Styles existants pour le flag et search */
+.flag-item {
+    display: flex;
+    align-items: center;
+}
+
+.flag-icon {
+    height: 16px;
+    width: auto;
+    vertical-align: middle;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+}
+
+.flag-icon:hover, 
+.search-icon:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+/* Styles pour le slider et les images */
+.image-accueil {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+}
+
+.image-accueil img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Styles pour les indicateurs */
+.indicators {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 2;
+}
+
+.indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background-color: #ffffff;
+    transform: scale(1.1);
+}
+
+/* Animations */
+.project-card {
+    opacity: 0;
+    transform: scale(0.8);
+    animation: fadeInUp 0.8s cubic-bezier(0.3, 1.2, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Trait blanc au milieu de l'image */
+.divider-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 85%;
+    height: 8px;
+    background-color: #20a439;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.info-card {
+    position: absolute;
+    top: 43%;
+    right: -5%;
+    height: 45%;
+    width: 22%;
+    background-color: rgba(149, 155, 158, 0.7);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 1.9em;
+    transform: translateY(-50%);
+    backdrop-filter: blur(5px);
+    z-index: 1;
+    animation: slideCard 15s infinite ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.info-card h1 {
+    animation: fadeText 12s infinite ease-in-out;
+    margin-bottom: auto;
+}
+
+.info-card-footer {
+    font-size: 0.5em;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    animation: fadeText 12s infinite ease-in-out;
+}
+
+/* Animation de la card avec changement de texte */
+@keyframes slideCard {
+    0% { left: -5%; opacity: 1; }
+    25% { left: 15%; opacity: 1; }
+    50% { left: 35%; opacity: 1; }
+    75% { left: 50%; opacity: 1; }
+    100% { left: 70%; opacity: 1; }
+}
+
+/* Animation pour changer le texte */
+@keyframes fadeText {
+    0%, 25%, 50%, 75%, 100% {
+        opacity: 1;
+    }
+    12.5%, 37.5%, 62.5%, 87.5% {
+        opacity: 0;
+    }
+}
+
+/* Hamburger menu button */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.hamburger-btn span {
+    width: 30px;
+    height: 3px;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s linear;
+    position: relative;
+    transform-origin: 1px;
+}
+
+/* Styles menu hamburger */
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+    width: 30px;
+    height: 25px;
+}
+
+.hamburger-btn span {
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out;
+}
+
+.header.white-bg .hamburger-btn span {
+    background-color: #877a6f;
+}
+
+/* Position each span */
+.hamburger-btn span:first-child {
+    top: 0;
+}
+
+.hamburger-btn span:nth-child(2) {
+    top: 10px;
+}
+
+.hamburger-btn span:nth-child(3) {
+    top: 20px;
+}
+/* Styles pour le menu hamburger qui s'affiche à gauche avec carte blanche */
+@media screen and (max-width: 1024px) {
+    /* Show hamburger button */
+    .hamburger-btn {
+        display: block;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1002; /* Augmenté pour être au-dessus de l'overlay */
+    }
+
+    /* Overlay blanc pour le menu mobile */
+    .menu.open::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: white;
+        z-index: 999;
+    }
+    
+    .info-card{
+        display: none;
+    }
+    /* Hide default menu */
+    .menu ul {
+        display: none;
+        position: fixed;
+        left: -100%; /* Changé de right à left pour ouvrir depuis la gauche */
+        top: 90px;
+        background-color: transparent; /* Transparent car on utilise l'overlay blanc */
+        height: calc(100vh - 90px);
+        width: 250px;
+        flex-direction: column;
+        padding: 20px;
+        margin: 0;
+        transition: left 0.3s ease-in-out; /* Modifié pour l'animation depuis la gauche */
+        z-index: 1000;
+    }
+
+    /* Show menu when open */
+    .menu.open ul {
+        display: flex;
+        left: 0; /* Ouvre depuis la gauche */
+    }
+
+    /* Adapter les couleurs du texte pour le fond blanc */
+    .menu.open a,
+    .menu.open .textcbre {
+        color: #877a6f; /* Texte foncé sur fond blanc */
+    }
+
+    .menu li {
+        margin: 15px 0;
+        width: 100%;
+        justify-content: flex-start; /* Aligné à gauche */
+    }
+
+    .menu a {
+        width: 100%;
+        justify-content: flex-start; /* Aligné à gauche */
+        padding: 10px;
+        font-size: 18px; /* Taille plus grande pour meilleure lisibilité sur mobile */
+    }
+
+    /* Dans le menu mobile, on cache les dropdowns */
+    .dropdown-menu {
+        display: none !important;
+    }
+
+    /* Hamburger animation when open */
+    .hamburger-btn.open span {
+        background-color: #877a6f; /* Hamburger foncé quand ouvert sur fond blanc */
+    }
+    
+    .hamburger-btn.open span:first-child {
+        transform: rotate(45deg);
+        top: 10px;
+    }
+
+    .hamburger-btn.open span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger-btn.open span:nth-child(3) {
+        transform: rotate(-45deg);
+        top: 10px;
+    }
+    
+    /* Ajout d'animation pour l'apparition du menu */
+    .menu.open ul li {
+        opacity: 0;
+        animation: fadeInLeft 0.3s forwards;
+        animation-delay: calc(0.1s * var(--item-index, 0));
+    }
+    
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+}
+
+/* Additional responsive adjustments */
+@media screen and (max-width: 768px) {
+    .header {
+        padding: 0 15px;
+    }
+
+    .hamburger-btn {
+        right: 15px;
+    }
+    
+    .menu ul {
+        width: 100%; /* Menu pleine largeur sur très petits écrans */
+        align-items: flex-start; /* Alignement à gauche */
+    }
+}

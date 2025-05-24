@@ -1,0 +1,13 @@
+<!-- commitment.component.html -->
+<div class="commitment-section">
+    <h2 class="commitment-title">Notre Engagement</h2>
+    
+    <div class="commitment-grid">
+      <div class="commitment-card" *ngFor="let card of commitments">
+        <div class="card-header"></div>
+        <h3 class="card-title">{{card.title}}</h3>
+        <p class="card-content">{{card.content}}</p>
+        <a href="#" class="read-more">Voir Plus</a>
+      </div>
+    </div>
+  </div>

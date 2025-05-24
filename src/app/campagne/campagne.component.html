@@ -1,0 +1,408 @@
+<div class="flex">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Container principal -->
+  <div class="flex-1">
+    <div class="flex">
+      <!-- Formulaire d'ajout (gauche) -->
+      <div class="categories-container" style="flex: 1;">
+        <div class="categories-header">
+          <h1>Ajouter une campagne</h1>
+        </div>
+        
+        <div class="categorie-form-container">
+          <!-- Alertes -->
+          <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+          <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+          <form (ngSubmit)="onSubmit()" [formGroup]="campagneForm"> 
+            <!-- Champ: Titre -->
+            <div class="form-group">
+              <label for="title">Titre</label>
+              <input 
+                type="text" 
+                id="title" 
+                formControlName="title" 
+                class="form-control" 
+                [ngClass]="{'is-invalid': submitted && f['title'].errors}"
+              >
+              <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+                <div *ngIf="f['title'].errors['required']">Le titre est requis</div>
+              </div>
+            </div>
+            
+            <!-- Champ: Date de début -->
+            <div class="form-group">
+              <label for="startDate">Date de début</label>
+              <input 
+                type="date" 
+                id="startDate" 
+                formControlName="startDate" 
+                class="form-control" 
+                [ngClass]="{ 'is-invalid': submitted && f['startDate'].errors }"
+              />
+              <div *ngIf="submitted && f['startDate'].errors" class="invalid-feedback">
+                <div *ngIf="f['startDate'].errors['required']">La date de début est requise</div>
+              </div>
+            </div>
+            
+            <!-- Champ: Date de fin -->
+            <div class="form-group">
+              <label for="endDate">Date de fin</label>
+              <input 
+                type="date" 
+                id="endDate" 
+                formControlName="endDate" 
+                class="form-control" 
+                [ngClass]="{ 'is-invalid': submitted && f['endDate'].errors }"
+              />
+              <div *ngIf="submitted && f['endDate'].errors" class="invalid-feedback">
+                <div *ngIf="f['endDate'].errors['required']">La date de fin est requise</div>
+              </div>
+            </div>
+            
+            <!-- Champ: Montant -->
+            <div class="form-group">
+              <label for="amount">Montant</label>
+              <input 
+                type="text" 
+                id="amount" 
+                formControlName="amount" 
+                class="form-control"
+                [ngClass]="{'is-invalid': submitted && f['amount'].errors}"
+              >
+              <div *ngIf="submitted && f['amount'].errors" class="invalid-feedback">
+                <div *ngIf="f['amount'].errors['required']">Le montant est requis</div>
+              </div>
+            </div>
+            
+            <!-- Boutons de soumission -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border"></span>
+                Enregistrer
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="resetForm()">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Liste des campagnes (droite) -->
+      <div class="categories-container" style="flex: 1;">
+        <div class="categories-header">
+          <h1>Liste des campagnes</h1>
+        </div>
+        
+        <div class="panel">
+          <div class="panel-header">
+            <div class="items-per-page-container">
+              <select 
+                class="items-per-page" 
+                [(ngModel)]="pageSize" 
+                (change)="onPageSizeChange()"
+              >
+                <option [value]="4">4 par page</option>
+                <option [value]="10">10 par page</option>
+                <option [value]="20">20 par page</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Message d'erreur -->
+          <div *ngIf="error" class="alert alert-danger">
+            Une erreur est survenue lors du chargement des campagnes.
+          </div>
+          
+          <!-- Indicateur de chargement -->
+          <div *ngIf="loading" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Chargement des campagnes...</p>
+          </div>
+          
+          <!-- Aucune campagne -->
+          <div *ngIf="!loading && campagnes.length === 0" class="no-categories">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p>Aucune campagne disponible</p>
+          </div>
+          
+          <!-- Liste des campagnes -->
+          <div *ngIf="!loading && campagnes.length > 0" class="categories-list">
+            <div class="category-item" *ngFor="let campagne of campagnes">
+              <div class="category-details">
+                <div class="campaign-info">
+                  <div class="category-name">{{ campagne.title }}</div>
+                  <div class="campaign-dates">
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      {{ campagne.startDate | date:'dd/MM/yyyy' }}
+                    </span>
+                    <span class="date-separator">→</span>
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      {{ campagne.endDate | date:'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+                  <div class="campaign-amount">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                    </svg>
+                    {{ campagne.amount }} FCFA
+                  </div>
+                </div>
+              </div>
+              <div class="category-actions">
+                <button class="btn-edit" (click)="showCampagneDetails(campagne)" title="Voir les détails">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                    <path fill-rule="evenodd" d="M1.38 8.28a.87.87 0 0 1 0-.566 7.003 7.003 0 0 1 13.238.006.87.87 0 0 1 0 .566A7.003 7.003 0 0 1 1.379 8.28ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <button class="btn-delete" (click)="openDeleteConfirmation(campagne.id)" title="Supprimer">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pagination -->
+          <div *ngIf="!loading && totalPages > 1" class="pagination-container">
+            <div class="pagination-info">
+              Affichage de {{ (currentPage * pageSize) + 1 }} à 
+              {{ Math.min((currentPage + 1) * pageSize, totalItems) }} 
+              sur {{ totalItems }} campagnes
+            </div>
+            <div class="pagination">
+              <button 
+                class="pagination-btn" 
+                [disabled]="currentPage === 0" 
+                (click)="previousPage()"
+              >
+                &laquo;
+              </button>
+              <button 
+                *ngFor="let page of getPageNumbers()" 
+                class="pagination-btn" 
+                [class.active]="page === currentPage" 
+                (click)="goToPage(page)"
+              >
+                {{ page + 1 }}
+              </button>
+              <button 
+                class="pagination-btn" 
+                [disabled]="currentPage === totalPages - 1" 
+                (click)="nextPage()"
+              >
+                &raquo;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup de confirmation de suppression -->
+<div *ngIf="showDeleteConfirmation" class="popup-overlay">
+  <div class="popup-container">
+    <div class="popup-header">
+      <h3>Confirmer la suppression</h3>
+      <button class="close-btn" (click)="closeDeleteConfirmation()">×</button>
+    </div>
+    <div class="popup-content">
+      <div class="warning-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <p>Êtes-vous sûr de vouloir supprimer cette campagne ? Cette action est irréversible.</p>
+      <div class="popup-actions">
+        <button class="btn btn-cancel" (click)="closeDeleteConfirmation()">Annuler</button>
+        <button class="btn btn-confirm" (click)="confirmDelete()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup pour afficher les détails d'une campagne et ses cotisations -->
+<div *ngIf="showPopup" class="popup-overlay">
+  <div class="popup-container popup-large">
+    <div class="popup-header">
+      <h3>Détails de la campagne</h3>
+      <button class="close-btn" (click)="closePopup()">×</button>
+    </div>
+    <div class="popup-content">
+      <!-- Informations de la campagne -->
+      <div *ngIf="selectedCampagne" class="campagne-details">
+        <div class="detail-item" *ngIf="selectedCampagne"> 
+          <strong>Titre:</strong> {{ selectedCampagne.title || '' }}
+        </div>
+        <!-- <div class="detail-item">
+          <strong>Date de début:</strong> {{ selectedCampagne?.startDate | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="detail-item">
+          <strong>Date de fin:</strong> {{ selectedCampagne?.endDate | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="detail-item">
+          <strong>Montant:</strong> {{ selectedCampagne?.amount }} FCFA
+        </div> -->
+      </div>
+
+      <!-- Message de confirmation de paiement -->
+      <div *ngIf="paymentMessage" [ngClass]="{'alert': true, 'alert-success': paymentSuccess, 'alert-danger': !paymentSuccess}">
+        {{ paymentMessage }}
+      </div>
+
+      <!-- Séparateur -->
+      <div class="separator"></div>
+
+      <!-- Liste des cotisations -->
+      <div class="cotisations-container">
+        <h4>Liste des cotisations</h4>
+
+        <!-- Indicateur de chargement pour les cotisations -->
+        <div *ngIf="cotisationsLoading" class="loading-indicator-small">
+          <div class="spinner"></div>
+          <p>Chargement des cotisations...</p>
+        </div>
+
+        <!-- Message d'erreur pour les cotisations -->
+        <div *ngIf="cotisationsError" class="alert alert-danger">
+          Une erreur est survenue lors du chargement des cotisations.
+        </div>
+
+        <!-- Aucune cotisation -->
+        <div *ngIf="!cotisationsLoading && cotisations.length === 0" class="no-cotisations">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>Aucune cotisation disponible pour cette campagne</p>
+        </div>
+
+        <!-- Tableau des cotisations -->
+     <!-- Tableau des cotisations -->
+<div *ngIf="!cotisationsLoading && cotisations.length > 0" class="cotisations-table-container">
+  <table class="cotisations-table">
+    <thead>
+      <tr>
+        <th>Numéro</th>
+        <th>Membre</th>
+   
+        <th>Montant</th>
+        <th>Date facture</th>
+        <th>Date échéance</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cotisation of cotisations">
+        <td>{{ cotisation.numero }}</td>
+        <td class="user-info">
+          <!--<img [src]="baseUrl + cotisation.userimg" alt="Photo utilisateur" class="user-avatar" *ngIf="cotisation.userimg">-->
+          {{ cotisation.username }}
+        </td>
+ 
+        <td>{{ cotisation.montant }} FCFA</td>
+        <td></td>
+        <td>{{ cotisation.dateecheance }}</td>
+        <td>
+          <span [ngClass]="{'status-paid': cotisation.payed, 'status-unpaid': !cotisation.payed}">
+            {{ cotisation.payed ? 'Payé' : 'Non payé' }}
+          </span>
+        </td>
+        <td>
+          <button 
+            class="btn btn-pay" 
+            *ngIf="!cotisation.payed" 
+            (click)="payeCotisation(cotisation.id)"
+            [disabled]="paymentLoading"
+          >
+            <span *ngIf="paymentLoading && payingCotisationId === cotisation.id" class="spinner-border"></span>
+            Payer
+          </button>
+          <span *ngIf="cotisation.payed" class="paid-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Payé
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Message si aucune cotisation n'est trouvée -->
+<div *ngIf="!cotisationsLoading && cotisations.length === 0" class="no-data-message">
+  Aucune cotisation trouvée pour cette campagne.
+</div>
+
+<!-- Indicateur de chargement -->
+<div *ngIf="cotisationsLoading" class="loading-spinner">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+
+
+
+        <!-- Pagination pour les cotisations -->
+        <div *ngIf="!cotisationsLoading && cotisationTotalPages > 1" class="pagination-container">
+          <div class="pagination-info">
+            Affichage de {{ (cotisationCurrentPage * cotisationPageSize) + 1 }} à 
+            {{ Math.min((cotisationCurrentPage + 1) * cotisationPageSize, cotisationTotalItems) }} 
+            sur {{ cotisationTotalItems }} cotisations
+          </div>
+          <div class="pagination">
+            <button 
+              class="pagination-btn" 
+              [disabled]="cotisationCurrentPage === 0" 
+              (click)="previousCotisationPage()"
+            >
+              &laquo;
+            </button>
+            <button 
+              *ngFor="let page of getCotisationPageNumbers()" 
+              class="pagination-btn" 
+              [class.active]="page === cotisationCurrentPage" 
+              (click)="goToCotisationPage(page)"
+            >
+              {{ page + 1 }}
+            </button>
+            <button 
+              class="pagination-btn" 
+              [disabled]="cotisationCurrentPage === cotisationTotalPages - 1" 
+              (click)="nextCotisationPage()"
+            >
+              &raquo;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

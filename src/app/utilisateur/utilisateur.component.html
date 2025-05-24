@@ -1,0 +1,689 @@
+<!-- Fichier utilisateur.component.html avec le modal de création amélioré -->
+
+
+
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2 side-container">
+      <app-sidebar></app-sidebar>
+    </div>
+    
+    <div class="col-md-10 main-container">
+      <div class="content-wrapper">
+        <h1 class="page-title">Gestion des Utilisateurs</h1>
+        
+        <!-- Filtres et actions -->
+        <div class="filters-container">
+          <div class="search-bar">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Rechercher un utilisateur..." 
+              [(ngModel)]="searchTerm"
+              (input)="searchUsers()"
+            >
+            <button class="btn-search">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          
+          <div class="filter-options">
+            <button 
+              class="btn-filter" 
+              [class.active]="roleFilter === 'all'"
+              (click)="filterByRole('all')"
+            >
+              Tous
+            </button>
+            <button 
+              class="btn-filter" 
+              [class.active]="roleFilter === 'admin'"
+              (click)="filterByRole('admin')"
+            >
+              Administrateurs
+            </button>
+            <button 
+              class="btn-filter" 
+              [class.active]="roleFilter === 'manager'"
+              (click)="filterByRole('manager')"
+            >
+              Gestionnaires
+            </button>
+            <button 
+              class="btn-filter" 
+              [class.active]="roleFilter === 'user'"
+              (click)="filterByRole('user')"
+            >
+              Utilisateurs
+            </button>
+          </div>
+          
+          <div class="action-buttons">
+            <button class="btn" (click)="openCreateUserModal()">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+            <button 
+              class="btn "
+              [disabled]="!allUsers || allUsers.length === 0 || !hasSelectedUsers()"
+              (click)="openDeleteMultipleConfirmation()"
+            >
+              <i class="fas fa-trash"></i> Supprimer
+            </button>
+          </div>
+        </div>
+        
+        <!-- Table des utilisateurs -->
+        <div class="table-container">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th class="select-col">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectAll"
+                    (change)="toggleSelectAll()"
+                  >
+                </th>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Profession</th>
+                <th>Rôle</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Affichage du chargement -->
+              <tr *ngIf="loading">
+                <td colspan="7" class="loading-cell">
+                  <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin"></i> Chargement...
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Message d'erreur -->
+              <tr *ngIf="error && !loading">
+                <td colspan="7" class="error-cell">
+                  <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                    <button class="btn-retry" (click)="loadUsers()">Réessayer</button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Données des utilisateurs -->
+              <tr *ngFor="let user of displayedUsers" class="data-row">
+                <td class="select-col">
+                  <input 
+                    type="checkbox" 
+                    [checked]="user.selected"
+                    (change)="toggleUserSelection(user)"
+                  >
+                </td>
+                <td class="user-name">{{ user.firstname }} {{ user.secondname }}</td>
+                <td>{{ user.telephone || 'Non défini' }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.profession || 'Non défini' }}</td>
+                <td>{{ getRoleName(user.role) }}</td>
+                <td class="actions-cell">
+                  <button class="action-button">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="action-button" (click)="openDeleteConfirmation(user)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              
+              <!-- Pas de résultats -->
+              <tr *ngIf="displayedUsers.length === 0 && !loading && !error">
+                <td colspan="7" class="no-data-cell">
+                  Aucun utilisateur trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-container" *ngIf="totalUsers > 0">
+          <div class="pagination-info">
+            Voir de {{ startIndex }} à {{ endIndex }} sur {{ totalUsers }}
+          </div>
+          <div class="pagination-controls">
+            <button 
+              class="pagination-button" 
+              (click)="goToPreviousPage()"
+              [attr.aria-label]="'Page précédente'"
+              [disabled]="currentPage === 1"
+              [class.disabled]="currentPage === 1"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="pagination-button"
+              (click)="goToPage(page)"
+              [attr.aria-label]="'Page ' + page"
+              [class.active]="currentPage === page"
+            >
+              {{ page }}
+            </button>
+            
+            <button 
+              class="pagination-button"
+              (click)="goToNextPage()"
+              [attr.aria-label]="'Page suivante'"
+              [disabled]="currentPage === totalPages"
+              [class.disabled]="currentPage === totalPages"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteConfirmModal" (click)="closeDeleteConfirmation()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-content" [ngClass]="{'modal-loading': deleteLoading, 'modal-success': deleteSuccess, 'modal-error': deleteError}">
+      <div class="modal-header">
+      
+        <h2 class="modal-title">
+          <i class="fas fa-exclamation-triangle"></i>
+          Confirmation de suppression
+        </h2>
+        <button class="modal-close" (click)="closeDeleteConfirmation()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- État initial -->
+        <div *ngIf="!deleteLoading && !deleteSuccess && !deleteError">
+          <div class="modal-icon">
+            <i class="fas fa-trash"></i>
+          </div>
+          
+          <p class="modal-message" *ngIf="!deleteMultiple && userToDelete">
+            Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ getFullName(userToDelete) }}</strong> ?
+          </p>
+          
+          <p class="modal-message" *ngIf="deleteMultiple">
+            Êtes-vous sûr de vouloir supprimer <strong>{{ getSelectedUsersCount() }}</strong> utilisateurs ?
+          </p>
+          
+          <div class="modal-actions">
+            <button class="btn btn-outline" (click)="closeDeleteConfirmation()">Annuler</button>
+            <button class="btn btn-danger" (click)="confirmDelete()">Supprimer</button>
+          </div>
+        </div>
+        
+        <!-- État de chargement -->
+        <div *ngIf="deleteLoading">
+          <div class="modal-loading-content">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p class="modal-message">Suppression en cours...</p>
+          </div>
+        </div>
+        
+        <!-- État de succès -->
+        <div *ngIf="deleteSuccess">
+          <div class="modal-success-content">
+            <div class="success-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="modal-message">Suppression réussie !</p>
+          </div>
+        </div>
+        
+        <!-- État d'erreur -->
+        <div *ngIf="deleteError">
+          <div class="modal-error-content">
+            <div class="error-icon">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <p class="modal-message">{{ deleteErrorMessage || 'Une erreur est survenue lors de la suppression.' }}</p>
+            <div class="modal-actions">
+              <button class="btn btn-outline" (click)="closeDeleteConfirmation()">Fermer</button>
+              <button class="btn btn-retry" (click)="confirmDelete()">Réessayer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de création d'utilisateur -->
+<div class="modal-overlay create-modal-overlay " *ngIf="showCreateUserModal" (click)="closeCreateUserModal()">
+  <div class="modal create-modal " (click)="$event.stopPropagation()">
+    <div class="modal-content" [ngClass]="{'modal-loading': createLoading, 'modal-success': createSuccess, 'modal-error': createError}">
+      <!-- En-tête du modal -->
+      <div class="modal-header create-modal-header " >
+      <h2 class="modal-title">
+          <i class="fas fa-user-plus"></i>
+          Ajouter un nouvel utilisateur
+        </h2>
+        <button class="modal-close" (click)="closeCreateUserModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body create-modal-body">
+        <!-- État initial - Formulaire de création -->
+        <div *ngIf="!createLoading && !createSuccess && !createError">
+          <!-- Onglets de navigation -->
+          <div class="form-tabs">
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'info'}"
+              (click)="setActiveTab('info')"
+            >
+              <i class="fas fa-user"></i> Informations principales
+            </button>
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'contact'}"
+              (click)="setActiveTab('contact')"
+            >
+              <i class="fas fa-address-book"></i> Contact
+            </button>
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'other'}"
+              (click)="setActiveTab('other')"
+            >
+              <i class="fas fa-cog"></i> Autres informations
+            </button>
+          </div>
+        
+          <form [formGroup]="createUserForm" (ngSubmit)="submitCreateUser()">
+            <!-- Onglet Informations principales -->
+            <div class="form-tab-content" *ngIf="activeTab === 'info'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="firstname" class="form-label">
+                    <i class="fas fa-user-circle"></i> Prénom <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="firstname" 
+                    formControlName="firstname" 
+                    class="form-control" 
+                    [ngClass]="{'is-invalid': isFieldInvalid('firstname')}"
+                    placeholder="Prénom"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('firstname')">
+                    Le prénom est requis
+                  </div>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="secondname" class="form-label">
+                    <i class="fas fa-user-circle"></i> Nom <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="secondname" 
+                    formControlName="secondname" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('secondname')}"
+                    placeholder="Nom"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('secondname')">
+                    Le nom est requis
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i> Email <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    formControlName="email" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('email')}"
+                    placeholder="exemple@domaine.com"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                    Une adresse email valide est requise
+                  </div>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Mot de passe <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="password" 
+                    id="password" 
+                    formControlName="password" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('password')}"
+                    placeholder="Minimum 6 caractères"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('password')">
+                    Le mot de passe doit contenir au moins 6 caractères
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="role" class="form-label">
+                    <i class="fas fa-user-tag"></i> Rôle <span class="required">*</span>
+                  </label>
+                  <select 
+                    id="role" 
+                    formControlName="role" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('role')}"
+                  >
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="USER">Utilisateur</option>
+                    <option value="ASSISTANT">Assistante</option>
+                    <option value="MODERATOR">Modérateur</option>
+                    <option value="TREASURER">Trésorier</option>
+                    <option value="ADMIN">Administrateur</option>
+                    <option value="CONTENT_ADMINISTRATOR">Administrateur Contenu</option>
+                    <option value="MAIN_ADMINISTRATOR">Administrateur Principal</option>
+                    <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
+                  </select>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="sexe" class="form-label">
+                    <i class="fas fa-venus-mars"></i> Sexe
+                  </label>
+                  <select id="sexe" formControlName="sexe" class="form-control">
+                    <option value="">Sélectionner</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="profession" class="form-label">
+                    <i class="fas fa-briefcase"></i> Profession
+                  </label>
+                  <input 
+                    type="text" 
+                    id="profession" 
+                    formControlName="profession" 
+                    class="form-control"
+                    placeholder="Profession"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="niveau" class="form-label">
+                    <i class="fas fa-graduation-cap"></i> Niveau d'étude
+                  </label>
+                  <input 
+                    type="text" 
+                    id="niveau" 
+                    formControlName="niveau" 
+                    class="form-control"
+                    placeholder="Niveau d'étude"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-next" (click)="setActiveTab('contact')">
+                  Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Onglet Contact -->
+            <div class="form-tab-content" *ngIf="activeTab === 'contact'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="telephone" class="form-label">
+                    <i class="fas fa-phone"></i> Téléphone
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="telephone" 
+                    formControlName="telephone" 
+                    class="form-control"
+                    placeholder="Numéro de téléphone"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="region" class="form-label">
+                    <i class="fas fa-map-marker-alt"></i> Région
+                  </label>
+                  <input 
+                    type="text" 
+                    id="region" 
+                    formControlName="region" 
+                    class="form-control"
+                    placeholder="Région"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="departement" class="form-label">
+                    <i class="fas fa-map"></i> Département
+                  </label>
+                  <input 
+                    type="text" 
+                    id="departement" 
+                    formControlName="departement" 
+                    class="form-control"
+                    placeholder="Département"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="commune" class="form-label">
+                    <i class="fas fa-city"></i> Commune
+                  </label>
+                  <input 
+                    type="text" 
+                    id="commune" 
+                    formControlName="commune" 
+                    class="form-control"
+                    placeholder="Commune"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="localiteResidence" class="form-label">
+                  <i class="fas fa-home"></i> Adresse de résidence
+                </label>
+                <input 
+                  type="text" 
+                  id="localiteResidence" 
+                  formControlName="localiteResidence" 
+                  class="form-control"
+                  placeholder="Adresse complète"
+                >
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-prev" (click)="setActiveTab('info')">
+                  <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="button" class="btn btn-next" (click)="setActiveTab('other')">
+                  Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Onglet Autres informations -->
+            <div class="form-tab-content" *ngIf="activeTab === 'other'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="annee" class="form-label">
+                    <i class="fas fa-calendar-alt"></i> Année
+                  </label>
+                  <input 
+                    type="text" 
+                    id="annee" 
+                    formControlName="annee" 
+                    class="form-control"
+                    placeholder="Année (ex: 2025)"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="parentid" class="form-label">
+                    <i class="fas fa-user-friends"></i> ID Parent
+                  </label>
+                  <input 
+                    type="text" 
+                    id="parentid" 
+                    formControlName="parentid" 
+                    class="form-control"
+                    placeholder="ID Parent"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="pere" class="form-label">
+                    <i class="fas fa-male"></i> Nom du père
+                  </label>
+                  <input 
+                    type="text" 
+                    id="pere" 
+                    formControlName="pere" 
+                    class="form-control"
+                    placeholder="Nom du père"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="mere" class="form-label">
+                    <i class="fas fa-female"></i> Nom de la mère
+                  </label>
+                  <input 
+                    type="text" 
+                    id="mere" 
+                    formControlName="mere" 
+                    class="form-control"
+                    placeholder="Nom de la mère"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-section-title">
+                <i class="fas fa-share-alt"></i> Réseaux sociaux
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="fb" class="form-label">
+                    <i class="fab fa-facebook"></i> Facebook
+                  </label>
+                  <input 
+                    type="text" 
+                    id="fb" 
+                    formControlName="fb" 
+                    class="form-control"
+                    placeholder="Profil Facebook"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="linkdin" class="form-label">
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                  </label>
+                  <input 
+                    type="text" 
+                    id="linkdin" 
+                    formControlName="linkdin" 
+                    class="form-control"
+                    placeholder="Profil LinkedIn"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="x" class="form-label">
+                  <i class="fab fa-twitter"></i> Twitter (X)
+                </label>
+                <input 
+                  type="text" 
+                  id="x" 
+                  formControlName="x" 
+                  class="form-control"
+                  placeholder="Profil Twitter/X"
+                >
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-prev" (click)="setActiveTab('contact')">
+                  <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="submit" class="btn btn-submit">
+                  <i class="fas fa-check"></i> Créer l'utilisateur
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- État de chargement -->
+        <div *ngIf="createLoading" class="modal-state-container">
+          <div class="modal-loading-content">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p class="modal-message">Création de l'utilisateur en cours...</p>
+          </div>
+        </div>
+        
+        <!-- État de succès -->
+        <div *ngIf="createSuccess" class="modal-state-container">
+          <div class="modal-success-content">
+            <div class="success-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="modal-message">Utilisateur créé avec succès !</p>
+          </div>
+        </div>
+        
+        <!-- État d'erreur -->
+        <div *ngIf="createError" class="modal-state-container">
+          <div class="modal-error-content">
+            <div class="error-icon">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <p class="modal-message">{{ createErrorMessage || 'Une erreur est survenue lors de la création de l\'utilisateur.' }}</p>
+            <div class="modal-actions">
+              <button class="btn btn-outline" (click)="closeCreateUserModal()">Fermer</button>
+              <button class="btn btn-retry" (click)="submitCreateUser()">Réessayer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- le css -->
+

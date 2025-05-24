@@ -1,0 +1,209 @@
+/* learn.component.css */
+.learn-section {
+    padding: 4rem 8rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.header {
+    margin-bottom: 4rem;
+}
+
+.header h1 {
+    font-size: clamp(2.8rem, 2vw, 1.6rem);
+    font-weight: 600;
+    /* color: rgb(0, 43, 31); */
+    color: #0c0b0b;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+    line-height: 1.2;
+}
+
+.learn-more {
+    font-size: clamp(2rem, 3vw, 3rem);
+    color: #877a6f;
+    text-decoration: none;
+    border-bottom: 1px solid #877a6f;
+    display: inline-block;
+}
+
+.content-sections {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+}
+
+.what-we-do h2 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    color: #877a6f;
+    font-weight: 500;
+    max-width: 180px;
+    line-height: 1;
+    position: sticky;
+    top: 2rem;
+}
+.explore-link{
+    color: #877a6f;
+    text-decoration: none;
+    font-weight: 600;
+}
+/* Blocks Container */
+.content-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    width: 100%;
+}
+
+/* Common styles for all blocks */
+.insights-block, .services-block {
+    position: relative;
+    padding-top: 3rem;
+    width: 100%;
+    max-width: 60rem;
+    border-top: 1px solid rgba(89, 114, 114, 0.3);
+}
+
+/* Category Label */
+.category-label {
+    position: absolute;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    font-size: 0.875rem;
+    color: #877a6f;
+    letter-spacing: 0.05em;
+    left: -7rem;
+    top: 3rem;
+    transform-origin: left;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-left: 1rem;
+    margin-top: 2rem;
+}
+
+/* Heading styles */
+.content-wrapper h3 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #877a6f;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0;
+    max-width: 300px;
+    position: relative;
+    bottom: 60px;
+}
+
+/* Description Box */
+.description-box {
+    position: relative;
+    bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-top: 0.5rem;
+}
+
+.description-box p,
+.description-box ul {
+    font-size: 1rem;
+    color: #877a6f;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .learn-section {
+        padding: 4rem;
+    }
+
+    .insights-block, .services-block {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .category-label {
+        writing-mode: horizontal-tb;
+        transform: none;
+        position: relative;
+        left: 0;
+        top: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .content-wrapper {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .learn-section {
+        padding: 3rem 2rem;
+    }
+
+    .content-sections {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .what-we-do h2 {
+        max-width: 100%;
+        position: static;
+        margin-bottom: 2rem;
+    }
+
+    .content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .content-wrapper h3,
+    .description-box {
+        bottom: 0;
+    }
+
+    .header {
+        margin-bottom: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .learn-section {
+        padding: 2rem 1rem;
+    }
+
+    .content-blocks {
+        gap: 3rem;
+    }
+
+    .header {
+        margin-bottom: 2rem;
+    }
+
+    .description-box {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .learn-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .learn-more {
+        font-size: 1.8rem;
+    }
+
+    .description-box p,
+    .description-box ul {
+        font-size: 0.9rem;
+    }
+}

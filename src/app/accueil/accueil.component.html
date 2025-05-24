@@ -1,0 +1,85 @@
+<div class="accueil">
+    <div class="header" #mainHeader [class.white-bg]="isDropdownOpen">
+        <h1 class="textcbre">
+            <img class="logo" src="../img/pl-removebg-preview.png" alt=""></h1>
+        
+        <button class="hamburger-btn" [class.open]="isMenuOpen" (click)="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="menu" [class.open]="isMenuOpen">
+            <ul>
+                <li class="nav-item" 
+                    (mouseenter)="showDropdown('services')" 
+                    (mouseleave)="hideDropdown('services')">
+                    <a class="Services" routerLink="/Services">Actualités</a>
+                </li>
+                <li class="nav-item" 
+                    (mouseenter)="showDropdown('insights')" 
+                    (mouseleave)="hideDropdown('insights')">
+                    <a class="Insights&Research" routerLink="/Insights&Research">Opportunités</a>
+                </li>
+                <li class="nav-item" 
+                    (mouseenter)="showDropdown('offices')" 
+                    (mouseleave)="hideDropdown('offices')">
+                    <a class="Offices" routerLink="/Offices">Video Tech</a>
+                </li>
+                <li class="nav-item" 
+                    (mouseenter)="showDropdown('about')" 
+                    (mouseleave)="hideDropdown('about')">
+                    <a class="About-as" routerLink="/About">À propos</a>
+                </li>
+                <li class="nav-item" 
+                (mouseenter)="showDropdown('login')" 
+                (mouseleave)="hideDropdown('login')">
+                <a class="Login" routerLink="/login">Login</a>
+            </li>
+            
+                <li class="search-item">
+                    <a class="Recherche" routerLink="/Recherche">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="image-accueil">
+        <img [src]="imagesPath[currentImageIndex]" alt="Accueil">
+        
+        <!-- Trait blanc -->
+        <div class="divider-line"></div>
+        
+        <!-- Card avec texte synchronisé -->
+        <div class="info-card">
+            <h1>{{ texts[currentImageIndex] }}</h1>
+            <p class="info-card-footer">{{ footerTexts[currentImageIndex] }}</p>
+        </div>
+        
+        <div class="indicators">
+            <span
+                *ngFor="let image of imagesPath; let i = index"
+                class="indicator"
+                [class.active]="i === currentImageIndex"
+                (click)="setCurrentImage(i)">
+            </span>
+        </div>
+    </div>
+    <!-- le composant Learn -->
+    <app-learn></app-learn>
+    <!-- le composant OurTake -->
+    <app-ourtake></app-ourtake>
+    <!-- le composant Latest -->
+    <app-latest></app-latest>
+    <!-- le composant Opportunites -->
+    <app-opportunites></app-opportunites>
+    <app-video></app-video>
+    <app-footer></app-footer>
+    <!-- le composant Commitment -->
+    <!-- <app-commitment></app-commitment> -->
+</div>

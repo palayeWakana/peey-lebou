@@ -1,0 +1,730 @@
+
+/* Conteneur principal */
+.flex {
+    display: flex;
+    height: 100vh;
+    background-color: #f5f7fa;
+}
+  
+/* Conteneur des catégories */
+.categories-container {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background-color: #ffffff;
+}
+
+.categories-container:first-child {
+    border-right: 1px solid #eaeef2;
+}
+
+.categories-header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaeef2;
+}
+  
+.categories-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.panel {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+  
+.panel-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Formulaire d'ajout */
+.categorie-form-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+  
+.form-group {
+    margin-bottom: 20px;
+}
+  
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #4a5568;
+}
+  
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+  
+.form-control:focus {
+    outline: none;
+    border-color: #065413;
+    box-shadow: 0 0 0 3px rgba(6, 84, 19, 0.1);
+    background-color: #fff;
+}
+  
+.form-control.is-invalid {
+    border-color: #e53e3e;
+}
+  
+.invalid-feedback {
+    color: #e53e3e;
+    font-size: 12px;
+    margin-top: 6px;
+}
+  
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    gap: 8px;
+}
+  
+.btn-primary {
+    color: #ffffff;
+    background-color: #065413;
+    border-color: #065413;
+}
+  
+.btn-primary:hover {
+    background-color: #054310;
+    border-color: #054310;
+}
+  
+.btn-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+  
+.btn-secondary {
+    color: #4a5568;
+    background-color: #edf2f7;
+    border-color: #e2e8f0;
+    margin-left: 10px;
+}
+  
+.btn-secondary:hover {
+    background-color: #e2e8f0;
+}
+
+/* Liste des campagnes */
+.categories-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 15px;
+}
+  
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+    border-left: 4px solid #065413;
+}
+
+.category-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+  
+.campaign-info {
+    flex: 1;
+}
+
+.category-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2d3748;
+    margin-bottom: 6px;
+}
+
+.campaign-dates {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4a5568;
+    margin-bottom: 6px;
+}
+
+.campaign-dates svg {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.date-separator {
+    color: #a0aec0;
+    font-weight: bold;
+}
+
+.campaign-amount {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #065413;
+    font-weight: 500;
+}
+
+.campaign-amount svg {
+    margin-right: 6px;
+}
+  
+.category-actions {
+    display: flex;
+    gap: 8px;
+}
+  
+.btn-edit, .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.btn-edit svg, .btn-delete svg {
+    width: 18px;
+    height: 18px;
+}
+  
+.btn-edit {
+    color: #3182ce;
+}
+  
+.btn-delete {
+    color: #e53e3e;
+}
+  
+.btn-edit:hover {
+    background-color: rgba(49, 130, 206, 0.1);
+}
+  
+.btn-delete:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.no-categories {
+    text-align: center;
+    padding: 40px 20px;
+    color: #a0aec0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.no-categories p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.no-categories svg {
+    color: #cbd5e0;
+}
+  
+/* Loading indicator */
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 15px;
+}
+  
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #065413;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+  
+@keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+}
+  
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+    margin-right: 8px;
+}
+  
+@keyframes spinner-border {
+    to {
+      transform: rotate(360deg);
+    }
+}
+  
+/* Alertes */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 14px;
+}
+  
+.alert-danger {
+    color: #722f37;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+  
+.alert-success {
+    color: #1d643b;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+  
+.items-per-page {
+    min-width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.items-per-page:focus {
+    outline: none;
+    border-color: #065413;
+    box-shadow: 0 0 0 3px rgba(6, 84, 19, 0.1);
+}
+
+/* Styles pour les popups */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+    
+.popup-container {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: popupFadeIn 0.3s ease;
+}
+
+/* Style pour le grand popup (détails de campagne) */
+.popup-large {
+    max-width: 90%;
+    max-height: 90vh;
+    width: 900px;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf2f7;
+    background-color: #f8fafc;
+}
+    
+.popup-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2d3748;
+    font-weight: 600;
+}
+    
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #718096;
+    transition: color 0.2s ease;
+    padding: 4px;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #2d3748;
+}
+    
+.popup-content {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 70px);
+}
+
+.warning-icon {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.popup-content p {
+    margin: 0 0 20px;
+    color: #4a5568;
+    line-height: 1.5;
+    text-align: center;
+}
+    
+.detail-item {
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: flex;
+}
+    
+.detail-item strong {
+    min-width: 100px;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-cancel {
+    background-color: #f8fafc;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-cancel:hover {
+    background-color: #edf2f7;
+}
+
+.btn-confirm {
+    background-color: #e53e3e;
+    color: white;
+    border: 1px solid #e53e3e;
+}
+
+.btn-confirm:hover {
+    background-color: #c53030;
+    border-color: #c53030;
+}
+
+/* Styles pour les détails de la campagne */
+.campagne-details {
+    background-color: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #065413;
+}
+
+/* Séparateur */
+.separator {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 24px 0;
+}
+
+/* Styles pour les cotisations */
+.cotisations-container {
+    margin-top: 20px;
+}
+
+.cotisations-container h4 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.loading-indicator-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.loading-indicator-small .spinner {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.no-cotisations {
+    text-align: center;
+    padding: 30px;
+    color: #a0aec0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 200vw;
+
+}
+
+/* Table des cotisations */
+.cotisations-table-container {
+    overflow-x: auto;
+    margin: 0 -8px;
+    padding: 0 8px;
+}
+
+.cotisations-table {
+    
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.cotisations-table thead {
+    background-color: #f8fafc;
+}
+
+.cotisations-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #4a5568;
+    border-bottom: 2px solid #edf2f7;
+    white-space: nowrap;
+}
+
+.cotisations-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #edf2f7;
+    color: #4a5568;
+}
+
+.cotisations-table tbody tr:hover {
+    background-color: rgba(6, 84, 19, 0.02);
+}
+
+/* Style pour les infos utilisateur */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Statut de paiement */
+.status-paid, .status-unpaid {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-paid {
+    background-color: rgba(72, 187, 120, 0.1);
+    color: #2f855a;
+}
+
+.status-unpaid {
+    background-color: rgba(237, 137, 54, 0.1);
+    color: #c05621;
+}
+
+/* Styles pour le bouton de paiement */
+.btn-pay {
+    background-color: #065413;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-pay:hover {
+    background-color: #054310;
+    transform: translateY(-1px);
+}
+
+.btn-pay:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Badge de paiement effectué */
+.paid-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #2f855a;
+    font-weight: 500;
+}
+
+/* Pagination pour les cotisations */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #718096;
+}
+
+.pagination {
+    display: flex;
+    gap: 4px;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    background-color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    background-color: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn.active {
+    background-color: #065413;
+    color: white;
+    border-color: #065413;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .flex {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .categories-container {
+        padding: 16px;
+    }
+    
+    .categories-container:first-child {
+        border-right: none;
+        border-bottom: 1px solid #eaeef2;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .popup-large {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .cotisations-table th,
+    .cotisations-table td {
+        padding: 10px 12px;
+    }
+    
+    .btn-pay {
+        padding: 5px 10px;
+    }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+    .popup-content {
+        padding: 16px;
+    }
+    
+    .cotisations-table th,
+    .cotisations-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+}

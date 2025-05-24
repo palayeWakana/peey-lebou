@@ -1,0 +1,57 @@
+<div class="video-container">
+    <h2 class="section-title">Vidéos</h2>
+    
+    <!-- Loader -->
+    <div *ngIf="loading" class="loader-container">
+      <div class="loader"></div>
+      <p>Chargement des vidéos...</p>
+    </div>
+    
+    <!-- Message d'erreur -->
+    <div *ngIf="error && !loading" class="error-message">
+      <p>Une erreur est survenue lors du chargement des vidéos. Veuillez réessayer plus tard.</p>
+    </div>
+    
+    <!-- Liste des vidéos -->
+    <div *ngIf="!loading && !error" class="videos-grid">
+      <div *ngFor="let video of videos" class="video-card" (click)="navigateToVideoDetails(video.id)">
+        <div class="video-thumbnail">
+          <iframe 
+            [src]="getYoutubeEmbedUrl(video.videolink) | trustUrl" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">{{ video.titre }}</h3>
+          <p class="video-description">{{ video.descr }}</p>
+          <div class="video-meta">
+            <div class="author-info">
+              <img [src]="getFullImageUrl(video.auteurimg)" alt="{{ video.auteur }}" class="author-img">
+              <span class="author-name">{{ video.auteur }}</span>
+            </div>
+            <span class="video-date">{{ formatDate(video.date) }}</span>
+          </div>
+          <span class="video-category">{{ video.vcategorie.libelle }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Boutons pour afficher plus/moins -->
+    <div *ngIf="!loading && !error" class="show-more-container">
+      <button *ngIf="!showAllVideos && allVideos.length > initialDisplayCount" 
+              (click)="showAllContent()" 
+              class="show-more-btn">
+        Voir plus de vidéos
+      </button>
+      <button *ngIf="showAllVideos && allVideos.length > initialDisplayCount" 
+              (click)="showLessContent()" 
+              class="show-less-btn">
+        Voir moins
+      </button>
+    </div>
+  </div>
+
+  <!-- le ts  -->
+   

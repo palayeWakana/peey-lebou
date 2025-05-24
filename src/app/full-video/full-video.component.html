@@ -1,0 +1,262 @@
+<div class="flex">
+  <app-sidebar></app-sidebar>
+
+  <div class="video-container">
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Vidéos</h2>
+      </div>
+      <button class="add-video-btn" (click)="openAddVideoPopup()">
+        <i class="fa fa-plus"></i> Ajouter
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des vidéos...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <p>Une erreur est survenue lors du chargement des vidéos. Veuillez réessayer plus tard.</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="videos-list">
+      <div class="video-card" *ngFor="let video of paginatedVideos" (click)="handleCardClick($event, video)">
+        <div class="video-image">
+          <img [src]="baseUrl + video.img" [alt]="video.titre" onerror="this.src='assets/images/placeholder.jpg'">
+          <div class="video-play-icon">
+            <i class="fa fa-play-circle"></i>
+          </div>
+          <div class="video-category">
+            <span>{{ video.categorie }}</span>
+          </div>
+        </div>
+        <div class="video-content">
+          <h3>{{ video.titre }}</h3>
+          <p class="video-description">{{ video.descr }}</p>
+
+          <div class="video-info">
+            <div class="video-author">
+              <img [src]="baseUrl + video.auteurimg" [alt]="video.auteur" onerror="this.src='assets/images/user-placeholder.jpg'">
+              <span>{{ video.auteur }}</span>
+            </div>
+            <div class="video-date">
+              <i class="fa fa-calendar"></i>
+              <span>{{ formatDate(video.date) }}</span>
+            </div>
+          </div>
+
+          <!-- Bouton de validation -->
+          <button 
+            class="validation-btn" 
+            [class.valid]="video.isvalid" 
+            [class.invalid]="!video.isvalid"
+            [disabled]="validationLoading[video.id]"
+            (click)="toggleValidation(video); $event.stopPropagation()">
+            <span *ngIf="!validationLoading[video.id]">
+              {{ video.isvalid ? 'Invalider' : 'Valider' }}
+            </span>
+            <span *ngIf="validationLoading[video.id]" class="spinner-small"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button 
+        [disabled]="currentPage === 0" 
+        (click)="previousPage()" 
+        class="pagination-btn"
+        [class.disabled]="currentPage === 0">
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      
+      <div class="page-numbers">
+        <button *ngFor="let page of getPageNumbers()" 
+          (click)="goToPage(page)"
+          class="page-number"
+          [class.active]="currentPage === page">
+          {{ page + 1 }}
+        </button>
+      </div>
+      
+      <button 
+        [disabled]="currentPage === totalPages - 1" 
+        (click)="nextPage()" 
+        class="pagination-btn"
+        [class.disabled]="currentPage === totalPages - 1">
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup description -->
+<div class="popup-overlay" *ngIf="showPopup" (click)="closeDescriptionPopup()">
+  <div class="description-popup" (click)="$event.stopPropagation()">
+    <button class="close-popup-btn" (click)="closeDescriptionPopup()">&times;</button>
+    <div class="popup-content">
+      <h3>Description complète</h3>
+      <p>{{ popupDescription }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Popup vidéo -->
+<div class="popup-overlay" *ngIf="showVideoPopup" (click)="closeVideoPopup()">
+  <div class="video-popup" (click)="$event.stopPropagation()">
+    <button class="close-popup-btn" (click)="closeVideoPopup()">&times;</button>
+    <div class="video-popup-content">
+      <h3>{{ selectedVideo?.titre }}</h3>
+      <div class="video-player">
+        <iframe [src]="sanitizeVideoUrl(selectedVideo?.videolink)" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-popup-info">
+        <p>{{ selectedVideo?.descr }}</p>
+        <div class="video-info">
+          <div class="video-author">
+            <img [src]="baseUrl + selectedVideo?.auteurimg" [alt]="selectedVideo?.auteur" 
+                 onerror="this.src='assets/images/user-placeholder.jpg'">
+            <span>{{ selectedVideo?.auteur }}</span>
+          </div>
+          <div class="video-date">
+            <i class="fa fa-calendar"></i>
+            <span>{{ formatDate(selectedVideo?.date) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup d'ajout de vidéo -->
+<div class="popup-overlay" *ngIf="showAddVideoPopup" (click)="closeAddVideoPopup()">
+  <div class="add-video-popup" (click)="$event.stopPropagation()">
+    <button class="close-popup-btn" (click)="closeAddVideoPopup()">&times;</button>
+    <div class="popup-content">
+      <h3>Ajouter une nouvelle vidéo</h3>
+      
+      <form [formGroup]="videoForm" (ngSubmit)="saveVideo()" class="video-form">
+        <!-- Titre -->
+        <div class="form-group">
+          <label for="titre">Titre</label>
+          <input 
+            type="text" 
+            id="titre" 
+            formControlName="titre" 
+            placeholder="Titre de la vidéo"
+            [class.error]="videoForm.get('titre')?.invalid && videoForm.get('titre')?.touched"
+          >
+          <div class="error-message" *ngIf="videoForm.get('titre')?.invalid && videoForm.get('titre')?.touched">
+            Le titre est requis
+          </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="form-group">
+          <label for="descr">Description</label>
+          <textarea 
+            id="descr" 
+            formControlName="descr" 
+            placeholder="Description de la vidéo"
+            rows="4"
+            [class.error]="videoForm.get('descr')?.invalid && videoForm.get('descr')?.touched"
+          ></textarea>
+          <div class="error-message" *ngIf="videoForm.get('descr')?.invalid && videoForm.get('descr')?.touched">
+            La description est requise
+          </div>
+        </div>
+        
+        <!-- Lien vidéo -->
+        <div class="form-group">
+          <label for="videolink">Lien YouTube</label>
+          <input 
+            type="text" 
+            id="videolink" 
+            formControlName="videolink" 
+            placeholder="https://www.youtube.com/watch?v=..."
+            [class.error]="videoForm.get('videolink')?.invalid && videoForm.get('videolink')?.touched"
+          >
+          <div class="error-message" *ngIf="videoForm.get('videolink')?.invalid && videoForm.get('videolink')?.touched">
+            Le lien vidéo est requis
+          </div>
+        </div>
+        
+        <!-- Catégorie -->
+        <div class="form-group">
+          <label for="vcategorieId">Catégorie</label>
+          <select 
+              id="vcategorieId" 
+              formControlName="vcategorieId"
+              [class.error]="videoForm.get('vcategorieId')?.invalid && videoForm.get('vcategorieId')?.touched"
+          >
+              <option value="">Sélectionnez une catégorie</option>
+              <!-- Catégories statiques -->
+              <option value="1">Opportunités</option>
+              <option value="2">Actualités</option>
+              
+              <!-- Catégories dynamiques depuis l'API -->
+              <option *ngFor="let cat of videoCategories" [value]="cat.id">{{ cat.libelle }}</option>
+          </select>
+          <div class="error-message" *ngIf="videoForm.get('vcategorieId')?.invalid && videoForm.get('vcategorieId')?.touched">
+              La catégorie est requise
+          </div>
+        </div>
+        
+        <!-- Date -->
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input 
+            type="date" 
+            id="date" 
+            formControlName="date"
+            [class.error]="videoForm.get('date')?.invalid && videoForm.get('date')?.touched"
+          >
+          <div class="error-message" *ngIf="videoForm.get('date')?.invalid && videoForm.get('date')?.touched">
+            La date est requise
+          </div>
+        </div>
+        
+        <!-- Image -->
+        <div class="form-group">
+          <label for="image">Image de couverture</label>
+          <div class="image-upload-container">
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Prévisualisation">
+            </div>
+            <div class="file-input-wrapper" [class.with-preview]="imagePreview">
+              <label for="image" class="custom-file-input">
+                <i class="fa fa-upload"></i> Choisir une image
+              </label>
+              <input 
+                type="file" 
+                id="image" 
+                accept="image/*"
+                (change)="onImageSelected($event)"
+              >
+              <span *ngIf="selectedImage">{{ selectedImage.name }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Boutons -->
+        <div class="form-buttons">
+          <button type="button" class="cancel-btn" (click)="closeAddVideoPopup()">Annuler</button>
+          <button 
+            type="submit" 
+            class="submit-btn"
+            [disabled]="videoForm.invalid || saveLoading"
+          >
+            <span *ngIf="!saveLoading">Enregistrer</span>
+            <span *ngIf="saveLoading" class="spinner-small"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

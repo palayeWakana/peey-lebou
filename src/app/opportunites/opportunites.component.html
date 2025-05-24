@@ -1,0 +1,57 @@
+<!-- opportunites.component.html -->
+<section class="opportunites-section">
+  <h2 class="section-title">Opportunités</h2>
+  
+  <!-- Loading state -->
+  <div class="loading-container" *ngIf="loading">
+    <p>Chargement des opportunités...</p>
+  </div>
+  
+  <!-- Error state -->
+  <div class="error-container" *ngIf="error">
+    <p>Impossible de charger les opportunités. Veuillez réessayer plus tard.</p>
+  </div>
+  
+  <!-- Content grid -->
+  <div class="opportunites-grid" *ngIf="!loading && !error && opportunites.length > 0">
+    <div class="opportunite-card" *ngFor="let opportunite of opportunites">
+      <!-- Image maintenant au-dessus -->
+      <div class="image-container">
+        <img [src]="getFullImageUrl(opportunite.img)" [alt]="opportunite.titre" 
+             onerror="this.src='assets/images/placeholder.jpg'">
+        <div class="hover-overlay">
+          <p class="overlay-text">Par: {{ opportunite.auteur }}</p>
+          <button class="learn-more" (click)="navigateToDetails(opportunite.id); $event.stopPropagation();">Savoir Plus</button>
+        </div>
+      </div>
+      
+      <!-- Contenu textuel maintenant en dessous -->
+      <div class="card-content" (click)="navigateToDetails(opportunite.id)">
+        <div class="card-type">{{ opportunite.categorie }}</div>
+        <h3 class="card-title">{{ opportunite.titre }}</h3>
+        <p class="card-date">{{ formatDate(opportunite.date) }}</p> 
+      </div>
+    </div>
+  </div>
+  
+  <!-- Voir plus/moins buttons -->
+  <div class="voir-plus-container" *ngIf="!loading && !error && allOpportunites.length > initialDisplayCount">
+    <button 
+      *ngIf="!showAllOpportunites" 
+      class="voir-plus-btn" 
+      (click)="showAllContent()">
+      Voir Plus
+    </button>
+    <button 
+      *ngIf="showAllOpportunites" 
+      class="voir-moins-btn" 
+      (click)="showLessContent()">
+      Voir Moins
+    </button>
+  </div>
+  
+  <!-- No content state -->
+  <div class="no-content" *ngIf="!loading && !error && allOpportunites.length === 0">
+    <p>Aucune opportunité disponible pour le moment.</p>
+  </div>
+</section>

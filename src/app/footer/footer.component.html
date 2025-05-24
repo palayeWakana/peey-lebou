@@ -1,0 +1,42 @@
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-content">
+      <div class="logo-section">
+        <!-- <span class="company-name">Peey Connect</span> -->
+        <h1><img class="logo" src="../img/pl-removebg-preview.png" alt=""></h1>
+      </div>
+      <nav class="main-links">
+        <ul>
+          <li *ngFor="let link of mainLinks">
+            <a [href]="link.url">{{link.text}}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <div class="bottom-content">
+      <div class="bottom-links">
+        <a *ngFor="let link of bottomLinks" [href]="link.url">
+          {{link.text}}
+        </a>
+        
+      </div>
+      
+      <div class="social-links">
+        <a href="#" class="social-icon">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+     
+        <a href="#" class="social-icon">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="#" class="social-icon">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
