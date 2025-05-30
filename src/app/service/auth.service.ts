@@ -15,6 +15,7 @@ export interface User {
   telephone?: string;
   username?: string;
   activated?: boolean;
+  img?:string;
 }
 
 export interface AuthResponse {

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService, User } from '../service/auth.service'; // Utiliser votre AuthService
+import { AuthService, User } from '../service/auth.service';
 
 interface MenuItem {
   path: string;
@@ -13,6 +13,14 @@ interface MenuItem {
   requiredLevel?: number;
   isVisible?: boolean;
   isDisabled?: boolean;
+  hasDropdown?: boolean;
+  dropdownItems?: DropdownItem[];
+}
+
+interface DropdownItem {
+  path: string;
+  label: string;
+  icon?: string;
 }
 
 @Component({
@@ -26,55 +34,64 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   private subscriptions: Subscription = new Subscription();
   
+  // État du dropdown pour les paramètres
+  isSettingsDropdownOpen = false;
+  
   // Menu items avec leurs permissions
   menuItems: MenuItem[] = [
     { 
       path: '/dashboard', 
       label: 'Tableau de bord', 
       icon: 'dashboard',
-      requiredLevel: 0 // Accessible à tous
+      requiredLevel: 0
     },
     { 
       path: '/utilisateurs', 
       label: 'Utilisateurs', 
       icon: 'users',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR'],
-      requiredLevel: 4 // Niveau 4 et plus
+      requiredLevel: 4
     },
     { 
       path: '/campagne', 
       label: 'Campagnes', 
       icon: 'campaigns',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'TREASURER',],
-      requiredLevel: 2 // Accès financier requis
+      requiredLevel: 2
     },
     { 
       path: '/actu', 
       label: 'Actualités', 
       icon: 'news',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR', 'ADMIN'],
-      requiredLevel: 3 // Gestion de contenu
+      requiredLevel: 3
     },
     { 
       path: '/parametres', 
       label: 'Paramètres', 
       icon: 'settings',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR'],
-      requiredLevel: 4 // Paramètres système
+      requiredLevel: 4,
+      hasDropdown: true,
+      dropdownItems: [
+        { path: '/categories', label: 'Catégories', icon: 'category' },
+        { path: '/regions', label: 'Régions', icon: 'location' },
+        { path: '/departements', label: 'Départements', icon: 'map' }
+      ]
     },
     { 
       path: '/oppor', 
       label: 'Opportunités', 
       icon: 'opportunities',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR'],
-      requiredLevel: 3 // Gestion de contenu
+      requiredLevel: 3
     },
     { 
       path: '/full-video', 
       label: 'Vidéos', 
       icon: 'videos',
       requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR'],
-      requiredLevel: 3 // Gestion de contenu
+      requiredLevel: 3
     }
   ];
 
@@ -84,18 +101,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // S'abonner aux changements de l'utilisateur connecté
     this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
-        console.log('Utilisateur reçu dans sidebar:', user); // Debug
+        console.log('Utilisateur reçu dans sidebar:', user);
         this.currentUser = user;
         this.updateMenuPermissions();
       })
     );
 
-    // Charger l'utilisateur actuel si déjà connecté
     this.currentUser = this.authService.getCurrentUser();
-    console.log('Utilisateur actuel au démarrage:', this.currentUser); // Debug
+    console.log('Utilisateur actuel au démarrage:', this.currentUser);
     this.updateMenuPermissions();
   }
 
@@ -104,11 +119,29 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Met à jour les permissions des menus selon l'utilisateur connecté
+   * Toggle le dropdown des paramètres
    */
+  toggleSettingsDropdown(): void {
+    this.isSettingsDropdownOpen = !this.isSettingsDropdownOpen;
+  }
+
+  /**
+   * Ferme le dropdown des paramètres
+   */
+  closeSettingsDropdown(): void {
+    this.isSettingsDropdownOpen = false;
+  }
+
+  /**
+   * Navigation vers un item du dropdown
+   */
+  navigateToDropdownItem(path: string): void {
+    this.router.navigate([path]);
+    this.closeSettingsDropdown();
+  }
+
   private updateMenuPermissions(): void {
     if (!this.currentUser) {
-      // Si pas d'utilisateur, désactiver tous les menus sauf dashboard
       this.menuItems.forEach(item => {
         item.isVisible = item.path === '/dashboard';
         item.isDisabled = item.path !== '/dashboard';
@@ -119,7 +152,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const userRole = this.currentUser.role?.toUpperCase();
     const userLevel = this.getUserLevel(userRole);
 
-    console.log('Rôle utilisateur:', userRole, 'Niveau:', userLevel); // Debug
+    console.log('Rôle utilisateur:', userRole, 'Niveau:', userLevel);
 
     this.menuItems.forEach(item => {
       const hasPermission = this.checkPermission(item, userRole, userLevel);
@@ -128,26 +161,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Vérifie si l'utilisateur a les permissions pour accéder à un menu
-   */
   private checkPermission(item: MenuItem, userRole?: string, userLevel?: number): boolean {
-    // Tableau de bord accessible à tous les utilisateurs connectés
     if (item.path === '/dashboard') {
       return true;
     }
 
-    // Si pas de rôle défini, accès refusé (sauf dashboard)
     if (!userRole || userLevel === undefined) {
       return false;
     }
 
-    // Vérification par niveau minimum requis
     if (item.requiredLevel !== undefined && userLevel < item.requiredLevel) {
       return false;
     }
 
-    // Vérification par rôles autorisés
     if (item.requiredRoles && item.requiredRoles.length > 0) {
       return item.requiredRoles.includes(userRole);
     }
@@ -155,9 +181,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  /**
-   * Retourne le niveau d'accès selon le rôle
-   */
   private getUserLevel(role?: string): number {
     if (!role) return 0;
 
@@ -175,14 +198,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return roleLevels[role] || 0;
   }
 
-  /**
-   * Retourne le nom d'affichage du rôle
-   */
   getUserRoleDisplay(): string {
-    console.log('getCurrentUser dans getUserRoleDisplay:', this.currentUser); // Debug
+    console.log('getCurrentUser dans getUserRoleDisplay:', this.currentUser);
     
     if (!this.currentUser?.role) {
-      console.log('Pas de rôle trouvé, retour Utilisateur'); // Debug
+      console.log('Pas de rôle trouvé, retour Utilisateur');
       return 'Utilisateur';
     }
 
@@ -200,48 +220,47 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const roleKey = this.currentUser.role.toUpperCase();
     const displayName = roleDisplayNames[roleKey] || 'Utilisateur';
     
-    console.log('Rôle:', roleKey, 'Nom affiché:', displayName); // Debug
+    console.log('Rôle:', roleKey, 'Nom affiché:', displayName);
     return displayName;
   }
 
-  /**
-   * Retourne le nom d'utilisateur (email/téléphone)
-   */
   getUserDisplayName(): string {
     if (!this.currentUser) return 'Utilisateur';
     
-    // Essayer firstname + secondname d'abord, puis email
     if (this.currentUser.firstname || this.currentUser.secondname) {
       return `${this.currentUser.firstname || ''} ${this.currentUser.secondname || ''}`.trim();
     }
     
     return this.currentUser.email || this.currentUser.username || 'Utilisateur';
   }
+  getDisplayImg(): string {
+    if (!this.currentUser?.img) {
+      return 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg'; // Image par défaut
+    }
+    
+    // Concaténer l'URL de base avec le nom de l'image
+    const baseUrl = 'http://peeyconnect.net/repertoire_upload/';
+    return `${baseUrl}${this.currentUser.img}`;
+  }
+  
+  // Méthode pour gérer l'erreur de chargement d'image
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'assets/images/default-profile.png';
+  }
 
-  /**
-   * Vérifie si un lien est actif
-   */
   isActive(path: string): boolean {
     return this.router.url.includes(path);
   }
 
-  /**
-   * Vérifie si l'utilisateur est connecté
-   */
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  /**
-   * Gère la déconnexion
-   */
   logout(): void {
     this.authService.logout();
   }
 
-  /**
-   * Navigation vers un menu (avec vérification des permissions)
-   */
   navigateTo(path: string): void {
     const menuItem = this.menuItems.find(item => item.path === path);
     if (menuItem && !menuItem.isDisabled) {
@@ -249,26 +268,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // *** MÉTHODES HELPER AJOUTÉES POUR LE TEMPLATE ***
-
-  /**
-   * Retourne l'item de menu pour un chemin donné
-   */
   getMenuItem(path: string): MenuItem | undefined {
     return this.menuItems.find(item => item.path === path);
   }
 
-  /**
-   * Vérifie si un menu est visible
-   */
   isMenuVisible(path: string): boolean {
     const item = this.getMenuItem(path);
     return item?.isVisible || false;
   }
 
-  /**
-   * Vérifie si un menu est désactivé
-   */
   isMenuDisabled(path: string): boolean {
     const item = this.getMenuItem(path);
     return item?.isDisabled || false;

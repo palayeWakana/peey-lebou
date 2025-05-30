@@ -1,0 +1,213 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-left">
+        <h1 class="page-title">Tableau de bord</h1>
+        <p class="page-subtitle">Vue d'ensemble de votre organisation</p>
+      </div>
+      <div class="header-right">
+        <button class="sync-btn" (click)="syncData()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>
+          </svg>
+          Sync
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <!-- Nombre de membres -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-info">
+            <h3 class="stat-title">NOMBRE DE MEMBRES</h3>
+            <div class="stat-value">{{ stats.totalUsers | number }}</div>
+            <div class="stat-change positive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 14l5-5 5 5"/>
+              </svg>
+              12% Depuis le mois dernier
+            </div>
+          </div>
+          <div class="stat-icon stat-icon-members">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nombre de localités -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-info">
+            <h3 class="stat-title">UTILISATEURS HOMMES</h3>
+            <div class="stat-value">{{ stats.totalMen }}</div>
+            <div class="stat-change positive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 14l5-5 5 5"/>
+              </svg>
+              {{ (stats.totalMen / stats.totalUsers * 100) | number:'1.0-0' }}% du total
+            </div>
+          </div>
+          <div class="stat-icon stat-icon-locations">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="10" cy="14" r="6"/>
+              <path d="M14 8l6-6"/>
+              <path d="M16 2h4v4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Organisation sociale -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-info">
+            <h3 class="stat-title">UTILISATEURS FEMMES</h3>
+            <div class="stat-value">{{ stats.totalWomen }}</div>
+            <div class="stat-change positive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 14l5-5 5 5"/>
+              </svg>
+              {{ (stats.totalWomen / stats.totalUsers * 100) | number:'1.0-0' }}% du total
+            </div>
+          </div>
+          <div class="stat-icon stat-icon-organization">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="10" r="6"/>
+              <path d="M12 16v6"/>
+              <path d="M9 19h6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campagne sociale -->
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-info">
+            <h3 class="stat-title">CAMPAGNES ACTIVES</h3>
+            <div class="stat-value">{{ stats.totalCampaigns }}</div>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+              </div>
+              <span class="progress-text">{{ getProgressPercentage() }}% d'activité</span>
+            </div>
+          </div>
+          <div class="stat-icon stat-icon-campagne">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+              <path fill-rule="evenodd" d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7 5.5a5.485 5.485 0 0 1-4.007-1.732l.28-.702a.402.402 0 0 1 .658-.135.804.804 0 0 0 1.138 0l.012-.012a.822.822 0 0 0 .154-.949l-.055-.11a.497.497 0 0 1 .134-.611L8.14 7.788a.57.57 0 0 0 .154-.7.57.57 0 0 1 .33-.796l.028-.01a1.788 1.788 0 0 0 1.13-1.13l.072-.214a.747.747 0 0 0-.18-.764L8.293 2.793A1 1 0 0 1 8.09 2.5 5.5 5.5 0 0 1 12.9 10.5h-.486a1 1 0 0 1-.707-.293l-.353-.353a1.207 1.207 0 0 0-1.708 0l-.531.531a1 1 0 0 1-.26.188l-.343.17a.927.927 0 0 0-.512.83v.177c0 .414.336.75.75.75a.75.75 0 0 1 .751.793c-.477.135-.98.207-1.501.207Z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <!-- Distribution des membres -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Distribution des contenus</h3>
+          <button class="sync-btn small" (click)="syncData()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"/>
+            </svg>
+            Sync
+          </button>
+        </div>
+        <div class="chart-container">
+          <div class="distribution-content">
+            <div class="donut-chart">
+              <svg width="200" height="200" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="20"/>
+                <circle *ngFor="let source of trafficSources; let i = index"
+                        cx="100" cy="100" r="80" 
+                        fill="none" 
+                        [attr.stroke]="source.color" 
+                        stroke-width="20"
+                        [attr.stroke-dasharray]="(source.percentage / 100) * 502 + ' 502'"
+                        [attr.transform]="'rotate(' + getRotationAngle(i) + ' 100 100)'"
+                        stroke-linecap="round">
+                </circle>
+                <text x="100" y="95" text-anchor="middle" class="donut-total-label">Total</text>
+                <text x="100" y="115" text-anchor="middle" class="donut-total-value">
+                  {{ trafficSources[0].count + trafficSources[1].count + trafficSources[2].count }}
+                </text>
+              </svg>
+            </div>
+            <div class="distribution-legend">
+              <div *ngFor="let source of trafficSources" class="legend-item">
+                <div class="legend-color" [style.background-color]="source.color"></div>
+                <div class="legend-info">
+                  <span class="legend-name">{{ source.name }}</span>
+                  <span class="legend-count">{{ source.count }} ({{ source.percentage }}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-footer">
+          <button class="overview-btn" (click)="viewOverview()">
+            Vue d'ensemble
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 17l9.2-9.2M17 17V7H7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carte interactive Leaflet -->
+      <div class="chart-card map-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Carte interactive - Localités</h3>
+          <div class="map-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #065413;"></div>
+              <span class="legend-text">< 200 membres</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ca8a04;"></div>
+              <span class="legend-text">200-400 membres</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #ea580c;"></div>
+              <span class="legend-text">400-600 membres</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #dc2626;"></div>
+              <span class="legend-text">> 600 membres</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Conteneur de la carte Leaflet -->
+        <div class="map-container">
+          <div id="map" class="leaflet-map"></div>
+          
+          <!-- Fallback pour le cas où la carte ne charge pas -->
+          <div *ngIf="" class="map-fallback">
+            <div class="fallback-content">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <p>Carte interactive disponible côté client</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

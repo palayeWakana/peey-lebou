@@ -3,7 +3,9 @@
   <div class="profile-section">
     <div class="profile-info">
       <div class="profile-image">
-        <img src="https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg" alt="Photo de profil" />
+        <img [src]="getDisplayImg()" 
+             alt="Photo de profil" 
+             (error)="onImageError($event)" />
       </div>
       <div>
         <p class="profile-name">{{ getUserDisplayName() }}</p>
@@ -18,7 +20,7 @@
       <!-- Dashboard - Always visible for authenticated users -->
       <li>
         <div class="flex items-center">
-          <a routerLink="/dashboard" 
+          <a routerLink="/dashboards" 
              routerLinkActive="active" 
              class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard-icon lucide-layout-dashboard">
@@ -27,12 +29,12 @@
               <rect width="7" height="9" x="14" y="12" rx="1"/>
               <rect width="7" height="5" x="3" y="16" rx="1"/>
             </svg>
-            <span class="text-white text-sm">Tableau de bord</span>
+            <span >Tableau de bord</span>
           </a>
         </div>
       </li>
 
-      <!-- Utilisateurs - Niveau 4+ (Super Admin, Admin Principal) -->
+      <!-- Utilisateurs -->
       <li *ngIf="isMenuVisible('/utilisateurs')">
         <div class="flex items-center">
           <a routerLink="/utilisateurs" 
@@ -47,7 +49,7 @@
         </div>
       </li>
 
-      <!-- Campagnes - Niveau 2+ avec accès financier (Super Admin, Admin Principal, Trésorier) -->
+      <!-- Campagnes -->
       <li *ngIf="isMenuVisible('/campagne')">
         <a routerLink="/campagne" 
            routerLinkActive="active" 
@@ -60,7 +62,7 @@
         </a>
       </li>
 
-      <!-- Actualités - Niveau 3+ avec gestion contenu (Super Admin, Admin Principal, Admin Contenu) -->
+      <!-- Actualités -->
       <li *ngIf="isMenuVisible('/actu')">
         <a routerLink="/actu" 
            routerLinkActive="active" 
@@ -74,7 +76,7 @@
         </a>
       </li>
 
-      <!-- Opportunités - Niveau 3+ avec gestion contenu -->
+      <!-- Opportunités -->
       <li *ngIf="isMenuVisible('/oppor')">
         <a routerLink="/oppor" 
            routerLinkActive="active" 
@@ -87,7 +89,7 @@
         </a>
       </li>
 
-      <!-- Vidéos - Niveau 3+ avec gestion contenu -->
+      <!-- Vidéos -->
       <li *ngIf="isMenuVisible('/full-video')">
         <a routerLink="/full-video" 
            routerLinkActive="active" 
@@ -100,23 +102,75 @@
         </a>
       </li>
 
-      <!-- Paramètres - Niveau 4+ (Super Admin, Admin Principal) -->
-      <li *ngIf="isMenuVisible('/parametres')">
+      <!-- Paramètres avec Dropdown -->
+      <li *ngIf="isMenuVisible('/parametres')" class="dropdown-container">
         <div class="flex items-center">
-          <a routerLink="/parametres" 
-             routerLinkActive="active" 
+          <a href="#" 
              class="nav-item"
-             [class.disabled]="isMenuDisabled('/parametres')">
+             [class.active]="isSettingsDropdownOpen"
+             [class.disabled]="isMenuDisabled('/parametres')"
+             (click)="toggleSettingsDropdown(); $event.preventDefault()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
             <span class="size-[18px] font-600">Paramètres</span>
+            <!-- Icône flèche dropdown -->
+            <svg class="dropdown-arrow" 
+                 [class.rotated]="isSettingsDropdownOpen"
+                 xmlns="http://www.w3.org/2000/svg" 
+                 fill="none" 
+                 viewBox="0 0 24 24" 
+                 stroke-width="1.5" 
+                 stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
           </a>
+        </div>
+        
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" [class.show]="isSettingsDropdownOpen">
+          <ul class="dropdown-list">
+            <li>
+              <a routerLink="/categories" 
+                 routerLinkActive="active"
+                 class="dropdown-item"
+                 (click)="navigateToDropdownItem('/categories')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                </svg>
+                <span>Catégories</span>
+              </a>
+            </li>
+            <li>
+              <a routerLink="/regions" 
+                 routerLinkActive="active"
+                 class="dropdown-item"
+                 (click)="navigateToDropdownItem('/regions')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                <span>Régions</span>
+              </a>
+            </li>
+            <!-- <li>
+              <a routerLink="/departements" 
+                 routerLinkActive="active"
+                 class="dropdown-item"
+                 (click)="navigateToDropdownItem('/departements')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
+                </svg>
+                <span>Départements</span>
+              </a>
+            </li> -->
+          </ul>
         </div>
       </li>
 
-      <!-- Déconnexion - Toujours visible pour utilisateurs connectés -->
+      <!-- Déconnexion -->
       <li>
         <div class="flex items-center">
           <a href="#" class="nav-item logout-item" (click)="logout()">
@@ -135,3 +189,7 @@
     <p>Veuillez vous connecter pour accéder au menu</p>
   </div>
 </div>
+<!-- le ts  -->
+
+
+ 

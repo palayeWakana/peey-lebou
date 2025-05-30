@@ -4,13 +4,12 @@ import { OpportuniteService, OpportuniteResponse, OpportuniteItem } from '../ser
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpHeaders } from '@angular/common/http';
-
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-oppor',
   standalone: true,
-  imports: [CommonModule,SidebarComponent, ReactiveFormsModule],
+  imports: [CommonModule, SidebarComponent, ReactiveFormsModule],
   templateUrl: './oppor.component.html',
   styleUrls: ['./oppor.component.css']
 })
@@ -320,24 +319,32 @@ export class OpporComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
-  shouldShowSeeMore(description: string): boolean {
-    const lineHeight = 1.4;
-    const fontSize = 14;
-    const maxHeight = 3 * lineHeight * fontSize;
+  // MÉTHODE CORRIGÉE: Tronquer la description à 3 lignes
+  getTruncatedDescription(description: string, maxLength: number = 150): string {
+    if (!description) return '';
     
-    const temp = document.createElement('div');
-    temp.style.fontSize = fontSize + 'px';
-    temp.style.lineHeight = lineHeight + 'em';
-    temp.style.width = '200px';
-    temp.style.position = 'absolute';
-    temp.style.visibility = 'hidden';
-    temp.style.whiteSpace = 'pre-wrap';
-    temp.innerText = description;
+    if (description.length <= maxLength) {
+      return description;
+    }
     
-    document.body.appendChild(temp);
-    const needsMore = temp.offsetHeight > maxHeight;
-    document.body.removeChild(temp);
+    // Tronquer au dernier espace pour éviter de couper un mot
+    const truncated = description.substring(0, maxLength);
+    const lastSpaceIndex = truncated.lastIndexOf(' ');
     
-    return needsMore;
+    if (lastSpaceIndex > maxLength * 0.8) { // Si le dernier espace n'est pas trop loin
+      return truncated.substring(0, lastSpaceIndex) + '...';
+    }
+    
+    return truncated + '...';
   }
+
+  // MÉTHODE CORRIGÉE: Vérifier si la description dépasse 3 lignes - RETOURNE TOUJOURS UN BOOLEAN
+  shouldShowSeeMore(description: string, maxLength: number = 150): boolean {
+    if (!description) return false;
+    return description.length > maxLength;
+  }
+
+  // MÉTHODE SUPPRIMÉE: getDescriptionStyle() car on utilise CSS directement
+  
+  // MÉTHODE SUPPRIMÉE: supportsLineClamp() car pas nécessaire
 }

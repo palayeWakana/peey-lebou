@@ -16,11 +16,11 @@ interface FooterLink {
 })
 export class FooterComponent {
   mainLinks: FooterLink[] = [
-    { text: "À propos de notre agence", url: "#" },
-    { text: "Carrières", url: "#" },
-    { text: "Responsabilité d'entreprise", url: "#" },
-    { text: "Relations investisseurs", url: "#" },
-    { text: "Actualités immobilières", url: "#" },
+    { text: "Actualités", url: "#" },
+    { text: "Opportunités", url: "#" },
+    { text: "Videos", url: "#" },
+    { text: "Carte", url: "#" },
+
   ];
 
   bottomLinks: FooterLink[] = [

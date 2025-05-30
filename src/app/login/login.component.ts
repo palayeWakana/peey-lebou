@@ -53,7 +53,7 @@ export class LoginComponent {
               console.log(`Bienvenue, ${user.email}!`);
             }
             this.isLoading = false;
-            this.router.navigate(['/utilisateurs']);
+            this.router.navigate(['/dashboards']);
           } else {
             // Pas de redirection si pas de token
             this.isLoading = false;

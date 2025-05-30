@@ -357,7 +357,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
+  /* border-top: 1px solid #f0f0f0; */
   margin-top: auto; /* Pousse l'info vers le bas */
   min-height: 40px; /* Hauteur minimale pour l'info */
   position: relative;
@@ -582,7 +582,7 @@
 .see-more-btn {
   background: none;
   border: none;
-  color: #20a439;
+  color: #1e211f;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -592,9 +592,9 @@
   align-self: flex-start;
 }
 
-.see-more-btn:hover {
+/* .see-more-btn:hover {
   color: #16852d;
-}
+} */
 
 /* Styles pour le popup */
 .popup-overlay {

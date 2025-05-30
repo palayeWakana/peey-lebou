@@ -1,34 +1,28 @@
-import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LearnComponent } from '../learn/learn.component';
-import { OurtakeComponent } from '../ourtake/ourtake.component';
-import { LatestComponent } from '../latest/latest.component';
-import { CommitmentComponent } from '../commitment/commitment.component';
-import { OpportunitesComponent } from '../opportunites/opportunites.component';
+import { Subscription, interval } from 'rxjs';
 import { FooterComponent } from "../footer/footer.component";
+import { LearnComponent } from "../learn/learn.component";
+import { OurtakeComponent } from "../ourtake/ourtake.component";
+import { LatestComponent } from "../latest/latest.component";
+import { OpportunitesComponent } from "../opportunites/opportunites.component";
 import { VideoComponent } from "../video/video.component";
 
 @Component({
   selector: 'app-accueil',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    LearnComponent,
-    OurtakeComponent,
-    LatestComponent,
-    CommitmentComponent,
-    OpportunitesComponent,
-    FooterComponent,
-    VideoComponent
-],
+  imports: [CommonModule, RouterModule, FooterComponent, LearnComponent, OurtakeComponent, LatestComponent, OpportunitesComponent, VideoComponent],
   templateUrl: './accueil.component.html',
   styleUrls: ['./accueil.component.css']
 })
-export class AccueilComponent implements OnInit, OnDestroy {
-  @ViewChild('mainHeader') mainHeader!: ElementRef;
-  
+export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
+  private subscriptions: Subscription = new Subscription();
+  private isBrowser: boolean = false;
+  private L: any; // Déclaration dynamique de Leaflet
+  private mapInitialized: boolean = false;
+
+  // Variables existantes pour le slider
   imagesPath: string[] = [
     'img/lebou.png',
     'img/evenement.png',
@@ -52,66 +46,240 @@ export class AccueilComponent implements OnInit, OnDestroy {
     'Espace collaboratif et participatif',
     'Services numériques et accès mobile'
   ];
-  
-  // Menu state
-  isMenuOpen = false;
-  activeDropdown: string | null = null;
+
+  currentImageIndex = 0;
   isDropdownOpen = false;
-  
-  // Toggle mobile menu
-  toggleMenu() {
+  isMenuOpen = false;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+  ngOnInit(): void {
+    // Démarrer le slider d'images
+    this.startImageSlider();
+  }
+
+  ngAfterViewInit(): void {
+    // Charger la carte uniquement côté client et après l'initialisation de la vue
+    if (this.isBrowser && !this.mapInitialized) {
+      // Utiliser setTimeout pour s'assurer que le DOM est complètement rendu
+      setTimeout(() => {
+        this.loadLeafletAndInitMap();
+      }, 500);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  // Méthodes existantes pour le slider
+  startImageSlider(): void {
+    if (this.isBrowser) {
+      const slider = interval(5000);
+      this.subscriptions.add(
+        slider.subscribe(() => {
+          this.currentImageIndex = (this.currentImageIndex + 1) % this.imagesPath.length;
+        })
+      );
+    }
+  }
+
+  setCurrentImage(index: number): void {
+    this.currentImageIndex = index;
+  }
+
+  // Méthodes pour le menu
+  toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
-  
-  // Dropdown management
-  showDropdown(dropdownName: string) {
-    this.activeDropdown = dropdownName;
-    this.isDropdownOpen = true;
+
+  showDropdown(menu: string): void {
+    if (this.isBrowser) {
+      this.isDropdownOpen = true;
+    }
   }
-  
-  hideDropdown(dropdownName: string) {
-    if (this.activeDropdown === dropdownName) {
-      this.activeDropdown = null;
+
+  hideDropdown(menu: string): void {
+    if (this.isBrowser) {
       this.isDropdownOpen = false;
     }
   }
-  
-  // Add click outside handler to close menu
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event) {
-    const menu = document.querySelector('.menu');
-    const hamburger = document.querySelector('.hamburger-btn');
-    
-    if (this.isMenuOpen && menu && hamburger) {
-      const clickedElement = event.target as HTMLElement;
-      if (!menu.contains(clickedElement) && !hamburger.contains(clickedElement)) {
-        this.isMenuOpen = false;
+
+  scrollToSection(sectionId: string): void {
+    if (this.isBrowser) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    // Fermer le menu mobile après la navigation
+    this.isMenuOpen = false;
+  }
+
+  /**
+   * Charge Leaflet dynamiquement et initialise la carte
+   */
+  private async loadLeafletAndInitMap(): Promise<void> {
+    if (!this.isBrowser || this.mapInitialized) {
+      return;
+    }
+
+    try {
+      // Vérifier que l'élément de la carte existe
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.warn('Élément carte non trouvé, retry dans 1 seconde');
+        setTimeout(() => this.loadLeafletAndInitMap(), 1000);
+        return;
+      }
+
+      // Import dynamique de Leaflet uniquement côté client
+      this.L = await import('leaflet');
+      
+      // Fix pour les icônes par défaut de Leaflet
+      const iconRetinaUrl = 'assets/marker-icon-2x.png';
+      const iconUrl = 'assets/marker-icon.png';
+      const shadowUrl = 'assets/marker-shadow.png';
+      
+      const iconDefault = this.L.icon({
+        iconRetinaUrl,
+        iconUrl,
+        shadowUrl,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        tooltipAnchor: [16, -28],
+        shadowSize: [41, 41]
+      });
+      
+      this.L.Marker.prototype.options.icon = iconDefault;
+      
+      // Initialiser la carte
+      this.initMap();
+      this.mapInitialized = true;
+      
+    } catch (error) {
+      console.error('Erreur lors du chargement de Leaflet:', error);
+      // En cas d'erreur, réessayer après 2 secondes
+      if (!this.mapInitialized) {
+        setTimeout(() => this.loadLeafletAndInitMap(), 2000);
       }
     }
   }
-  
-  currentImageIndex: number = 0;
-  private intervalId: any;
-  
-  ngOnInit() {
-    if (typeof window !== 'undefined') {
-      this.startImageSlider();
+
+  /**
+   * Initialise la carte Leaflet
+   */
+  private initMap(): void {
+    if (!this.L || !this.isBrowser) return;
+
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error('Élément carte non trouvé');
+      return;
+    }
+
+    try {
+      // Vérifier si la carte n'est pas déjà initialisée
+      if (mapElement.hasChildNodes() && mapElement.children.length > 0) {
+        console.log('Carte déjà initialisée');
+        return;
+      }
+
+      const map = this.L.map('map', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        touchZoom: true
+      }).setView([14.6928, -17.4467], 12); // Dakar
+
+      this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 18,
+        minZoom: 8
+      }).addTo(map);
+
+      // Données de localités au Sénégal
+      const localities = [
+        { name: 'Dakar Centre', lat: 14.6928, lng: -17.4467, members: 450 },
+        { name: 'Plateau', lat: 14.6937, lng: -17.4441, members: 320 },
+        { name: 'Medina', lat: 14.6889, lng: -17.4467, members: 280 },
+        { name: 'Grand Yoff', lat: 14.7167, lng: -17.4667, members: 190 },
+        { name: 'Parcelles Assainies', lat: 14.7333, lng: -17.4167, members: 650 },
+        { name: 'Pikine', lat: 14.7500, lng: -17.4000, members: 380 },
+        { name: 'Guédiawaye', lat: 14.7667, lng: -17.4167, members: 420 },
+        { name: 'Rufisque', lat: 14.7167, lng: -17.2667, members: 290 }
+      ];
+
+      // Ajouter les marqueurs avec des icônes personnalisées
+      const markers: any[] = [];
+      localities.forEach(locality => {
+        const customIcon = this.createCustomIcon(locality.members);
+        
+        const marker = this.L.marker([locality.lat, locality.lng], { icon: customIcon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="text-align: center; padding: 10px;">
+              <h3 style="margin: 0 0 10px 0; color: #20a439;">${locality.name}</h3>
+              <p style="margin: 0; font-weight: bold;">Membres actifs: ${locality.members}</p>
+            </div>
+          `);
+        
+        markers.push(marker);
+      });
+
+      // Ajuster la vue pour inclure tous les marqueurs
+      if (markers.length > 0) {
+        const group = new this.L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de la carte:', error);
     }
   }
-  
-  ngOnDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+
+  /**
+   * Crée une icône personnalisée basée sur le nombre de membres
+   */
+  private createCustomIcon(memberCount: number): any {
+    if (!this.L) return null;
+
+    // Déterminer la couleur et la taille basées sur le nombre de membres
+    let color = '#20a439';
+    let size = 30;
+
+    if (memberCount > 600) {
+      color = '#065413'; // Vert foncé pour les zones très actives
+      size = 35;
+    } else if (memberCount > 400) {
+      color = '#20a439'; // Vert principal pour les zones moyennement actives
+      size = 32;
+    } else if (memberCount > 200) {
+      color = '#46c333'; // Vert clair pour les zones peu actives
+      size = 28;
+    } else {
+      color = '#877a6f'; // Gris pour les zones moins actives
+      size = 25;
     }
-  }
-  
-  private startImageSlider() {
-    this.intervalId = setInterval(() => {
-      this.currentImageIndex = (this.currentImageIndex + 1) % this.imagesPath.length;
-    }, 3000);
-  }
-  
-  setCurrentImage(index: number) {
-    this.currentImageIndex = index;
+
+    // Créer un SVG personnalisé
+    const svgIcon = `
+      <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
+          ${memberCount > 999 ? '999+' : memberCount}
+        </text>
+      </svg>
+    `;
+
+    return this.L.divIcon({
+      html: svgIcon,
+      className: 'custom-marker',
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2]
+    });
   }
 }

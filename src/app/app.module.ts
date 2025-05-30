@@ -11,7 +11,8 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(),
     importProvidersFrom(
       FormsModule,
-      ReactiveFormsModule
+      ReactiveFormsModule,
+      // GoogleMapsModule
     ),
     provideRouter([
       { path: 'categories', component: CategorieListComponent },

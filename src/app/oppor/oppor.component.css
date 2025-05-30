@@ -66,12 +66,12 @@
   margin-bottom: 10px;
 }
 
-.underline {
+/* .underline {
   width: 60px;
   height: 4px;
   background: linear-gradient(45deg, #20a439, #ff7e00);
   border-radius: 2px;
-}
+} */
 
 /* Bouton d'ajout d'opportunité */
 .add-opportunity-btn {
@@ -213,20 +213,20 @@
 .see-more-btn {
   background: none;
   border: none;
-  color: #20a439;
+  color: #1e211f;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   padding: 2px 0;
   margin: 0;
-  text-decoration: underline;
+  text-decoration: none; /* Suppression de la ligne */
   align-self: flex-start;
   display: block;
   width: fit-content;
 }
 
 .see-more-btn:hover {
-  color: #16852d;
+  color: #20a439; /* Couleur au survol pour indiquer l'interactivité */
 }
 
 .oppor-info {
@@ -236,7 +236,7 @@
   bottom: 15px;
   align-items: center;
   padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
+  /* border-top: 1px solid #f0f0f0; */
   margin-top: auto;
   min-height: 40px;
 }
@@ -779,4 +779,111 @@
   .opportunity-form {
     padding: 20px;
   }
+}
+
+/* Style pour limiter la description à 3 lignes */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5em;
+  max-height: 4.5em; /* 3 lignes × 1.5em */
+}
+
+/* Fallback pour les navigateurs qui ne supportent pas line-clamp */
+@supports not (-webkit-line-clamp: 3) {
+  .line-clamp-3 {
+    max-height: 4.5em;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .line-clamp-3::after {
+    content: '...';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: white;
+    padding-left: 20px;
+    background: linear-gradient(to right, transparent, white 50%);
+  }
+}
+
+/* Style pour la wrapper de description */
+.description-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.oppor-description {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.see-more-btn {
+  background: none;
+  border: none;
+  color: #1e211f;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 5px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+
+
+/* Styles pour les popups et autres éléments existants */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.description-popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-popup-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-popup-btn:hover {
+  color: #333;
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.popup-content p {
+  line-height: 1.6;
+  color: #666;
 }

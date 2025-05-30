@@ -23,7 +23,7 @@ export class CampagneComponent implements OnInit {
   baseUrl= 'https://peeyconnect.net/repertoire_upload/';
   campagnes: Campagne[] = [];
   currentPage: number = 0;
-  pageSize: number = 4;
+  pageSize: number = 3;
   totalPages: number = 0;
   totalItems: number = 0;
   loading: boolean = false;

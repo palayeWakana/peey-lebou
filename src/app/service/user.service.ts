@@ -40,7 +40,7 @@ export class UserService {
    * @param userData Données mises à jour de l'utilisateur
    */
   updateUser(id: number, userData: Partial<NewUser>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/user/${id}`, userData);
+    return this.http.put<User>(`${this.apiUrl}/user/update/${id}`, userData);
   }
   
   /**
@@ -78,3 +78,14 @@ export class UserService {
   }
 }
 
+// le ts
+
+// voici le ts et le html pour les utilisateurs
+
+// je veux que tu ajoutes pour quand on clique sur l'icone de modification on affiche le formulaire du user concerner on charge les informations du formulaire sur les champs en donnant la possibilité de modifier et d'enregistrer
+
+// voici le ts et le service 
+
+// appelle  la  methode updateUser  dans le ts du  service  qui  modifie  le user  et l'utiliser dans le html 
+
+// donne le htnl ,csss et ts bien adapté 

@@ -11,32 +11,37 @@
         
         <div class="menu" [class.open]="isMenuOpen">
             <ul>
-                <li class="nav-item" 
-                    (mouseenter)="showDropdown('services')" 
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('services')"
                     (mouseleave)="hideDropdown('services')">
-                    <a class="Services" routerLink="/Services">Actualités</a>
+                    <a class="Services" (click)="scrollToSection('actualites')">Actualités</a>
                 </li>
-                <li class="nav-item" 
-                    (mouseenter)="showDropdown('insights')" 
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('insights')"
                     (mouseleave)="hideDropdown('insights')">
-                    <a class="Insights&Research" routerLink="/Insights&Research">Opportunités</a>
+                    <a class="Insights&Research" (click)="scrollToSection('opportunites')">Opportunités</a>
                 </li>
-                <li class="nav-item" 
-                    (mouseenter)="showDropdown('offices')" 
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('offices')"
                     (mouseleave)="hideDropdown('offices')">
-                    <a class="Offices" routerLink="/Offices">Video Tech</a>
+                    <a class="Offices" (click)="scrollToSection('videos')">Videos</a>
                 </li>
-                <li class="nav-item" 
-                    (mouseenter)="showDropdown('about')" 
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('about')"
                     (mouseleave)="hideDropdown('about')">
-                    <a class="About-as" routerLink="/About">À propos</a>
+                    <a class="About-as" (click)="scrollToSection('carte')">Carte</a>
                 </li>
-                <li class="nav-item" 
-                (mouseenter)="showDropdown('login')" 
-                (mouseleave)="hideDropdown('login')">
-                <a class="Login" routerLink="/login">Login</a>
-            </li>
-            
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('about')"
+                    (mouseleave)="hideDropdown('about')">
+                    <a class="About-as" (click)="scrollToSection('footer')">À propos</a>
+                </li>
+                <li class="nav-item"
+                    (mouseenter)="showDropdown('login')"
+                    (mouseleave)="hideDropdown('login')">
+                    <a class="Login" routerLink="/login">Login</a>
+                </li>
+                
                 <li class="search-item">
                     <a class="Recherche" routerLink="/Recherche">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
@@ -70,16 +75,65 @@
             </span>
         </div>
     </div>
+    
     <!-- le composant Learn -->
     <app-learn></app-learn>
+    
     <!-- le composant OurTake -->
     <app-ourtake></app-ourtake>
-    <!-- le composant Latest -->
-    <app-latest></app-latest>
-    <!-- le composant Opportunites -->
-    <app-opportunites></app-opportunites>
-    <app-video></app-video>
-    <app-footer></app-footer>
+    
+    <!-- Section Actualités avec ID -->
+    <div id="actualites">
+        <app-latest></app-latest>
+    </div>
+    
+    <!-- Section Opportunités avec ID -->
+    <div id="opportunites">
+        <app-opportunites></app-opportunites>
+    </div>
+    
+    <!-- Section Videos avec ID -->
+    <div id="videos">
+        <app-video></app-video>
+    </div>
+    
+    <!-- Section Carte avec ID -->
+    <div id="carte" class="map-section">
+        <div class="map-container">
+            <div class="map-header">
+                <h2>Notre Présence au Sénégal</h2>
+                <p>Découvrez nos membres actifs dans les différentes régions</p>
+            </div>
+            <div class="map-wrapper">
+                <div id="map" class="leaflet-map"></div>
+                <!-- <div class="map-legend">
+                    <h4>Légende</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #065413;"></div>
+                        <span>Plus de 600 membres</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #20a439;"></div>
+                        <span>400-600 membres</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #46c333;"></div>
+                        <span>200-400 membres</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #877a6f;"></div>
+                        <span>Moins de 200 membres</span>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section Footer avec ID -->
+    <div id="footer">
+        <app-footer></app-footer>
+    </div>
+    
     <!-- le composant Commitment -->
     <!-- <app-commitment></app-commitment> -->
 </div>

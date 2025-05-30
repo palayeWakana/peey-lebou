@@ -28,36 +28,21 @@
             </button>
           </div>
           
-          <div class="filter-options">
-            <button 
-              class="btn-filter" 
-              [class.active]="roleFilter === 'all'"
-              (click)="filterByRole('all')"
-            >
-              Tous
-            </button>
-            <button 
-              class="btn-filter" 
-              [class.active]="roleFilter === 'admin'"
-              (click)="filterByRole('admin')"
-            >
-              Administrateurs
-            </button>
-            <button 
-              class="btn-filter" 
-              [class.active]="roleFilter === 'manager'"
-              (click)="filterByRole('manager')"
-            >
-              Gestionnaires
-            </button>
-            <button 
-              class="btn-filter" 
-              [class.active]="roleFilter === 'user'"
-              (click)="filterByRole('user')"
-            >
-              Utilisateurs
-            </button>
+          <div class="filter-select">
+            <select [(ngModel)]="roleFilter" (change)="filterByRole(roleFilter)" class="form-select">
+              <option value="all">Tous les rôles</option>
+              <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
+              <option value="MAIN_ADMINISTRATOR">Administrateur Principal</option>
+              <option value="CONTENT_ADMINISTRATOR">Administrateur Contenu</option>
+              <option value="ADMIN">Administrateur</option>
+              <option value="TREASURER">Trésorier</option>
+              <option value="MODERATOR">Modérateur</option>
+              <option value="ASSISTANT">Assistante</option>
+              <option value="USER">Utilisateur</option>
+            </select>
+            
           </div>
+          
           
           <div class="action-buttons">
             <button class="btn" (click)="openCreateUserModal()">
@@ -128,7 +113,7 @@
                 <td>{{ user.profession || 'Non défini' }}</td>
                 <td>{{ getRoleName(user.role) }}</td>
                 <td class="actions-cell">
-                  <button class="action-button">
+                  <button class="action-button edit" (click)="openEditModal(user)">
                     <i class="fas fa-edit"></i>
                   </button>
                   <button class="action-button" (click)="openDeleteConfirmation(user)">
@@ -686,4 +671,414 @@
 </div>
 
 <!-- le css -->
+
+
+
+<!-- Modal d'édition d'utilisateur (à ajouter après votre modal de création) -->
+<div class="modal-overlay edit-modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal edit-modal" (click)="$event.stopPropagation()">
+    <div class="modal-content" [ngClass]="{'modal-loading': editLoading, 'modal-success': editSuccess, 'modal-error': editError}">
+      <!-- En-tête du modal -->
+      <div class="modal-header edit-modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-user-edit"></i>
+          Modifier l'utilisateur
+        </h2>
+        <button class="modal-close" (click)="closeEditModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body edit-modal-body">
+        <!-- État initial - Formulaire d'édition -->
+        <div *ngIf="!editLoading && !editSuccess && !editError">
+          <!-- Onglets de navigation -->
+          <div class="form-tabs">
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'info'}"
+              (click)="setActiveTab('info')"
+            >
+              <i class="fas fa-user"></i> Informations principales
+            </button>
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'contact'}"
+              (click)="setActiveTab('contact')"
+            >
+              <i class="fas fa-address-book"></i> Contact
+            </button>
+            <button 
+              class="tab-button" 
+              [ngClass]="{'active': activeTab === 'other'}"
+              (click)="setActiveTab('other')"
+            >
+              <i class="fas fa-cog"></i> Autres informations
+            </button>
+          </div>
+        
+          <form [formGroup]="editUserForm" (ngSubmit)="submitEditUser()">
+            <!-- Onglet Informations principales -->
+            <div class="form-tab-content" *ngIf="activeTab === 'info'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-firstname" class="form-label">
+                    <i class="fas fa-user-circle"></i> Prénom <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-firstname" 
+                    formControlName="firstname" 
+                    class="form-control" 
+                    [ngClass]="{'is-invalid': isFieldInvalid('firstname', editUserForm)}"
+                    placeholder="Prénom"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('firstname', editUserForm)">
+                    Le prénom est requis
+                  </div>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-secondname" class="form-label">
+                    <i class="fas fa-user-circle"></i> Nom <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-secondname" 
+                    formControlName="secondname" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('secondname', editUserForm)}"
+                    placeholder="Nom"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('secondname', editUserForm)">
+                    Le nom est requis
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-email" class="form-label">
+                    <i class="fas fa-envelope"></i> Email <span class="required">*</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="edit-email" 
+                    formControlName="email" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('email', editUserForm)}"
+                    placeholder="exemple@domaine.com"
+                  >
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('email', editUserForm)">
+                    Une adresse email valide est requise
+                  </div>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-role" class="form-label">
+                    <i class="fas fa-user-tag"></i> Rôle <span class="required">*</span>
+                  </label>
+                  <select 
+                    id="edit-role" 
+                    formControlName="role" 
+                    class="form-control"
+                    [ngClass]="{'is-invalid': isFieldInvalid('role', editUserForm)}"
+                  >
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="USER">Utilisateur</option>
+                    <option value="ASSISTANT">Assistante</option>
+                    <option value="MODERATOR">Modérateur</option>
+                    <option value="TREASURER">Trésorier</option>
+                    <option value="ADMIN">Administrateur</option>
+                    <option value="CONTENT_ADMINISTRATOR">Administrateur Contenu</option>
+                    <option value="MAIN_ADMINISTRATOR">Administrateur Principal</option>
+                    <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-sexe" class="form-label">
+                    <i class="fas fa-venus-mars"></i> Sexe
+                  </label>
+                  <select id="edit-sexe" formControlName="sexe" class="form-control">
+                    <option value="">Sélectionner</option>
+                    <option value="M">Masculin</option>
+                    <option value="F">Féminin</option>
+                  </select>
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-profession" class="form-label">
+                    <i class="fas fa-briefcase"></i> Profession
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-profession" 
+                    formControlName="profession" 
+                    class="form-control"
+                    placeholder="Profession"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="edit-niveau" class="form-label">
+                    <i class="fas fa-graduation-cap"></i> Niveau d'étude
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-niveau" 
+                    formControlName="niveau" 
+                    class="form-control"
+                    placeholder="Niveau d'étude"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-next" (click)="setActiveTab('contact')">
+                  Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Onglet Contact -->
+            <div class="form-tab-content" *ngIf="activeTab === 'contact'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-telephone" class="form-label">
+                    <i class="fas fa-phone"></i> Téléphone
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="edit-telephone" 
+                    formControlName="telephone" 
+                    class="form-control"
+                    placeholder="Numéro de téléphone"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-region" class="form-label">
+                    <i class="fas fa-map-marker-alt"></i> Région
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-region" 
+                    formControlName="region" 
+                    class="form-control"
+                    placeholder="Région"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-departement" class="form-label">
+                    <i class="fas fa-map"></i> Département
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-departement" 
+                    formControlName="departement" 
+                    class="form-control"
+                    placeholder="Département"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-commune" class="form-label">
+                    <i class="fas fa-city"></i> Commune
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-commune" 
+                    formControlName="commune" 
+                    class="form-control"
+                    placeholder="Commune"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="edit-localiteResidence" class="form-label">
+                  <i class="fas fa-home"></i> Adresse de résidence
+                </label>
+                <input 
+                  type="text" 
+                  id="edit-localiteResidence" 
+                  formControlName="localiteResidence" 
+                  class="form-control"
+                  placeholder="Adresse complète"
+                >
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-prev" (click)="setActiveTab('info')">
+                  <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="button" class="btn btn-next" (click)="setActiveTab('other')">
+                  Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Onglet Autres informations -->
+            <div class="form-tab-content" *ngIf="activeTab === 'other'">
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-annee" class="form-label">
+                    <i class="fas fa-calendar-alt"></i> Année
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-annee" 
+                    formControlName="annee" 
+                    class="form-control"
+                    placeholder="Année (ex: 2025)"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-parentid" class="form-label">
+                    <i class="fas fa-user-friends"></i> ID Parent
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-parentid" 
+                    formControlName="parentid" 
+                    class="form-control"
+                    placeholder="ID Parent"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-pere" class="form-label">
+                    <i class="fas fa-male"></i> Nom du père
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-pere" 
+                    formControlName="pere" 
+                    class="form-control"
+                    placeholder="Nom du père"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-mere" class="form-label">
+                    <i class="fas fa-female"></i> Nom de la mère
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-mere" 
+                    formControlName="mere" 
+                    class="form-control"
+                    placeholder="Nom de la mère"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-section-title">
+                <i class="fas fa-share-alt"></i> Réseaux sociaux
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-fb" class="form-label">
+                    <i class="fab fa-facebook"></i> Facebook
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-fb" 
+                    formControlName="fb" 
+                    class="form-control"
+                    placeholder="Profil Facebook"
+                  >
+                </div>
+                
+                <div class="form-group form-group-half">
+                  <label for="edit-linkdin" class="form-label">
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                  </label>
+                  <input 
+                    type="text" 
+                    id="edit-linkdin" 
+                    formControlName="linkdin" 
+                    class="form-control"
+                    placeholder="Profil LinkedIn"
+                  >
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="edit-x" class="form-label">
+                  <i class="fab fa-twitter"></i> Twitter (X)
+                </label>
+                <input 
+                  type="text" 
+                  id="edit-x" 
+                  formControlName="x" 
+                  class="form-control"
+                  placeholder="Profil Twitter/X"
+                >
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-prev" (click)="setActiveTab('contact')">
+                  <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="submit" class="btn btn-submit">
+                  <i class="fas fa-save"></i> Enregistrer les modifications
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- État de chargement -->
+        <div *ngIf="editLoading" class="modal-state-container">
+          <div class="modal-loading-content">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p class="modal-message">Mise à jour en cours...</p>
+          </div>
+        </div>
+        
+        <!-- État de succès -->
+        <div *ngIf="editSuccess" class="modal-state-container">
+          <div class="modal-success-content">
+            <div class="success-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="modal-message">Utilisateur mis à jour avec succès !</p>
+          </div>
+        </div>
+        
+        <!-- État d'erreur -->
+        <div *ngIf="editError" class="modal-state-container">
+          <div class="modal-error-content">
+            <div class="error-icon">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <p class="modal-message">{{ editErrorMessage || 'Une erreur est survenue lors de la mise à jour.' }}</p>
+            <div class="modal-actions">
+              <button class="btn btn-outline" (click)="closeEditModal()">Fermer</button>
+              <button class="btn btn-retry" (click)="submitEditUser()">Réessayer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- le ts -->
+ 
 

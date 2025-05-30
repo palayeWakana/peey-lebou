@@ -12,29 +12,28 @@
   border-radius:  2px 10px;
 }
 
+
 /* Profile section */
 .profile-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
   background-color: #FFFFFF;
   border-radius: 16px;
-  margin-bottom: 24px;
-  border: 1px solid #E5E7EB;
+  margin-bottom: 32px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .profile-info {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
 .profile-image {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .profile-image img {
@@ -44,177 +43,217 @@
 }
 
 .profile-name {
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 15px;
   color: #111827;
-  margin-bottom: 2px;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
 }
 
 .profile-role {
-  font-size: 12px;
+  font-size: 13px;
   color: #6B7280;
-}
-
-.dropdown-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #6B7280;
-  padding: 4px;
-}
-
-.dropdown-btn svg {
-  width: 20px;
-  height: 20px;
+  margin: 0;
+  line-height: 1.2;
 }
 
 /* Navigation styles */
 .main-nav {
   flex: 1;
+  overflow-y: auto;
 }
 
 .nav-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
+.nav-list > li {
+  margin-bottom: 8px;
+}
+
+/* Style principal des éléments de navigation */
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 14px 18px; /* Augmenté la taille du padding */
+  padding: 12px 16px;
   text-decoration: none;
-  color: #FFFFFF; /* Changé la couleur du texte en blanc */
-  border-radius: 12x;
-  margin-bottom: 12px;
-  padding: 15px; /* Plus d'espace entre les éléments du menu */
-  font-size: 16px; /* Augmenté la taille du texte */
+  color: #FFFFFF;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
   transition: all 0.2s ease;
-  font-weight: 500;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
 }
 
-.nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Léger effet hover */
-  color: #FFFFFF; /* Garde le texte blanc au survol */
-  height: 54px;
-  border-radius: 12px;
-  padding: 15px 18px;
-   width: 228px;
-}
-
-.nav-item.active, .active-link {
-  background-color: #FFFFFF;
-  color: #111827; /* Texte noir pour l'élément actif */
-  font-weight: 600;
-  height: 54px;
-  border-radius: 12px;
-  padding: 15px 18px;
-   width: 228px;
-  padding: 15px;
-
-}
-
-/* Style pour les icônes - augmenter l'espace entre icône et texte */
+/* Réduction de l'espace entre icône et texte */
 .nav-item svg {
-  margin-right: 16px;
-  width: 22px; /* Légèrement plus grandes icônes */
-  height: 22px;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px; /* Réduit de 16px à 12px */
+  flex-shrink: 0;
 }
 
-/* Projects header */
-.projects-header {
-  background-color: #20a439;
-  border-radius: 12px;
-  margin-bottom: 12px;
+.nav-item span {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.projects-header .nav-item {
-  color: white;
-}
-
-.projects-header .nav-item:hover {
+/* État hover */
+.nav-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  transform: translateX(2px);
 }
 
-/* Submenu styles */
-.submenu-container {
-  padding-left: 32px;
-  margin-top: 8px;
+/* État actif */
+.nav-item.active {
+  background-color: #FFFFFF;
+  color: #065413;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.submenu-title {
-  color: #20a439;
-  font-weight: 500;
-  font-size: 14px;
+.nav-item.active svg {
+  color: #065413;
+}
+
+/* État désactivé */
+.nav-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Styles spécifiques pour le dropdown des paramètres */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-container .nav-item {
+  justify-content: space-between;
+}
+
+.dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+/* Menu dropdown */
+.dropdown-menu {
+  max-height: 0;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin: 4px 0 0 0;
+  transition: all 0.3s ease;
+  opacity: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu.show {
+  max-height: 200px;
+  opacity: 1;
   padding: 8px 0;
 }
 
-.timeline {
-  position: relative;
-  padding-left: 16px;
+.dropdown-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.timeline-line {
-  position: absolute;
-  left: 4px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background-color: #E5E7EB;
+.dropdown-list li {
+  margin-bottom: 2px;
 }
 
-.timeline-item {
+.dropdown-item {
   display: flex;
   align-items: center;
-  padding: 8px 0;
-  position: relative;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  margin: 0 8px;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #111827;
-  margin-right: 16px;
-  position: relative;
-  z-index: 1;
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  transform: translateX(4px);
 }
 
-.dot.rotated {
-  transform: rotate(45deg);
+.dropdown-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+  font-weight: 500;
 }
 
-/* Logout button */
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 10px; /* Réduit l'espace pour les sous-menus */
+  flex-shrink: 0;
+}
+
+/* Bouton de déconnexion */
 .logout-item {
-  margin-top: 24px;
-  color: #FFFFFF; /* Texte blanc pour le bouton déconnexion */
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .logout-item:hover {
-  color: #ef4444; /* Rouge au survol pour le bouton déconnexion */
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
-/* Company logo */
-.company-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 32px;
-  padding: 40px 0;
+/* Styles pour les différents états de visibilité */
+.nav-list li[hidden] {
+  display: none;
 }
 
-.logo-icon {
-  width: 100px;
-  height: 80px;
-  margin-right: 8px;
-  position: relative;
-  bottom: 50px;
+/* Amélioration de la scrollbar pour la navigation */
+.main-nav::-webkit-scrollbar {
+  width: 4px;
 }
 
-.company-name {
-  font-size: 18px;
-  font-weight: 500;
-  color: #111827;
-  width: 181px;
+.main-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.main-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Message pour utilisateur non connecté */
+.text-center {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
 }
 
 /* Responsive adjustments */
@@ -222,5 +261,75 @@
   .sidebar {
     width: 100%;
     height: auto;
+    position: relative;
+    padding: 16px 12px;
   }
+  
+  .nav-item {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .nav-item svg {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+  }
+  
+  .dropdown-menu {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+  
+  .dropdown-item {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .dropdown-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+  }
+}
+
+/* Animation d'entrée pour les éléments de menu */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nav-list li {
+  animation: fadeInLeft 0.3s ease forwards;
+}
+
+.nav-list li:nth-child(1) { animation-delay: 0.1s; }
+.nav-list li:nth-child(2) { animation-delay: 0.2s; }
+.nav-list li:nth-child(3) { animation-delay: 0.3s; }
+.nav-list li:nth-child(4) { animation-delay: 0.4s; }
+.nav-list li:nth-child(5) { animation-delay: 0.5s; }
+.nav-list li:nth-child(6) { animation-delay: 0.6s; }
+.nav-list li:nth-child(7) { animation-delay: 0.7s; }
+.nav-list li:nth-child(8) { animation-delay: 0.8s; }
+
+/* Focus states pour l'accessibilité */
+.nav-item:focus,
+.dropdown-item:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Amélioration des transitions */
+* {
+  box-sizing: border-box;
+}
+
+.sidebar * {
+  transition: all 0.2s ease;
 }

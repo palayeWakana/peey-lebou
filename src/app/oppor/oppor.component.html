@@ -15,7 +15,7 @@
       <div class="section-header">
         <div class="section-title">
           <h2>Opportunités</h2>
-          <div class="underline"></div>
+          <!-- <div class="underline"></div> -->
         </div>
         <button class="add-opportunity-btn" (click)="openAddOpportunitePopup()">
           <i class="fa fa-plus"></i>
@@ -40,7 +40,9 @@
           <div class="oppor-content">
             <h3 (click)="goToOpporDetail(oppor.id)">{{ oppor.titre }}</h3>
             <div class="description-wrapper">
-              <p class="oppor-description" (click)="goToOpporDetail(oppor.id)">{{ oppor.descr }}</p>
+              <p class="oppor-description line-clamp-3" (click)="goToOpporDetail(oppor.id)">
+                {{ oppor.descr }}
+              </p>
               <button *ngIf="shouldShowSeeMore(oppor.descr)" class="see-more-btn" 
                       (click)="openDescriptionPopup(oppor.descr); $event.stopPropagation()">
                 Voir plus
@@ -235,3 +237,7 @@
       </form>
     </div>
   </div>
+
+  <!-- <style>
+    
+  </style> -->

@@ -1,0 +1,532 @@
+/* Container principal */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Contenu principal */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  margin-left: 20px; /* Largeur de la sidebar */
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Header du dashboard */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #065413;
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  background-color: #065413;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sync-btn:hover {
+  background-color: #20a439;
+}
+
+.sync-btn svg {
+  margin-right: 8px;
+}
+
+.sync-btn.small {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.sync-btn.small svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
+
+/* Grille des statistiques */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* Cartes de statistiques */
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  height: auto;
+  min-height: 140px;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-change.positive {
+  color: #10b981;
+}
+
+.stat-change.negative {
+  color: #ef4444;
+}
+
+.stat-change svg {
+  margin-right: 4px;
+}
+
+/* Icônes des statistiques */
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-icon-members {
+  background-color: #6366f1;
+}
+
+.stat-icon-locations {
+  background-color: #10b981;
+}
+
+.stat-icon-organization {
+  background-color: #f59e0b;
+}
+
+.stat-icon-campagne {
+  background-color: #f50be9;
+}
+
+/* Barre de progression */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #6366f1;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6366f1;
+  min-width: 40px;
+}
+
+/* Grille des graphiques */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: 500px;
+}
+
+/* Cartes de graphiques */
+.chart-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+/* Container du contenu des graphiques */
+.chart-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Distribution des membres */
+.distribution-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  height: 100%;
+}
+
+.donut-chart {
+  flex-shrink: 0;
+}
+
+.donut-chart svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.donut-total-label {
+  font-size: 14px;
+  fill: #6b7280;
+  font-weight: 500;
+}
+
+.donut-total-value {
+  font-size: 20px;
+  fill: #111827;
+  font-weight: 700;
+}
+
+.distribution-legend {
+  flex: 1;
+  min-width: 150px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.legend-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.legend-name {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.legend-percentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Carte interactive */
+.map-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Légende de la carte */
+.map-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.map-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-legend .legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.map-legend .legend-text {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+/* Conteneur de la carte */
+.map-container {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Carte Leaflet */
+.leaflet-map {
+  flex: 1;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Fallback pour SSR */
+.map-fallback {
+  flex: 1;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallback-content {
+  text-align: center;
+  color: #6b7280;
+}
+
+.fallback-content p {
+  margin: 12px 0 0 0;
+  font-size: 14px;
+}
+
+/* Footer des graphiques */
+.chart-footer {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.overview-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #065413;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.overview-btn:hover {
+  color: #20a439;
+}
+
+.overview-btn svg {
+  margin-left: 8px;
+}
+
+/* Styles pour les marqueurs personnalisés */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Override des styles Leaflet par défaut */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: inherit;
+}
+
+.leaflet-popup h3 {
+  margin: 0 0 8px 0;
+  color: #065413;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.leaflet-popup p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .chart-card {
+    height: 400px;
+  }
+  
+  .distribution-content {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .donut-chart svg {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 16px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .chart-card {
+    height: 350px;
+  }
+  
+  .distribution-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .donut-chart svg {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .map-legend {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .distribution-content {
+    padding: 0;
+  }
+  
+  .donut-chart svg {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .donut-total-label {
+    font-size: 12px;
+  }
+  
+  .donut-total-value {
+    font-size: 16px;
+  }
+}

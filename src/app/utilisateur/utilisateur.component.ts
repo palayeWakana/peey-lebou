@@ -14,7 +14,21 @@ export interface User {
   telephone?: string;
   profession?: string;
   role: string;
-  selected: boolean; // Pour la sélection multiple
+  selected: boolean;
+  sexe?: string;
+  activated?: boolean;
+  annee?: string;
+  commune?: string;
+  departement?: string;
+  fb?: string;
+  localiteResidence?: string;
+  region?: string;
+  niveau?: string;
+  parentid?: string;
+  pere?: string;
+  mere?: string;
+  linkdin?: string;
+  x?: string;
 }
 
 // Interface pour la création d'un nouvel utilisateur
@@ -97,12 +111,22 @@ export class UtilisateurComponent implements OnInit {
   createSuccess = false;
   createError = false;
   createErrorMessage: string | null = null;
-  activeTab = 'info'; // Pour gérer les onglets du formulaire
+  activeTab = 'info';
+
+  // Modal d'édition d'utilisateur
+  showEditModal = false;
+  userToEdit: User | null = null;
+  editUserForm: FormGroup;
+  editLoading = false;
+  editSuccess = false;
+  editError = false;
+  editErrorMessage: string | null = null;
 
   constructor(
     private userService: UserService,
     private fb: FormBuilder
   ) {
+    // Formulaire de création
     this.createUserForm = this.fb.group({
       firstname: ['', [Validators.required]],
       secondname: ['', [Validators.required]],
@@ -113,7 +137,31 @@ export class UtilisateurComponent implements OnInit {
       role: ['user', [Validators.required]],
       sexe: [''],
       activated: [true],
-      // Champs optionnels
+      annee: [''],
+      commune: [''],
+      departement: [''],
+      fb: [''],
+      localiteResidence: [''],
+      region: [''],
+      niveau: [''],
+      parentid: [''],
+      pere: [''],
+      mere: [''],
+      linkdin: [''],
+      x: ['']
+    });
+
+    // Formulaire d'édition
+    this.editUserForm = this.fb.group({
+      id: [''],
+      firstname: ['', [Validators.required]],
+      secondname: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      telephone: [''],
+      profession: [''],
+      role: ['user', [Validators.required]],
+      sexe: [''],
+      activated: [true],
       annee: [''],
       commune: [''],
       departement: [''],
@@ -139,7 +187,6 @@ export class UtilisateurComponent implements OnInit {
     
     this.userService.getAllUsers().subscribe({
       next: (users) => {
-        // Assurer que chaque utilisateur a une propriété selected définie comme boolean
         this.allUsers = users.map(user => ({ 
           ...user, 
           selected: user.selected === undefined ? false : Boolean(user.selected) 
@@ -240,6 +287,7 @@ export class UtilisateurComponent implements OnInit {
   filterByRole(role: string): void {
     this.roleFilter = role;
     this.searchUsers();
+    
   }
 
   toggleSelectAll(): void {
@@ -254,37 +302,19 @@ export class UtilisateurComponent implements OnInit {
     this.selectAll = this.allUsers.length > 0 && this.allUsers.every(u => u.selected);
   }
 
-  // getRoleName(role: string): string {
-  //   switch (role) {
-  //     case 'admin': return 'Administrateur';
-  //     case 'manager': return 'Gestionnaire';
-  //     case 'user': return 'Utilisateur';
-  //     default: return role;
-  //   }
-  // }
-
-getRoleName(role: string): string {
-  switch (role) {
-    case 'SUPER_ADMINISTRATOR':
-      return 'Super Administrateur';
-    case 'MAIN_ADMINISTRATOR':
-      return 'Administrateur Principal';
-    case 'CONTENT_ADMINISTRATOR':
-      return 'Administrateur Contenu';
-    case 'ADMIN':
-      return 'Administrateur';
-    case 'TREASURER':
-      return 'Trésorier';
-    case 'MODERATOR':
-      return 'Modérateur';
-    case 'ASSISTANT':
-      return 'Assistante';
-    case 'USER':
-      return 'Utilisateur';
-    default:
-      return role;
+  getRoleName(role: string): string {
+    switch (role) {
+      case 'SUPER_ADMINISTRATOR': return 'Super Administrateur';
+      case 'MAIN_ADMINISTRATOR': return 'Administrateur Principal';
+      case 'CONTENT_ADMINISTRATOR': return 'Administrateur Contenu';
+      case 'ADMIN': return 'Administrateur';
+      case 'TREASURER': return 'Trésorier';
+      case 'MODERATOR': return 'Modérateur';
+      case 'ASSISTANT': return 'Assistante';
+      case 'USER': return 'Utilisateur';
+      default: return role;
+    }
   }
-}
 
   getStatusColor(role: string): string {
     switch (role) {
@@ -414,7 +444,7 @@ getRoleName(role: string): string {
     return `${user.firstname} ${user.secondname}`;
   }
 
-  // Nouvelles méthodes pour la création d'utilisateur
+  // Méthodes pour la création d'utilisateur
   openCreateUserModal(): void {
     this.showCreateUserModal = true;
     this.resetCreateModalState();
@@ -422,7 +452,7 @@ getRoleName(role: string): string {
       role: 'user',
       activated: true
     });
-    this.activeTab = 'info'; // Réinitialiser l'onglet actif
+    this.activeTab = 'info';
   }
 
   closeCreateUserModal(): void {
@@ -450,7 +480,7 @@ getRoleName(role: string): string {
 
     const newUser: NewUser = {
       ...this.createUserForm.value,
-      centreinteret: [] // Initialiser comme tableau vide
+      centreinteret: []
     };
 
     this.userService.createUser(newUser).subscribe({
@@ -468,7 +498,6 @@ getRoleName(role: string): string {
     this.createSuccess = true;
     
     setTimeout(() => {
-      // Ajouter le nouvel utilisateur à la liste s'il contient les propriétés nécessaires
       if (response && response.id) {
         const newUser: User = {
           ...response,
@@ -476,9 +505,8 @@ getRoleName(role: string): string {
         };
         
         this.allUsers = [newUser, ...this.allUsers];
-        this.searchUsers(); // Mettre à jour la liste filtrée et l'affichage
+        this.searchUsers();
       } else {
-        // Recharger tous les utilisateurs si la réponse ne contient pas l'utilisateur complet
         this.loadUsers();
       }
       
@@ -494,7 +522,104 @@ getRoleName(role: string): string {
     this.createErrorMessage = err.error?.message || err.message || "Une erreur est survenue lors de la création de l'utilisateur";
   }
 
-  // Utilitaire pour marquer tous les champs d'un formulaire comme touchés
+  // Méthodes pour l'édition d'utilisateur
+  openEditModal(user: User): void {
+    this.userToEdit = user;
+    this.showEditModal = true;
+    this.resetEditModalState();
+    
+    this.editUserForm.patchValue({
+      id: user.id,
+      firstname: user.firstname,
+      secondname: user.secondname,
+      email: user.email,
+      telephone: user.telephone || '',
+      profession: user.profession || '',
+      role: user.role,
+      sexe: user.sexe || '',
+      activated: user.activated || true,
+      annee: user.annee || '',
+      commune: user.commune || '',
+      departement: user.departement || '',
+      fb: user.fb || '',
+      localiteResidence: user.localiteResidence || '',
+      region: user.region || '',
+      niveau: user.niveau || '',
+      parentid: user.parentid || '',
+      pere: user.pere || '',
+      mere: user.mere || '',
+      linkdin: user.linkdin || '',
+      x: user.x || ''
+    });
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.userToEdit = null;
+  }
+
+  resetEditModalState(): void {
+    this.editLoading = false;
+    this.editSuccess = false;
+    this.editError = false;
+    this.editErrorMessage = null;
+  }
+  availableRoles: string[] = [
+    'SUPER_ADMINISTRATOR',
+    'MAIN_ADMINISTRATOR',
+    'CONTENT_ADMINISTRATOR',
+    'ADMIN',
+    'TREASURER',
+    'MODERATOR',
+    'ASSISTANT',
+    'USER'
+  ];
+  
+  submitEditUser(): void {
+    if (this.editUserForm.invalid) {
+      this.markFormGroupTouched(this.editUserForm);
+      return;
+    }
+
+    this.editLoading = true;
+    const userData = this.editUserForm.value;
+
+    this.userService.updateUser(userData.id, userData).subscribe({
+      next: (updatedUser) => {
+        this.handleEditSuccess(updatedUser);
+      },
+      error: (err) => {
+        this.handleEditError(err);
+      }
+    });
+  }
+
+  handleEditSuccess(updatedUser: User): void {
+    this.editLoading = false;
+    this.editSuccess = true;
+    
+    this.allUsers = this.allUsers.map(user => 
+      user.id === updatedUser.id ? { ...updatedUser, selected: user.selected } : user
+    );
+    
+    this.filteredUsers = this.filteredUsers.map(user => 
+      user.id === updatedUser.id ? { ...updatedUser, selected: user.selected } : user
+    );
+    
+    this.updateDisplayedUsers();
+    
+    setTimeout(() => {
+      this.closeEditModal();
+    }, 1500);
+  }
+
+  handleEditError(err: any): void {
+    this.editLoading = false;
+    this.editError = true;
+    this.editErrorMessage = err.error?.message || err.message || "Une erreur est survenue lors de la mise à jour de l'utilisateur";
+  }
+
+  // Méthodes utilitaires
   markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -505,9 +630,10 @@ getRoleName(role: string): string {
     });
   }
 
-  // Vérificateur pour les champs du formulaire
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.createUserForm.get(fieldName);
+  isFieldInvalid(fieldName: string, formGroup: FormGroup = this.createUserForm): boolean {
+    const field = formGroup.get(fieldName);
     return field ? field.invalid && (field.dirty || field.touched) : false;
   }
 }
+
+// le html 

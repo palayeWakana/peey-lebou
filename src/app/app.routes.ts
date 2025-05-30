@@ -11,6 +11,8 @@ import { CategorieListComponent } from './cathegorie-list/cathegorie-list.compon
 import { ActuComponent } from './actu/actu.component';
 import { FullVideoComponent } from './full-video/full-video.component';
 import { CampagneComponent } from './campagne/campagne.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { RegionComponent } from './region/region.component';
 
 export const routes: Routes = [
   { 
@@ -29,10 +31,21 @@ export const routes: Routes = [
     title: 'Utilisateurs'
   },
   {
-    path: 'parametres',
+    path: 'categories',
     component: CategorieListComponent,
-    title: 'Parametres'
+    title: 'Categories'
   },
+  {
+    path: 'dashboards',
+    component: DashboardComponent,
+    title: 'Dashboards'
+  },
+  {
+    path: 'regions',
+    component: RegionComponent,
+    title: 'Regions'
+  },
+  
   { 
     path: 'accueil', 
     component: AccueilComponent,
