@@ -1,8 +1,3 @@
-<!-- Fichier utilisateur.component.html avec le modal de création amélioré -->
-
-
-
-
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-2 side-container">
@@ -40,9 +35,7 @@
               <option value="ASSISTANT">Assistante</option>
               <option value="USER">Utilisateur</option>
             </select>
-            
           </div>
-          
           
           <div class="action-buttons">
             <button class="btn" (click)="openCreateUserModal()">
@@ -179,7 +172,6 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-content" [ngClass]="{'modal-loading': deleteLoading, 'modal-success': deleteSuccess, 'modal-error': deleteError}">
       <div class="modal-header">
-      
         <h2 class="modal-title">
           <i class="fas fa-exclamation-triangle"></i>
           Confirmation de suppression
@@ -248,6 +240,7 @@
   </div>
 </div>
 
+<!-- Modal de création d'utilisateur -->
 <!-- Modal de création d'utilisateur -->
 <div class="modal-overlay create-modal-overlay " *ngIf="showCreateUserModal" (click)="closeCreateUserModal()">
   <div class="modal create-modal " (click)="$event.stopPropagation()">
@@ -387,6 +380,9 @@
                     <option value="MAIN_ADMINISTRATOR">Administrateur Principal</option>
                     <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
                   </select>
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('role')">
+                    Le rôle est requis
+                  </div>
                 </div>
                 
                 <div class="form-group form-group-half">
@@ -456,13 +452,17 @@
                   <label for="region" class="form-label">
                     <i class="fas fa-map-marker-alt"></i> Région
                   </label>
-                  <input 
-                    type="text" 
-                    id="region" 
-                    formControlName="region" 
+                  <select
+                    id="region"
                     class="form-control"
-                    placeholder="Région"
+                    formControlName="region"
+                    (change)="onRegionChange($event)"
                   >
+                    <option value="">-- Sélectionner une région --</option>
+                    <option *ngFor="let region of regions" [value]="region.id">
+                      {{ region.libelle }}
+                    </option>
+                  </select>
                 </div>
               </div>
               
@@ -471,13 +471,19 @@
                   <label for="departement" class="form-label">
                     <i class="fas fa-map"></i> Département
                   </label>
-                  <input 
-                    type="text" 
+                  <select 
                     id="departement" 
                     formControlName="departement" 
                     class="form-control"
-                    placeholder="Département"
+                    [disabled]="!createUserForm.get('region')?.value || loadingDepartements"
                   >
+                    <option value="">
+                      {{ loadingDepartements ? 'Chargement...' : 'Sélectionner un département' }}
+                    </option>
+                    <option *ngFor="let dept of departements" [value]="dept.id">{{ dept.libelle }}</option>
+                  </select>
+                  <div *ngIf="loadingDepartements" class="text-sm text-gray-500">Chargement des départements...</div>
+                  <div *ngIf="departementError" class="error-message text-sm text-red-500">{{ departementError }}</div>
                 </div>
                 
                 <div class="form-group form-group-half">
@@ -670,11 +676,7 @@
   </div>
 </div>
 
-<!-- le css -->
-
-
-
-<!-- Modal d'édition d'utilisateur (à ajouter après votre modal de création) -->
+<!-- Modal d'édition d'utilisateur -->
 <div class="modal-overlay edit-modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
   <div class="modal edit-modal" (click)="$event.stopPropagation()">
     <div class="modal-content" [ngClass]="{'modal-loading': editLoading, 'modal-success': editSuccess, 'modal-error': editError}">
@@ -775,6 +777,24 @@
                 </div>
                 
                 <div class="form-group form-group-half">
+                  <label for="edit-password" class="form-label">
+                    <i class="fas fa-lock"></i> Nouveau mot de passe
+                  </label>
+                  <input 
+                    type="password" 
+                    id="edit-password" 
+                    formControlName="password" 
+                    class="form-control"
+                    placeholder="Laisser vide pour ne pas changer"
+                  >
+                  <div class="form-hint">
+                    Laisser vide pour ne pas modifier le mot de passe
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
                   <label for="edit-role" class="form-label">
                     <i class="fas fa-user-tag"></i> Rôle <span class="required">*</span>
                   </label>
@@ -795,9 +815,7 @@
                     <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
                   </select>
                 </div>
-              </div>
-              
-              <div class="form-row">
+                
                 <div class="form-group form-group-half">
                   <label for="edit-sexe" class="form-label">
                     <i class="fas fa-venus-mars"></i> Sexe
@@ -808,7 +826,9 @@
                     <option value="F">Féminin</option>
                   </select>
                 </div>
-                
+              </div>
+              
+              <div class="form-row">
                 <div class="form-group form-group-half">
                   <label for="edit-profession" class="form-label">
                     <i class="fas fa-briefcase"></i> Profession
@@ -821,10 +841,8 @@
                     placeholder="Profession"
                   >
                 </div>
-              </div>
-              
-              <div class="form-row">
-                <div class="form-group">
+                
+                <div class="form-group form-group-half">
                   <label for="edit-niveau" class="form-label">
                     <i class="fas fa-graduation-cap"></i> Niveau d'étude
                   </label>
@@ -865,13 +883,17 @@
                   <label for="edit-region" class="form-label">
                     <i class="fas fa-map-marker-alt"></i> Région
                   </label>
-                  <input 
-                    type="text" 
+                  <select 
                     id="edit-region" 
                     formControlName="region" 
                     class="form-control"
-                    placeholder="Région"
+                    (change)="onEditRegionSelectChange($event)"
                   >
+                    <option value="">Sélectionner une région</option>
+                    <option *ngFor="let region of editRegions" [value]="region.id" [selected]="region.id === editSelectedRegionId">
+                      {{ region.libelle }}
+                    </option>
+                  </select>
                 </div>
               </div>
               
@@ -880,13 +902,23 @@
                   <label for="edit-departement" class="form-label">
                     <i class="fas fa-map"></i> Département
                   </label>
-                  <input 
-                    type="text" 
+                  <select 
                     id="edit-departement" 
                     formControlName="departement" 
                     class="form-control"
-                    placeholder="Département"
+                    [disabled]="!editSelectedRegionId || editLoadingDepartements"
+                    (change)="onEditDepartementSelectChange($event)"
                   >
+                    <option value="">
+                      {{ editLoadingDepartements ? 'Chargement...' : 'Sélectionner un département' }}
+                    </option>
+                    <option *ngFor="let dept of editDepartements" [value]="dept.id" [selected]="dept.id === editSelectedDepartementId">
+                      {{ dept.libelle }}
+                    </option>
+                  </select>
+                  <div *ngIf="editDepartementError" class="error-message">
+                    {{ editDepartementError }}
+                  </div>
                 </div>
                 
                 <div class="form-group form-group-half">

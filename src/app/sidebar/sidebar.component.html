@@ -21,7 +21,7 @@
       <li>
         <div class="flex items-center">
           <a routerLink="/dashboards" 
-             routerLinkActive="active" 
+             [class.active]="isActive('/dashboards')"
              class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard-icon lucide-layout-dashboard">
               <rect width="7" height="9" x="3" y="3" rx="1"/>
@@ -29,7 +29,7 @@
               <rect width="7" height="9" x="14" y="12" rx="1"/>
               <rect width="7" height="5" x="3" y="16" rx="1"/>
             </svg>
-            <span >Tableau de bord</span>
+            <span>Tableau de bord</span>
           </a>
         </div>
       </li>
@@ -38,7 +38,7 @@
       <li *ngIf="isMenuVisible('/utilisateurs')">
         <div class="flex items-center">
           <a routerLink="/utilisateurs" 
-             routerLinkActive="active" 
+             [class.active]="isActive('/utilisateurs')"
              class="nav-item"
              [class.disabled]="isMenuDisabled('/utilisateurs')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-4">
@@ -52,7 +52,7 @@
       <!-- Campagnes -->
       <li *ngIf="isMenuVisible('/campagne')">
         <a routerLink="/campagne" 
-           routerLinkActive="active" 
+           [class.active]="isActive('/campagne')"
            class="nav-item"
            [class.disabled]="isMenuDisabled('/campagne')">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
@@ -65,7 +65,7 @@
       <!-- Actualités -->
       <li *ngIf="isMenuVisible('/actu')">
         <a routerLink="/actu" 
-           routerLinkActive="active" 
+           [class.active]="isActive('/actu')"
            class="nav-item"
            [class.disabled]="isMenuDisabled('/actu')">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
@@ -79,7 +79,7 @@
       <!-- Opportunités -->
       <li *ngIf="isMenuVisible('/oppor')">
         <a routerLink="/oppor" 
-           routerLinkActive="active" 
+           [class.active]="isActive('/oppor')"
            class="nav-item"
            [class.disabled]="isMenuDisabled('/oppor')">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
@@ -92,7 +92,7 @@
       <!-- Vidéos -->
       <li *ngIf="isMenuVisible('/full-video')">
         <a routerLink="/full-video" 
-           routerLinkActive="active" 
+           [class.active]="isActive('/full-video')"
            class="nav-item"
            [class.disabled]="isMenuDisabled('/full-video')">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
@@ -107,7 +107,7 @@
         <div class="flex items-center">
           <a href="#" 
              class="nav-item"
-             [class.active]="isSettingsDropdownOpen"
+             [class.active]="isSettingsDropdownOpen || isSettingsMenuActive()"
              [class.disabled]="isMenuDisabled('/parametres')"
              (click)="toggleSettingsDropdown(); $event.preventDefault()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-4">
@@ -133,7 +133,7 @@
           <ul class="dropdown-list">
             <li>
               <a routerLink="/categories" 
-                 routerLinkActive="active"
+                 [class.active]="isDropdownItemActive('/categories')"
                  class="dropdown-item"
                  (click)="navigateToDropdownItem('/categories')">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
@@ -145,7 +145,7 @@
             </li>
             <li>
               <a routerLink="/regions" 
-                 routerLinkActive="active"
+                 [class.active]="isDropdownItemActive('/regions')"
                  class="dropdown-item"
                  (click)="navigateToDropdownItem('/regions')">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
@@ -157,7 +157,7 @@
             </li>
             <!-- <li>
               <a routerLink="/departements" 
-                 routerLinkActive="active"
+                 [class.active]="isDropdownItemActive('/departements')"
                  class="dropdown-item"
                  (click)="navigateToDropdownItem('/departements')">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="dropdown-icon">
@@ -173,7 +173,7 @@
       <!-- Déconnexion -->
       <li>
         <div class="flex items-center">
-          <a href="#" class="nav-item logout-item" (click)="logout()">
+          <a href="#" class="nav-item logout-item" (click)="logout($event)">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
             </svg>
@@ -192,4 +192,22 @@
 <!-- le ts  -->
 
 
- 
+ <!-- Popup de confirmation de déconnexion -->
+<div class="logout-confirmation-popup" *ngIf="showLogoutConfirmation">
+  <div class="logout-popup-overlay" (click)="cancelLogout()"></div>
+  <div class="logout-popup-content">
+    <button class="logout-popup-close" (click)="cancelLogout()">❌</button>
+    <div class="logout-popup-header">
+      <h3 class="logout-popup-title">Confirmer la déconnexion</h3>
+      <p class="logout-popup-message">Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    </div>
+    <div class="logout-popup-actions">
+      <button class="logout-popup-btn logout-popup-btn-cancel" (click)="cancelLogout()">
+        Annuler
+      </button>
+      <button class="logout-popup-btn logout-popup-btn-confirm" (click)="confirmLogout()">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>

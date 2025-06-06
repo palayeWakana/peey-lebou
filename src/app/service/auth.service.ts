@@ -1,7 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, catchError, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, throwError, firstValueFrom } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 
 /* ─────────── Types ─────────── */
@@ -15,10 +15,12 @@ export interface User {
   telephone?: string;
   username?: string;
   activated?: boolean;
-  img?:string;
+  img?: string;
 }
 
 export interface AuthResponse {
+  userData: any;
+  data: any;
   token: string;
   user?: User;
   refreshToken?: string;
@@ -70,99 +72,116 @@ export class AuthService {
   login(phoneNumber: string, password: string, rememberMe: boolean = false): Observable<AuthResponse> {
     const url = `${this.apiRoot}/auth/signin`;
     
-    return this.http.post<AuthResponse>(url, { email: phoneNumber, password }).pipe(
-      tap(async resp => {
-       console.log(resp )
-        // Vérifier que la réponse contient bien un token
-        if (!resp || !resp.token) {
-          throw new Error('Réponse invalide du serveur');
-        }
-        
-        if (this.isBrowser) {
-          const storage = rememberMe ? localStorage : sessionStorage;
-          
-          /* Token */
-          storage.setItem('token', resp.token);
-          
-          if (resp.refreshToken) {
-            storage.setItem('refreshToken', resp.refreshToken);
-          }
-
-          /* User */
-          if (resp.user) {
-            // L'utilisateur est déjà dans la réponse avec le rôle
-            console.log('Utilisateur reçu du serveur:', resp.user);
-            storage.setItem('user', JSON.stringify(resp.user));
-            this.currentUserSubject.next(resp.user);
-          } else {
-            // Si l'utilisateur n'est pas dans la réponse, le récupérer depuis l'API
-            try {
-              await this.fetchAndStoreUserProfile(phoneNumber, storage);
-            } catch (error) {
-              console.error('Erreur lors de la récupération du profil:', error);
-              // Créer un utilisateur basique en cas d'erreur
-              const basicUser: User = {
-                id: 0,
-                email: phoneNumber,
-                role: 'USER' // Rôle par défaut
-              };
-              storage.setItem('user', JSON.stringify(basicUser));
-              this.currentUserSubject.next(basicUser);
+    return new Observable<AuthResponse>(observer => {
+      this.http.post<AuthResponse>(url, { email: phoneNumber, password }).subscribe({
+        next: async (resp) => {
+          try {
+            console.log('Réponse du serveur:', resp);
+            
+            // Vérifier que la réponse contient bien un token
+            if (!resp || !resp.token) {
+              throw new Error('Réponse invalide du serveur');
             }
+            
+            if (this.isBrowser) {
+              const storage = rememberMe ? localStorage : sessionStorage;
+              
+              /* Token */
+              storage.setItem('token', resp.token);
+              
+              if (resp.refreshToken) {
+                storage.setItem('refreshToken', resp.refreshToken);
+              }
+
+              /* User */
+              let finalUser: User;
+              
+              if (resp.user) {
+                // L'utilisateur est déjà dans la réponse avec le rôle
+                console.log('Utilisateur reçu du serveur:', resp.user);
+                finalUser = resp.user;
+              } else {
+                // Si l'utilisateur n'est pas dans la réponse, le récupérer depuis l'API
+                try {
+                  finalUser = await this.fetchUserProfile(phoneNumber);
+                } catch (error) {
+                  console.error('Erreur lors de la récupération du profil:', error);
+                  // Créer un utilisateur basique en cas d'erreur
+                  finalUser = {
+                    id: 0,
+                    email: phoneNumber,
+                    role: 'USER' // Rôle par défaut
+                  };
+                }
+              }
+              
+              // Stocker l'utilisateur et mettre à jour les sujets
+              storage.setItem('user', JSON.stringify(finalUser));
+              this.currentUserSubject.next(finalUser);
+              this.isAuthenticatedSubject.next(true);
+              
+              console.log('Utilisateur final stocké:', finalUser);
+            }
+            
+            observer.next(resp);
+            observer.complete();
+            
+          } catch (error) {
+            console.error('Erreur dans le traitement de la réponse:', error);
+            observer.error(error);
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Erreur auth:', err);
+          
+          // Vérifier si la réponse contient un message d'erreur spécifique du backend
+          if (err.error && typeof err.error === 'object' && 'error' in err.error) {
+            observer.error(new Error(err.error.error));
+            return;
           }
           
-          this.isAuthenticatedSubject.next(true);
+          // Sinon, mappage d'erreurs standard
+          let errorMessage = 'Numéro de téléphone ou mot de passe invalide.';
+          
+          if (err.status === 404) {
+            errorMessage = 'Numéro de téléphone non trouvé';
+          } else if (err.status === 401) {
+            errorMessage = 'Numéro de téléphone ou mot de passe invalide';
+          } else if (err.status === 403) {
+            errorMessage = 'Non autorisé';
+          }
+          
+          observer.error(new Error(errorMessage));
         }
-      }),
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erreur auth:', err);
-        
-        // Vérifier si la réponse contient un message d'erreur spécifique du backend
-        if (err.error && typeof err.error === 'object' && 'error' in err.error) {
-          return throwError(() => new Error(err.error.error));
-        }
-        
-        // Sinon, mappage d'erreurs standard
-        if (err.status === 404) {
-          return throwError(() => new Error('Numéro de téléphone non trouvé'));
-        }
-        if (err.status === 401) {
-          return throwError(() => new Error('Numéro de téléphone ou mot de passe invalide'));
-        }
-        if (err.status === 403) {
-          return throwError(() => new Error('Non autorisé'));
-        }
-        return throwError(() => new Error('Numéro de téléphone ou mot de passe invalide.'));
-      })
-    );
+      });
+    });
   }
 
   /**
-   * Récupère et stocke le profil utilisateur complet depuis l'API
+   * Récupère le profil utilisateur complet depuis l'API
    */
-  private async fetchAndStoreUserProfile(phoneNumber: string, storage: Storage): Promise<void> {
+  private async fetchUserProfile(phoneNumber: string): Promise<User> {
     try {
       // Récupérer le profil utilisateur complet
-      const userProfile = await this.http.get<User>(`${this.apiRoot}/user/profile`).toPromise();
+      const userProfile = await firstValueFrom(this.http.get<User>(`${this.apiRoot}/user/profile`));
       
       if (userProfile) {
         console.log('Profil utilisateur récupéré:', userProfile);
-        storage.setItem('user', JSON.stringify(userProfile));
-        this.currentUserSubject.next(userProfile);
+        return userProfile;
       }
+      throw new Error('Profil utilisateur vide');
     } catch (error) {
       // Si l'endpoint /user/profile n'existe pas, essayer de récupérer tous les utilisateurs
       // et trouver celui qui correspond au numéro de téléphone
       try {
-        const allUsers = await this.http.get<User[]>(`${this.apiRoot}/user/all`).toPromise();
+        const allUsers = await firstValueFrom(this.http.get<User[]>(`${this.apiRoot}/user/all`));
         const currentUser = allUsers?.find(user => 
           user.email === phoneNumber || user.telephone === phoneNumber
         );
         
         if (currentUser) {
           console.log('Utilisateur trouvé dans la liste:', currentUser);
-          storage.setItem('user', JSON.stringify(currentUser));
-          this.currentUserSubject.next(currentUser);
+          return currentUser;
         } else {
           throw new Error('Utilisateur non trouvé');
         }
@@ -298,23 +317,26 @@ export class AuthService {
   /**
    * Rafraîchir les données utilisateur depuis l'API
    */
-  refreshUserData(): Promise<User | null> {
+  async refreshUserData(): Promise<User | null> {
     if (!this.isBrowser || !this.isLoggedIn()) {
-      return Promise.resolve(null);
+      return null;
     }
 
     const storage = localStorage.getItem('token') ? localStorage : sessionStorage;
     const currentUser = this.getCurrentUser();
     
     if (!currentUser?.email) {
-      return Promise.resolve(null);
+      return null;
     }
 
-    return this.fetchAndStoreUserProfile(currentUser.email, storage)
-      .then(() => this.getCurrentUser())
-      .catch(error => {
-        console.error('Erreur lors du rafraîchissement des données utilisateur:', error);
-        return null;
-      });
+    try {
+      const updatedUser = await this.fetchUserProfile(currentUser.email);
+      storage.setItem('user', JSON.stringify(updatedUser));
+      this.currentUserSubject.next(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement des données utilisateur:', error);
+      return null;
+    }
   }
 }

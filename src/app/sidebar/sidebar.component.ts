@@ -1,8 +1,10 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService, User } from '../service/auth.service';
 
 interface MenuItem {
@@ -36,6 +38,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   
   // État du dropdown pour les paramètres
   isSettingsDropdownOpen = false;
+  currentRoute = '';
+  
+  // État du popup d'autorisation
+  showAuthorizationPopup = false;
+  showLogoutConfirmation = false;
   
   // Menu items avec leurs permissions
   menuItems: MenuItem[] = [
@@ -101,21 +108,70 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Écouter l'utilisateur actuel
     this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
         console.log('Utilisateur reçu dans sidebar:', user);
         this.currentUser = user;
         this.updateMenuPermissions();
+        this.checkUserRoleAndShowPopup();
+      })
+    );
+
+    // Écouter les changements de route pour maintenir l'état du dropdown
+    this.subscriptions.add(
+      this.router.events.pipe(
+        filter(event => event instanceof NavigationEnd)
+      ).subscribe((event: NavigationEnd) => {
+        this.currentRoute = event.url;
+        this.checkAndMaintainDropdownState();
       })
     );
 
     this.currentUser = this.authService.getCurrentUser();
+    this.currentRoute = this.router.url;
     console.log('Utilisateur actuel au démarrage:', this.currentUser);
     this.updateMenuPermissions();
+    this.checkAndMaintainDropdownState();
+    this.checkUserRoleAndShowPopup();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Vérifie si l'utilisateur a le rôle USER et affiche le popup si nécessaire
+   */
+  private checkUserRoleAndShowPopup(): void {
+    if (this.isUserRole() && this.isLoggedIn()) {
+      // Optionnel: afficher automatiquement le popup au démarrage
+      // this.showAuthorizationPopup = true;
+    }
+  }
+
+  /**
+   * Vérifie si l'utilisateur connecté a le rôle USER
+   */
+  isUserRole(): boolean {
+    return this.currentUser?.role?.toUpperCase() === 'USER';
+  }
+
+  /**
+   * Ferme le popup d'autorisation
+   */
+  closeAuthorizationPopup(): void {
+    this.showAuthorizationPopup = false;
+  }
+
+  /**
+   * Vérifie si le dropdown doit rester ouvert selon la route actuelle
+   */
+  private checkAndMaintainDropdownState(): void {
+    const settingsRoutes = ['/categories', '/regions', '/departements'];
+    this.isSettingsDropdownOpen = settingsRoutes.some(route => 
+      this.currentRoute.includes(route)
+    );
   }
 
   /**
@@ -133,11 +189,26 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigation vers un item du dropdown
+   * Navigation vers un item du dropdown - ne ferme plus automatiquement
    */
   navigateToDropdownItem(path: string): void {
     this.router.navigate([path]);
-    this.closeSettingsDropdown();
+    // Ne pas fermer le dropdown - il restera ouvert
+  }
+
+  /**
+   * Vérifie si un dropdown item est actif
+   */
+  isDropdownItemActive(path: string): boolean {
+    return this.currentRoute.includes(path);
+  }
+
+  /**
+   * Vérifie si le menu principal des paramètres doit être actif
+   */
+  isSettingsMenuActive(): boolean {
+    const settingsRoutes = ['/categories', '/regions', '/departements'];
+    return settingsRoutes.some(route => this.currentRoute.includes(route));
   }
 
   private updateMenuPermissions(): void {
@@ -167,6 +238,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
 
     if (!userRole || userLevel === undefined) {
+      return false;
+    }
+
+    // Si l'utilisateur a le rôle USER, il n'a accès à rien d'autre que le dashboard
+    if (userRole === 'USER') {
       return false;
     }
 
@@ -233,9 +309,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     
     return this.currentUser.email || this.currentUser.username || 'Utilisateur';
   }
+
   getDisplayImg(): string {
     if (!this.currentUser?.img) {
-      return 'https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg'; // Image par défaut
+      return '../img/avatar.png'; // Image par défaut
     }
     
     // Concaténer l'URL de base avec le nom de l'image
@@ -257,8 +334,26 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.authService.isLoggedIn();
   }
 
-  logout(): void {
+  // logout(): void {
+    
+  // }
+
+
+  logout(event: MouseEvent) {
+    event.stopPropagation(); // Empêche la propagation de l'événement
+    event.preventDefault(); // Empêche le comportement par défaut
+    this.showLogoutConfirmation = true;
+  }
+  
+  confirmLogout() {
+    // Votre logique de déconnexion existante
     this.authService.logout();
+    this.router.navigate(['/accueil']);
+    this.showLogoutConfirmation = false;
+  }
+  
+  cancelLogout() {
+    this.showLogoutConfirmation = false;
   }
 
   navigateTo(path: string): void {

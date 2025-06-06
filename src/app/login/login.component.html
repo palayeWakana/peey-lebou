@@ -1,5 +1,5 @@
 <div class="login-container">
-  <div class="login-card">
+  <div class="login-card">  
     <div class="login-left">
       <div class="login-logo">
         <img src="../img/pl-removebg-preview.png" alt="Peey Lebou Logo">
@@ -11,53 +11,62 @@
     <div class="login-right">
       <div class="login-form-container">
         <h3>Login</h3>
-        <form (ngSubmit)="onSubmit()">
-          <!-- Message d'erreur amélioré -->
-          <div class="error-message" *ngIf="errorMessage" style="background-color: #ffe8e8; color: #d32f2f; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
-            <i class="fa fa-exclamation-circle" style="margin-right: 5px;"></i>
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+          <!-- Message d'erreur -->
+          <div *ngIf="errorMessage" class="error-message">
+            <i class="fa fa-exclamation-circle"></i>
             {{ errorMessage }}
           </div>
           
           <div class="form-group">
-            <label for="email">Numéro de téléphone</label>
+            <label for="email">Email ou Numéro de téléphone</label>
             <input
-               type="text"
-               id="email"
-               [(ngModel)]="email"
-               name="email"
-               placeholder="Email ou Téléphone"
-               [class.error]="errorMessage && errorMessage.includes('téléphone')"
-               required>
-            <small *ngIf="errorMessage && errorMessage.includes('téléphone')" class="form-text text-danger">
-              Format attendu : 7X XXXXXXX (X = 0, 5, 6, 7 ou 8)
+              type="text"
+              id="email"
+              [(ngModel)]="email"
+              name="email"
+              #emailInput="ngModel"
+              placeholder="Email ou Téléphone (7X XXXXXXX)"
+              [class.error]="emailInput.invalid && (emailInput.touched || emailInput.dirty)"
+              required
+              autocomplete="username">
+            <small *ngIf="emailInput.invalid && (emailInput.touched || emailInput.dirty)" class="form-text text-danger">
+              Ce champ est requis
             </small>
           </div>
           
           <div class="form-group">
             <label for="password">Mot de passe</label>
             <input
-               type="password"
-               id="password"
-               [(ngModel)]="password"
-               name="password"
-               placeholder="Entrez votre mot de passe"
-               [class.error]="errorMessage && errorMessage.includes('mot de passe')"
-               required>
+              type="password"
+              id="password"
+              [(ngModel)]="password"
+              name="password"
+              #passwordInput="ngModel"
+              placeholder="Entrez votre mot de passe"
+              [class.error]="passwordInput.invalid && (passwordInput.touched || passwordInput.dirty)"
+              required
+              autocomplete="current-password">
+            <small *ngIf="passwordInput.invalid && (passwordInput.touched || passwordInput.dirty)" class="form-text text-danger">
+              Ce champ est requis
+            </small>
           </div>
           
           <div class="form-options">
             <div class="remember-me">
               <input
-                 type="checkbox"
-                 id="rememberMe"
-                 [(ngModel)]="rememberMe"
-                 name="rememberMe">
+                type="checkbox"
+                id="rememberMe"
+                [(ngModel)]="rememberMe"
+                name="rememberMe">
               <label for="rememberMe">Se souvenir de moi</label>
             </div>
-            <a href="#" class="forgot-password">Mot de passe oublié?</a>
+            <a routerLink="/forgot-password" class="forgot-password">Mot de passe oublié?</a>
           </div>
           
-          <button type="submit" class="login-button" [disabled]="isLoading">
+          <button type="submit" 
+                  class="login-button" 
+                  [disabled]="loginForm.invalid || isLoading">
             <span *ngIf="!isLoading">LOGIN</span>
             <span *ngIf="isLoading">
               <div class="spinner"></div>
@@ -67,12 +76,22 @@
         </form>
         
         <div class="signup-link">
-          <a href="#">Retour à la page d'acceuil</a>
+          <a routerLink="/">Retour à la page d'accueil</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- Nouveau?-->
+<!-- Popup d'accès refusé -->
+<div class="access-denied-popup" *ngIf="showAccessDeniedPopup" @fadeInOut>
+  <div class="popup-content">
+    <button class="close-popup" (click)="closePopup()">&times;</button>
+    <div class="popup-icon">🚫</div>
+    <h3>Accès refusé</h3>
+    <p>Désolé, vous n'êtes pas autorisé à accéder à ces fonctionnalités.</p>
+    <p>Votre compte ne dispose pas des droits nécessaires.</p>
+    <button class="popup-button" (click)="closePopup()">Fermer</button>
+  </div>
+  <div class="popup-overlay" (click)="closePopup()"></div>
+</div>

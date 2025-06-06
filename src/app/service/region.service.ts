@@ -53,3 +53,5 @@ export class RegionService {
     return this.http.post<Departement>(`${this.baseUrl}/departements/region/${idRegion}`, departement);
   }
 }
+
+// pour lles user 

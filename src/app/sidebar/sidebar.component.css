@@ -83,7 +83,7 @@
   border-radius: 12px;
   font-size: 15px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  /* transition: all 0.2s ease; */
   position: relative;
   width: 100%;
   box-sizing: border-box;
@@ -293,17 +293,7 @@
   }
 }
 
-/* Animation d'entrée pour les éléments de menu */
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+
 
 .nav-list li {
   animation: fadeInLeft 0.3s ease forwards;
@@ -333,3 +323,123 @@
 .sidebar * {
   transition: all 0.2s ease;
 }
+
+
+/* Popup de confirmation de déconnexion */
+.logout-confirmation-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logout-popup-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.logout-popup-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: popupFadeIn 0.3s ease-out;
+  z-index: 1001;
+}
+
+.logout-popup-header {
+  margin-bottom: 20px;
+}
+
+.logout-popup-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.logout-popup-message {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.logout-popup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.logout-popup-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 14px;
+}
+
+.logout-popup-btn-cancel {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.logout-popup-btn-cancel:hover {
+  background-color: #e0e0e0;
+}
+
+.logout-popup-btn-confirm {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.logout-popup-btn-confirm:hover {
+  background-color: #b71c1c;
+}
+
+.logout-popup-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  padding: 5px;
+  line-height: 1;
+}
+
+.logout-popup-close:hover {
+  color: #d32f2f;
+}
+
+/* Animation */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* le html */

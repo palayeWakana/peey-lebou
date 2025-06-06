@@ -135,23 +135,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // Import dynamique de Leaflet uniquement côté client
       this.L = await import('leaflet');
       
-      // Fix pour les icônes par défaut de Leaflet
-      const iconRetinaUrl = 'assets/marker-icon-2x.png';
-      const iconUrl = 'assets/marker-icon.png';
-      const shadowUrl = 'assets/marker-shadow.png';
-      
-      const iconDefault = this.L.icon({
-        iconRetinaUrl,
-        iconUrl,
-        shadowUrl,
+      // Configuration des icônes avec CDN (plus fiable)
+      delete (this.L.Icon.Default.prototype as any)._getIconUrl;
+      this.L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         tooltipAnchor: [16, -28],
         shadowSize: [41, 41]
       });
-      
-      this.L.Marker.prototype.options.icon = iconDefault;
       
       this.initMap();
     } catch (error) {
