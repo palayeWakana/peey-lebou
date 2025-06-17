@@ -1,0 +1,17 @@
+/* Leaflet CSS avec chemins corrigés */
+@import '~leaflet/dist/leaflet.css';
+
+/* Override des chemins d'images */
+.leaflet-default-icon-path {
+  background-image: url('../../assets/images/marker-icon.png');
+}
+
+.leaflet-control-layers-toggle {
+  background-image: url('../../assets/images/layers.png');
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .leaflet-control-layers-toggle {
+    background-image: url('../../assets/images/layers-2x.png');
+  }
+}

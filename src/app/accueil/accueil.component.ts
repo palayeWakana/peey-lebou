@@ -314,3 +314,6 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 }
+
+// le ts de dashboard
+

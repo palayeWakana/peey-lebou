@@ -1,0 +1,81 @@
+/* Corrections pour les icônes Leaflet - chemins relatifs à la racine du build */
+
+/* Désactiver les images originales et utiliser du texte pour les contrôles */
+.leaflet-control-layers-toggle {
+    background-image: none !important;
+    width: 36px;
+    height: 36px;
+    position: relative;
+  }
+  
+  .leaflet-control-layers-toggle:before {
+    content: '☰';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .leaflet-control-zoom-in {
+    background-image: none !important;
+  }
+  
+  .leaflet-control-zoom-out {
+    background-image: none !important;
+  }
+  
+  /* Utiliser du texte pour les boutons de zoom */
+  .leaflet-control-zoom-in:after {
+    content: '+';
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 26px;
+  }
+  
+  .leaflet-control-zoom-out:after {
+    content: '−';
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 26px;
+  }
+  
+  /* Pour les appareils tactiles */
+  .leaflet-touch .leaflet-control-zoom-in:after,
+  .leaflet-touch .leaflet-control-zoom-out:after {
+    line-height: 30px;
+  }
+
+  /* Corrections pour les icônes Leaflet */
+
+/* Correction du problème de l'icône layers */
+.leaflet-control-layers-toggle {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=') !important;
+    width: 36px;
+    height: 36px;
+  }
+  
+  /* Utiliser du texte pour les boutons de zoom au lieu d'images */
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out {
+    background-image: none !important;
+  }
+  
+  .leaflet-control-zoom-in:after {
+    content: '+';
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 26px;
+    display: block;
+    text-align: center;
+  }
+  
+  .leaflet-control-zoom-out:after {
+    content: '−';
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 26px;
+    display: block;
+    text-align: center;
+  }
