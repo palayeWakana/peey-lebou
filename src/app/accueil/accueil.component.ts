@@ -19,10 +19,11 @@ import { VideoComponent } from "../video/video.component";
 export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription = new Subscription();
   private isBrowser: boolean = false;
-  private L: any; // Déclaration dynamique de Leaflet
+  private L: any;
+  private map: any;
   private mapInitialized: boolean = false;
 
-  // Variables existantes pour le slider
+  // Variables pour le slider
   imagesPath: string[] = [
     'img/lebou.png',
     'img/evenement.png',
@@ -56,14 +57,12 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    // Démarrer le slider d'images
     this.startImageSlider();
   }
 
   ngAfterViewInit(): void {
-    // Charger la carte uniquement côté client et après l'initialisation de la vue
     if (this.isBrowser && !this.mapInitialized) {
-      // Utiliser setTimeout pour s'assurer que le DOM est complètement rendu
+      // Délai plus long pour s'assurer que tous les composants sont chargés
       setTimeout(() => {
         this.loadLeafletAndInitMap();
       }, 500);
@@ -72,9 +71,14 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    // Nettoyer la carte
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
   }
 
-  // Méthodes existantes pour le slider
+  // Méthodes pour le slider
   startImageSlider(): void {
     if (this.isBrowser) {
       const slider = interval(5000);
@@ -114,7 +118,6 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
-    // Fermer le menu mobile après la navigation
     this.isMenuOpen = false;
   }
 
@@ -126,47 +129,62 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    try {
-      // Vérifier que l'élément de la carte existe
+    // Vérifications multiples pour s'assurer que l'élément existe
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    const checkAndInit = async () => {
       const mapElement = document.getElementById('map');
+      if (!mapElement && attempts < maxAttempts) {
+        attempts++;
+        console.warn(`Tentative ${attempts}: Élément carte non trouvé, retry...`);
+        setTimeout(checkAndInit, 1000);
+        return;
+      }
+      
       if (!mapElement) {
-        console.warn('Élément carte non trouvé, retry dans 1 seconde');
-        setTimeout(() => this.loadLeafletAndInitMap(), 1000);
+        console.error('Impossible de trouver l\'élément carte après plusieurs tentatives');
         return;
       }
 
-      // Import dynamique de Leaflet uniquement côté client
-      this.L = await import('leaflet');
-      
-      // Fix pour les icônes par défaut de Leaflet
-      const iconRetinaUrl = 'assets/marker-icon-2x.png';
-      const iconUrl = 'assets/marker-icon.png';
-      const shadowUrl = 'assets/marker-shadow.png';
-      
-      const iconDefault = this.L.icon({
-        iconRetinaUrl,
-        iconUrl,
-        shadowUrl,
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        tooltipAnchor: [16, -28],
-        shadowSize: [41, 41]
-      });
-      
-      this.L.Marker.prototype.options.icon = iconDefault;
-      
-      // Initialiser la carte
-      this.initMap();
-      this.mapInitialized = true;
-      
-    } catch (error) {
-      console.error('Erreur lors du chargement de Leaflet:', error);
-      // En cas d'erreur, réessayer après 2 secondes
-      if (!this.mapInitialized) {
-        setTimeout(() => this.loadLeafletAndInitMap(), 2000);
+      try {
+        // Import dynamique de Leaflet
+        this.L = await import('leaflet');
+        
+        // Configuration des icônes
+        this.configureLeafletIcons();
+        
+        // Initialiser la carte
+        this.initMap();
+        this.mapInitialized = true;
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement de Leaflet:', error);
       }
-    }
+    };
+
+    await checkAndInit();
+  }
+
+  /**
+   * Configure les icônes par défaut de Leaflet
+   */
+  private configureLeafletIcons(): void {
+    if (!this.L) return;
+
+    // Fix pour les icônes par défaut
+    delete (this.L.Icon.Default.prototype as any)._getIconUrl;
+    
+    this.L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      iconUrl: 'leaflet/marker-icon.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
   }
 
   /**
@@ -177,31 +195,34 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const mapElement = document.getElementById('map');
     if (!mapElement) {
-      console.error('Élément carte non trouvé');
+      console.error('Élément carte non trouvé lors de l\'initialisation');
       return;
     }
 
     try {
       // Vérifier si la carte n'est pas déjà initialisée
       if (mapElement.hasChildNodes() && mapElement.children.length > 0) {
-        console.log('Carte déjà initialisée');
-        return;
+        console.log('Carte déjà initialisée, nettoyage...');
+        mapElement.innerHTML = '';
       }
 
-      const map = this.L.map('map', {
+      // Créer la carte
+      this.map = this.L.map('map', {
         zoomControl: true,
         scrollWheelZoom: true,
         doubleClickZoom: true,
-        touchZoom: true
-      }).setView([14.6928, -17.4467], 12); // Dakar
+        touchZoom: true,
+        attributionControl: true
+      }).setView([14.6928, -17.4467], 12);
 
+      // Ajouter la couche de tuiles
       this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18,
         minZoom: 8
-      }).addTo(map);
+      }).addTo(this.map);
 
-      // Données de localités au Sénégal
+      // Données de localités étendues
       const localities = [
         { name: 'Dakar Centre', lat: 14.6928, lng: -17.4467, members: 450 },
         { name: 'Plateau', lat: 14.6937, lng: -17.4441, members: 320 },
@@ -213,17 +234,17 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
         { name: 'Rufisque', lat: 14.7167, lng: -17.2667, members: 290 }
       ];
 
-      // Ajouter les marqueurs avec des icônes personnalisées
+      // Ajouter les marqueurs
       const markers: any[] = [];
       localities.forEach(locality => {
         const customIcon = this.createCustomIcon(locality.members);
         
         const marker = this.L.marker([locality.lat, locality.lng], { icon: customIcon })
-          .addTo(map)
+          .addTo(this.map)
           .bindPopup(`
-            <div style="text-align: center; padding: 10px;">
-              <h3 style="margin: 0 0 10px 0; color: #20a439;">${locality.name}</h3>
-              <p style="margin: 0; font-weight: bold;">Membres actifs: ${locality.members}</p>
+            <div style="text-align: center; padding: 10px; min-width: 150px;">
+              <h3 style="margin: 0 0 10px 0; color: #20a439; font-size: 16px;">${locality.name}</h3>
+              <p style="margin: 0; font-weight: bold; color: #065413;">Membres actifs: ${locality.members}</p>
             </div>
           `);
         
@@ -233,8 +254,17 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
       // Ajuster la vue pour inclure tous les marqueurs
       if (markers.length > 0) {
         const group = new this.L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.1));
+        this.map.fitBounds(group.getBounds().pad(0.1));
       }
+
+      // Forcer le redimensionnement après initialisation
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 200);
+
+      console.log('Carte initialisée avec succès');
 
     } catch (error) {
       console.error('Erreur lors de l\'initialisation de la carte:', error);
@@ -247,7 +277,7 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
   private createCustomIcon(memberCount: number): any {
     if (!this.L) return null;
 
-    // Déterminer la couleur et la taille basées sur le nombre de membres
+    // Palette de couleurs cohérente avec le thème
     let color = '#20a439';
     let size = 30;
 
@@ -255,20 +285,20 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
       color = '#065413'; // Vert foncé pour les zones très actives
       size = 35;
     } else if (memberCount > 400) {
-      color = '#20a439'; // Vert principal pour les zones moyennement actives
+      color = '#20a439'; // Vert principal
       size = 32;
     } else if (memberCount > 200) {
-      color = '#46c333'; // Vert clair pour les zones peu actives
+      color = '#46c333'; // Vert clair
       size = 28;
     } else {
       color = '#877a6f'; // Gris pour les zones moins actives
       size = 25;
     }
 
-    // Créer un SVG personnalisé
+    // SVG optimisé
     const svgIcon = `
-      <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+      <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2" opacity="0.9"/>
         <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
           ${memberCount > 999 ? '999+' : memberCount}
         </text>
@@ -279,7 +309,8 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
       html: svgIcon,
       className: 'custom-marker',
       iconSize: [size, size],
-      iconAnchor: [size/2, size/2]
+      iconAnchor: [size/2, size/2],
+      popupAnchor: [0, -size/2]
     });
   }
 }

@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { DashboardService } from '../service/dashboard.service'; // Import du service
+import { DashboardService } from '../service/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,10 +12,12 @@ import { DashboardService } from '../service/dashboard.service'; // Import du se
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription = new Subscription();
   private isBrowser: boolean = false;
-  private L: any; // Déclaration dynamique de Leaflet
+  private L: any;
+  private map: any;
+  private mapInitialized: boolean = false;
 
   stats = {
     totalUsers: 0,
@@ -47,21 +49,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private dashboardService: DashboardService // Injection du service
+    private dashboardService: DashboardService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.loadDashboardData();
+  }
 
-    if (this.isBrowser) {
-      await this.loadLeafletAndInitMap();
+  ngAfterViewInit(): void {
+    if (this.isBrowser && !this.mapInitialized) {
+      // Attendre que le DOM soit complètement rendu
+      setTimeout(() => {
+        this.loadLeafletAndInitMap();
+      }, 100);
     }
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    // Nettoyer la carte si elle existe
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
   }
 
   private loadDashboardData(): void {
@@ -86,7 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Chargement des données pour les sources de trafic (opportunités, actualités, vidéos)
+    // Chargement des données pour les sources de trafic
     this.subscriptions.add(
       this.dashboardService.getDecompteOppor().subscribe({
         next: (data) => {
@@ -131,63 +143,124 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Charge Leaflet dynamiquement et initialise la carte
    */
   private async loadLeafletAndInitMap(): Promise<void> {
+    if (!this.isBrowser || this.mapInitialized) {
+      return;
+    }
+
     try {
-      // Import dynamique de Leaflet uniquement côté client
+      // Vérifier que l'élément existe
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.warn('Élément carte non trouvé');
+        return;
+      }
+
+      // Import dynamique de Leaflet
       this.L = await import('leaflet');
       
-      // Configuration des icônes avec CDN (plus fiable)
-      delete (this.L.Icon.Default.prototype as any)._getIconUrl;
-      this.L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        tooltipAnchor: [16, -28],
-        shadowSize: [41, 41]
-      });
+      // Configuration des icônes par défaut
+      this.configureLeafletIcons();
       
+      // Initialiser la carte
       this.initMap();
+      this.mapInitialized = true;
+      
     } catch (error) {
       console.error('Erreur lors du chargement de Leaflet:', error);
     }
   }
 
   /**
+   * Configure les icônes par défaut de Leaflet
+   */
+  private configureLeafletIcons(): void {
+    if (!this.L) return;
+
+    // Correction du problème d'icônes
+    delete (this.L.Icon.Default.prototype as any)._getIconUrl;
+    
+    this.L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
+      iconUrl: 'leaflet/marker-icon.png',
+      shadowUrl: 'leaflet/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+  }
+
+  /**
    * Initialise la carte Leaflet
    */
   private initMap(): void {
-    if (!this.L) return;
+    if (!this.L || !this.isBrowser) return;
 
-    const map = this.L.map('map').setView([14.6928, -17.4467], 13); // Dakar
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error('Élément carte non trouvé');
+      return;
+    }
 
-    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    try {
+      // Créer la carte
+      this.map = this.L.map('map', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        touchZoom: true
+      }).setView([14.6928, -17.4467], 13);
 
-    // Exemple avec des données de localités
-    const localities = [
-      { name: 'Dakar Centre', lat: 14.6928, lng: -17.4467, members: 450 },
-      { name: 'Plateau', lat: 14.6937, lng: -17.4441, members: 320 },
-      { name: 'Medina', lat: 14.6889, lng: -17.4467, members: 280 },
-      { name: 'Grand Yoff', lat: 14.7167, lng: -17.4667, members: 190 },
-      { name: 'Parcelles Assainies', lat: 14.7333, lng: -17.4167, members: 650 }
-    ];
+      // Ajouter la couche de tuiles
+      this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        minZoom: 8
+      }).addTo(this.map);
 
-    // Ajouter les marqueurs avec des icônes personnalisées
-    localities.forEach(locality => {
-      const customIcon = this.createCustomIcon(locality.members);
-      
-      this.L.marker([locality.lat, locality.lng], { icon: customIcon })
-        .addTo(map)
-        .bindPopup(`
-          <div>
-            <h3>${locality.name}</h3>
-            <p>Membres: ${locality.members}</p>
-          </div>
-        `);
-    });
+      // Données de localités
+      const localities = [
+        { name: 'Dakar Centre', lat: 14.6928, lng: -17.4467, members: 450 },
+        { name: 'Plateau', lat: 14.6937, lng: -17.4441, members: 320 },
+        { name: 'Medina', lat: 14.6889, lng: -17.4467, members: 280 },
+        { name: 'Grand Yoff', lat: 14.7167, lng: -17.4667, members: 190 },
+        { name: 'Parcelles Assainies', lat: 14.7333, lng: -17.4167, members: 650 }
+      ];
+
+      // Ajouter les marqueurs
+      const markers: any[] = [];
+      localities.forEach(locality => {
+        const customIcon = this.createCustomIcon(locality.members);
+        
+        const marker = this.L.marker([locality.lat, locality.lng], { icon: customIcon })
+          .addTo(this.map)
+          .bindPopup(`
+            <div style="text-align: center; padding: 10px;">
+              <h3 style="margin: 0 0 10px 0; color: #065413;">${locality.name}</h3>
+              <p style="margin: 0; font-weight: bold;">Membres: ${locality.members}</p>
+            </div>
+          `);
+        
+        markers.push(marker);
+      });
+
+      // Ajuster la vue pour inclure tous les marqueurs
+      if (markers.length > 0) {
+        const group = new this.L.featureGroup(markers);
+        this.map.fitBounds(group.getBounds().pad(0.1));
+      }
+
+      // Forcer le redimensionnement de la carte
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 100);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de la carte:', error);
+    }
   }
 
   /**
@@ -196,26 +269,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private createCustomIcon(memberCount: number): any {
     if (!this.L) return null;
 
-    // Déterminer la couleur et la taille basées sur le nombre de membres
+    // Déterminer la couleur et la taille
     let color = '#065413';
     let size = 30;
 
     if (memberCount > 600) {
-      color = '#dc2626'; // Rouge pour les zones très actives
+      color = '#dc2626';
       size = 35;
     } else if (memberCount > 400) {
-      color = '#ea580c'; // Orange pour les zones moyennement actives
+      color = '#ea580c';
       size = 32;
     } else if (memberCount > 200) {
-      color = '#ca8a04'; // Jaune pour les zones peu actives
+      color = '#ca8a04';
       size = 28;
     }
 
-    // Créer un SVG personnalisé
+    // SVG personnalisé
     const svgIcon = `
-      <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${color}" xmlns="http://www.w3.org/2000/svg">
+      <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
-        <text x="12" y="16" text-anchor="middle" font-size="10" fill="white" font-weight="bold">
+        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
           ${memberCount > 999 ? '999+' : memberCount}
         </text>
       </svg>
@@ -225,10 +298,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       html: svgIcon,
       className: 'custom-marker',
       iconSize: [size, size],
-      iconAnchor: [size/2, size/2]
+      iconAnchor: [size/2, size/2],
+      popupAnchor: [0, -size/2]
     });
   }
 
+  // Méthodes utilitaires existantes
   getProgressPercentage(): number {
     return 75.5;
   }
@@ -252,7 +327,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   syncData(): void {
     console.log('Synchronisation des données...');
-    this.loadDashboardData(); // Recharge les données
+    this.loadDashboardData();
   }
 
   viewOverview(): void {
