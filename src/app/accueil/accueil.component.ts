@@ -297,6 +297,7 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // SVG optimisé
     const svgIcon = `
+    
       <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2" opacity="0.9"/>
         <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
