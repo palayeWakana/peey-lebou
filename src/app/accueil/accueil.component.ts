@@ -58,6 +58,7 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.startImageSlider();
+    
   }
 
   ngAfterViewInit(): void {
