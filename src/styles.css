@@ -1,5 +1,5 @@
 /* ✅ Import de Leaflet - sans le ~ */
-
+@import 'leaflet/dist/leaflet.css';
 /* Tailwind */
 @tailwind base;
 @tailwind components;
