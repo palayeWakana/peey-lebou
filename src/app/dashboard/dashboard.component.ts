@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { DashboardService } from '../service/dashboard.service';
-//
 
 @Component({
   selector: 'app-dashboard',
@@ -148,55 +147,120 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // try {
-    //   // Vérifier que l'élément existe
-    //   const mapElement = document.getElementById('map');
-    //   if (!mapElement) {
-    //     console.warn('Élément carte non trouvé');
-    //     return;
-    //   }
+    try {
+      // Vérifier que l'élément existe
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.warn('Élément carte non trouvé');
+        return;
+      }
 
-    //   // Import dynamique de Leaflet
-    //   this.L = await import('leaflet');
+      // SOLUTION 1: Import dynamique amélioré avec destructuration
+      const leafletModule = await import('leaflet');
       
-    //   // Configuration des icônes par défaut
-    //   this.configureLeafletIcons();
+      // Vérifier si c'est un export par défaut ou nommé
+      this.L = leafletModule.default || leafletModule;
       
-    //   // Initialiser la carte
-    //   this.initMap();
-    //   this.mapInitialized = true;
+      // Vérification supplémentaire
+      if (!this.L || !this.L.map || !this.L.Icon) {
+        console.error('Leaflet non correctement chargé', this.L);
+        return;
+      }
+
+      console.log('Leaflet chargé avec succès:', this.L);
       
-    // } catch (error) {
-    //   console.error('Erreur lors du chargement de Leaflet:', error);
-    // }
+      // Configuration des icônes par défaut
+      this.configureLeafletIcons();
+      
+      // Initialiser la carte
+      this.initMap();
+      this.mapInitialized = true;
+      
+    } catch (error) {
+      console.error('Erreur lors du chargement de Leaflet:', error);
+      
+      // SOLUTION 2: Fallback avec chargement via CDN
+      this.loadLeafletFromCDN();
+    }
+  }
+
+  /**
+   * SOLUTION 2: Chargement de Leaflet via CDN comme fallback
+   */
+  private loadLeafletFromCDN(): void {
+    if (typeof window === 'undefined') return;
+
+    // Vérifier si Leaflet est déjà disponible globalement
+    if ((window as any).L) {
+      this.L = (window as any).L;
+      this.configureLeafletIcons();
+      this.initMap();
+      this.mapInitialized = true;
+      return;
+    }
+
+    // Charger le CSS
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(cssLink);
+
+    // Charger le JS
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => {
+      this.L = (window as any).L;
+      if (this.L) {
+        this.configureLeafletIcons();
+        this.initMap();
+        this.mapInitialized = true;
+      }
+    };
+    script.onerror = (error) => {
+      console.error('Erreur chargement Leaflet depuis CDN:', error);
+    };
+    document.head.appendChild(script);
   }
 
   /**
    * Configure les icônes par défaut de Leaflet
    */
   private configureLeafletIcons(): void {
-    if (!this.L) return;
+    if (!this.L || !this.L.Icon || !this.L.Icon.Default) {
+      console.error('L.Icon.Default non disponible:', this.L);
+      return;
+    }
 
-    // Correction du problème d'icônes
-    delete (this.L.Icon.Default.prototype as any)._getIconUrl;
-    
-    this.L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'leaflet/marker-icon-2x.png',
-      iconUrl: 'leaflet/marker-icon.png',
-      shadowUrl: 'leaflet/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
-    });
+    try {
+      // Correction du problème d'icônes avec gestion d'erreur
+      const iconDefault = this.L.Icon.Default.prototype;
+      if (iconDefault._getIconUrl) {
+        delete iconDefault._getIconUrl;
+      }
+      
+      this.L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+        iconUrl: 'assets/leaflet/marker-icon.png',
+        shadowUrl: 'assets/leaflet/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        tooltipAnchor: [16, -28],
+        shadowSize: [41, 41]
+      });
+    } catch (error) {
+      console.error('Erreur configuration icônes Leaflet:', error);
+    }
   }
 
   /**
    * Initialise la carte Leaflet
    */
   private initMap(): void {
-    if (!this.L || !this.isBrowser) return;
+    if (!this.L || !this.isBrowser) {
+      console.error('Leaflet non disponible pour initialisation');
+      return;
+    }
 
     const mapElement = document.getElementById('map');
     if (!mapElement) {
@@ -205,6 +269,12 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     try {
+      // Nettoyer toute instance précédente
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
+
       // Créer la carte
       this.map = this.L.map('map', {
         zoomControl: true,
@@ -234,7 +304,9 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       localities.forEach(locality => {
         const customIcon = this.createCustomIcon(locality.members);
         
-        const marker = this.L.marker([locality.lat, locality.lng], { icon: customIcon })
+        const marker = this.L.marker([locality.lat, locality.lng], { 
+          icon: customIcon || undefined // Utiliser l'icône par défaut si customIcon échoue
+        })
           .addTo(this.map)
           .bindPopup(`
             <div style="text-align: center; padding: 10px;">
@@ -259,6 +331,8 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }, 100);
 
+      console.log('Carte initialisée avec succès');
+
     } catch (error) {
       console.error('Erreur lors de l\'initialisation de la carte:', error);
     }
@@ -268,40 +342,48 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
    * Crée une icône personnalisée basée sur le nombre de membres
    */
   private createCustomIcon(memberCount: number): any {
-    if (!this.L) return null;
-
-    // Déterminer la couleur et la taille
-    let color = '#065413';
-    let size = 30;
-
-    if (memberCount > 600) {
-      color = '#dc2626';
-      size = 35;
-    } else if (memberCount > 400) {
-      color = '#ea580c';
-      size = 32;
-    } else if (memberCount > 200) {
-      color = '#ca8a04';
-      size = 28;
+    if (!this.L || !this.L.divIcon) {
+      console.warn('divIcon non disponible, utilisation icône par défaut');
+      return null;
     }
 
-    // SVG personnalisé
-    const svgIcon = `
-      <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
-        <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
-          ${memberCount > 999 ? '999+' : memberCount}
-        </text>
-      </svg>
-    `;
+    try {
+      // Déterminer la couleur et la taille
+      let color = '#065413';
+      let size = 30;
 
-    return this.L.divIcon({
-      html: svgIcon,
-      className: 'custom-marker',
-      iconSize: [size, size],
-      iconAnchor: [size/2, size/2],
-      popupAnchor: [0, -size/2]
-    });
+      if (memberCount > 600) {
+        color = '#dc2626';
+        size = 35;
+      } else if (memberCount > 400) {
+        color = '#ea580c';
+        size = 32;
+      } else if (memberCount > 200) {
+        color = '#ca8a04';
+        size = 28;
+      }
+
+      // SVG personnalisé
+      const svgIcon = `
+        <svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+          <text x="12" y="16" text-anchor="middle" font-size="8" fill="white" font-weight="bold">
+            ${memberCount > 999 ? '999+' : memberCount}
+          </text>
+        </svg>
+      `;
+
+      return this.L.divIcon({
+        html: svgIcon,
+        className: 'custom-marker',
+        iconSize: [size, size],
+        iconAnchor: [size/2, size/2],
+        popupAnchor: [0, -size/2]
+      });
+    } catch (error) {
+      console.error('Erreur création icône personnalisée:', error);
+      return null;
+    }
   }
 
   // Méthodes utilitaires existantes
