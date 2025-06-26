@@ -147,27 +147,27 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    try {
-      // Vérifier que l'élément existe
-      const mapElement = document.getElementById('map');
-      if (!mapElement) {
-        console.warn('Élément carte non trouvé');
-        return;
-      }
+    // try {
+    //   // Vérifier que l'élément existe
+    //   const mapElement = document.getElementById('map');
+    //   if (!mapElement) {
+    //     console.warn('Élément carte non trouvé');
+    //     return;
+    //   }
 
-      // Import dynamique de Leaflet
-      this.L = await import('leaflet');
+    //   // Import dynamique de Leaflet
+    //   this.L = await import('leaflet');
       
-      // Configuration des icônes par défaut
-      this.configureLeafletIcons();
+    //   // Configuration des icônes par défaut
+    //   this.configureLeafletIcons();
       
-      // Initialiser la carte
-      this.initMap();
-      this.mapInitialized = true;
+    //   // Initialiser la carte
+    //   this.initMap();
+    //   this.mapInitialized = true;
       
-    } catch (error) {
-      console.error('Erreur lors du chargement de Leaflet:', error);
-    }
+    // } catch (error) {
+    //   console.error('Erreur lors du chargement de Leaflet:', error);
+    // }
   }
 
   /**
