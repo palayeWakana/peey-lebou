@@ -42,7 +42,8 @@
             
               "styles": [
                 "node_modules/leaflet/dist/leaflet.css",
-                "src/styles.css"
+                 "src/styles.css",
+                 "src/leaflet-fix.css"
               ],
             "scripts": [],
             "server": "src/main.server.ts",
