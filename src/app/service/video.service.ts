@@ -22,6 +22,35 @@ export interface Video {
   titre: string;
   vcategorie: VideoCategorie;
 }
+export interface VideoResponse {
+  content: Video[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  first: boolean;
+  empty: boolean;
+}
+
 
 export interface VideoCreateRequest {
   auteur: string;
@@ -59,7 +88,9 @@ export class VideoService {
   getAllVideo(): Observable<Video[]> {
     return this.http.get<Video[]>(`${this.apiUrl}/video/all`);
   }
-
+  getVideos(page: number, size: number): Observable<VideoResponse> {
+    return this.http.get<VideoResponse>(`${this.apiUrl}/video/home?page=${page}&size=${size}`);
+  }
   getVideoById(id: number): Observable<Video> {
     return this.http.get<Video>(`${this.apiUrl}/video/${id}`);
   }

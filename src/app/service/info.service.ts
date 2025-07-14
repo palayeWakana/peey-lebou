@@ -78,6 +78,8 @@ export interface ActuResponse {
 export class InfoService {
   // URL de base de l'API
   private readonly baseApiUrl = 'https://peeyconnect.net/api/v1';
+  private baseUrl = 'https://peeyconnect.net/api/v1';
+
   
   // URL pour les actualités - Nouvelle URL
   private readonly actuApiUrl = `${this.baseApiUrl}/actu/all`;
@@ -97,6 +99,9 @@ export class InfoService {
     // Plus besoin de paramètres de pagination car ils ne sont pas pris en charge
     return this.http.get<ContentItem[]>(this.actuApiUrl);
   }
+   getActualites(page: number, size: number): Observable<ActuResponse> {
+      return this.http.get<ActuResponse>(`${this.baseUrl}/actu/home?page=${page}&size=${size}`);
+    }
 
   /**
    * Récupère les opportunités (sans pagination côté serveur)

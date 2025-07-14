@@ -47,6 +47,7 @@ export interface OpportuniteResponse {
   empty: boolean;
 }
 
+
 // Interface pour les données JSON de création d'opportunité
 export interface CreateOpportuniteData {
   titre: string;
@@ -71,8 +72,8 @@ export class OpportuniteService {
   constructor(private http: HttpClient) { }
 
   // Récupérer toutes les opportunités paginées
-  getOpportunites(page: number = 0, size: number = 12): Observable<OpportuniteResponse> {
-    return this.http.get<OpportuniteResponse>(`${this.baseUrl}/opportunite/pages?page=${page}&size=${size}`);
+  getOpportunites(page: number, size: number): Observable<OpportuniteResponse> {
+    return this.http.get<OpportuniteResponse>(`${this.baseUrl}/opportunite/home?page=${page}&size=${size}`);
   }
 
   // Récupérer une opportunité par ID
@@ -134,17 +135,17 @@ export class OpportuniteService {
   }
 
   // Méthode pour récupérer les opportunités par catégorie
-  getOpportunitesByCategorie(categorie: string, page: number = 0, size: number = 12): Observable<OpportuniteResponse> {
+  getOpportunitesByCategorie(categorie: string, page: number, size: number): Observable<OpportuniteResponse> {
     return this.http.get<OpportuniteResponse>(`${this.baseUrl}/opportunite/categorie/${categorie}?page=${page}&size=${size}`);
   }
 
   // Méthode pour récupérer les opportunités validées seulement
-  getValidatedOpportunites(page: number = 0, size: number = 12): Observable<OpportuniteResponse> {
+  getValidatedOpportunites(page: number, size: number): Observable<OpportuniteResponse> {
     return this.http.get<OpportuniteResponse>(`${this.baseUrl}/opportunite/validated?page=${page}&size=${size}`);
   }
 
   // Méthode pour rechercher des opportunités
-  searchOpportunites(query: string, page: number = 0, size: number = 12): Observable<OpportuniteResponse> {
+  searchOpportunites(query: string, page: number, size: number): Observable<OpportuniteResponse> {
     return this.http.get<OpportuniteResponse>(`${this.baseUrl}/opportunite/search?q=${encodeURIComponent(query)}&page=${page}&size=${size}`);
   }
 

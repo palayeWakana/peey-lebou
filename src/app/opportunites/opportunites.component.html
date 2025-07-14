@@ -7,10 +7,10 @@
     <p>Chargement des opportunités...</p>
   </div>
   
-  
   <!-- Error state -->
   <div class="error-container" *ngIf="error">
     <p>Impossible de charger les opportunités. Veuillez réessayer plus tard.</p>
+    <button class="retry-btn" (click)="retryLoading()">Réessayer</button>
   </div>
   
   <!-- Content grid -->
@@ -26,7 +26,6 @@
         </div>
       </div>
       
-      <!--  -->
       <!-- Contenu textuel maintenant en dessous -->
       <div class="card-content" (click)="navigateToDetails(opportunite.id)">
         <div class="card-type">{{ opportunite.categorie }}</div>
@@ -36,24 +35,32 @@
     </div>
   </div>
   
+  <!-- Loading more state -->
+  <!-- <div class="loading-more-container" *ngIf="loadingMore">
+    <p>Chargement de plus d'opportunités...</p>
+  </div> -->
+  
   <!-- Voir plus/moins buttons -->
-  <div class="voir-plus-container" *ngIf="!loading && !error && allOpportunites.length > initialDisplayCount">
+  <div class="voir-plus-container" *ngIf="!loading && !error && opportunites.length > 0">
     <button 
-      *ngIf="!showAllOpportunites" 
+      *ngIf="shouldShowVoirPlus()" 
       class="voir-plus-btn" 
-      (click)="showAllContent()">
-      Voir Plus
+      (click)="showMoreContent()"
+      [disabled]="loadingMore">
+      {{ loadingMore ? 'Chargement...' : 'Voir Plus' }}
     </button>
+    
     <button 
-      *ngIf="showAllOpportunites" 
+      *ngIf="shouldShowVoirMoins()" 
       class="voir-moins-btn" 
-      (click)="showLessContent()">
+      (click)="showLessContent()"
+      [disabled]="loadingMore">
       Voir Moins
     </button>
   </div>
   
   <!-- No content state -->
-  <div class="no-content" *ngIf="!loading && !error && allOpportunites.length === 0">
+  <div class="no-content" *ngIf="!loading && !error && opportunites.length === 0">
     <p>Aucune opportunité disponible pour le moment.</p>
   </div>
 </section>

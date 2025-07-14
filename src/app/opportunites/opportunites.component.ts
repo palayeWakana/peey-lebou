@@ -14,13 +14,15 @@ import { Subscription, filter } from 'rxjs';
 })
 export class OpportunitesComponent implements OnInit, OnDestroy {
   opportunites: OpportuniteItem[] = [];
-  allOpportunites: OpportuniteItem[] = [];
   loading = true;
   error = false;
   imageBaseUrl = 'http://peeyconnect.net/repertoire_upload/';
 
-  initialDisplayCount = 3;
-  showAllOpportunites = false;
+  // Variables pour la pagination
+  currentPage = 0;
+  pageSize = 3;
+  isLastPage = false;
+  loadingMore = false;
 
   private navigationSubscription?: Subscription;
 
@@ -31,13 +33,14 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Chargement initial
-    this.fetchLatestOpportunites();
+    this.fetchOpportunites();
 
     // Recharger les opportunités à chaque retour sur cette route
     this.navigationSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        this.fetchLatestOpportunites();
+        this.resetPagination();
+        this.fetchOpportunites();
       });
   }
 
@@ -47,25 +50,44 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchLatestOpportunites(): void {
-    console.log('Chargement des opportunités...');
-    this.loading = true;
+  resetPagination(): void {
+    this.currentPage = 0;
+    this.isLastPage = false;
+  }
+
+  fetchOpportunites(page: number = 0): void {
+    console.log(`Chargement des opportunités - Page: ${page}, Size: ${this.pageSize}`);
+    
+    // Si c'est la première page, afficher le loading principal
+    if (page === 0) {
+      this.loading = true;
+    } else {
+      this.loadingMore = true;
+    }
+    
     this.error = false;
 
-    this.opportuniteService.getOpportunites(0, 12).subscribe({
+    this.opportuniteService.getOpportunites(page, this.pageSize).subscribe({
       next: (response: OpportuniteResponse) => {
         console.log('Réponse API reçue:', response);
 
         if (response && response.content) {
-          this.allOpportunites = response.content;
-          console.log('Opportunités chargées:', this.allOpportunites);
-          this.updateDisplayedOpportunites();
+          // Toujours remplacer le contenu par celui de la page actuelle
+          this.opportunites = response.content;
+          
+          this.currentPage = page;
+          this.isLastPage = response.last || false;
+          
+          console.log('Opportunités chargées:', this.opportunites);
+          console.log('Page actuelle:', this.currentPage);
+          console.log('Dernière page:', this.isLastPage);
         } else {
           console.error('Format de réponse invalide:', response);
           this.error = true;
         }
 
         this.loading = false;
+        this.loadingMore = false;
       },
       error: (err) => {
         console.error('Type d\'erreur:', err.status, err.statusText);
@@ -73,25 +95,28 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
         console.error('Erreur complète:', err);
         this.error = true;
         this.loading = false;
-      
+        this.loadingMore = false;
       }
     });
   }
 
-  updateDisplayedOpportunites(): void {
-    this.opportunites = this.showAllOpportunites
-      ? [...this.allOpportunites]
-      : this.allOpportunites.slice(0, this.initialDisplayCount);
-  }
-
-  showAllContent(): void {
-    this.showAllOpportunites = true;
-    this.updateDisplayedOpportunites();
+  showMoreContent(): void {
+    if (!this.isLastPage && !this.loadingMore) {
+      this.fetchOpportunites(this.currentPage + 1);
+    }
   }
 
   showLessContent(): void {
-    this.showAllOpportunites = false;
-    this.updateDisplayedOpportunites();
+    this.resetPagination();
+    this.fetchOpportunites(0);
+  }
+
+  shouldShowVoirPlus(): boolean {
+    return !this.loading && !this.error && !this.isLastPage && this.opportunites.length > 0;
+  }
+
+  shouldShowVoirMoins(): boolean {
+    return !this.loading && !this.error && this.currentPage > 0 && this.opportunites.length > 0;
   }
 
   getFullImageUrl(imagePath: string): string {
@@ -125,6 +150,7 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
   }
 
   retryLoading(): void {
-    this.fetchLatestOpportunites();
+    this.resetPagination();
+    this.fetchOpportunites();
   }
 }

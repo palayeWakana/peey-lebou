@@ -165,9 +165,6 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 }
 
-
-
-
   /**
    * Initialise la carte Leaflet
    */
