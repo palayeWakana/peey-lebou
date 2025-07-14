@@ -305,14 +305,17 @@ export class UtilisateurComponent implements OnInit {
   toggleChangePassword(): void {
     this.changePassword = !this.changePassword;
     
+    const passwordControl = this.editUserForm.get('password');
     if (this.changePassword) {
-      this.editUserForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
+      passwordControl?.setValue(''); // Réinitialiser la valeur
+      passwordControl?.markAsUntouched(); // Réinitialiser l'état touched
     } else {
-      this.editUserForm.get('password')?.clearValidators();
-      this.editUserForm.get('password')?.setValue('');
+      passwordControl?.clearValidators();
+      passwordControl?.setValue('');
     }
     
-    this.editUserForm.get('password')?.updateValueAndValidity();
+    passwordControl?.updateValueAndValidity();
   }
 
   // Méthodes utilitaires pour obtenir les noms
@@ -812,7 +815,7 @@ export class UtilisateurComponent implements OnInit {
       this.markFormGroupTouched(this.editUserForm);
       return;
     }
-
+  
     this.editLoading = true;
     const formData = this.editUserForm.value;
     const userId = formData.id;
@@ -842,21 +845,17 @@ export class UtilisateurComponent implements OnInit {
       img: formData.img || '',
       centreinteret: this.userToEdit?.centreinteret || []
     };
-
-    // Ajouter le mot de passe seulement s'il doit être changé ET qu'il n'est pas vide
-    if (this.changePassword && formData.password && formData.password.trim() !== '') {
+  
+    // Ajouter le mot de passe seulement si l'option est activée et que le champ n'est pas vide
+    if (this.changePassword && formData.password) {
       updateData.password = formData.password;
     }
-
-    console.log('Données à envoyer:', updateData); // Pour debug
-
+  
     this.userService.updateUser(userId, updateData).subscribe({
       next: (updatedUser) => {
-        console.log('Utilisateur mis à jour:', updatedUser); // Pour debug
         this.handleEditSuccess(updatedUser);
       },
       error: (err) => {
-        console.error('Erreur lors de la mise à jour:', err); // Pour debug
         this.handleEditError(err);
       }
     });

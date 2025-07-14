@@ -17,25 +17,23 @@ export class LatestComponent implements OnInit, OnDestroy {
   loading = true;
   error = false;
   imageBaseUrl = 'http://peeyconnect.net/repertoire_upload/';
-  
-  // Variables pour la pagination
+
+  // Pagination
   currentPage = 0;
   pageSize = 3;
   isLastPage = false;
   loadingMore = false;
 
   private navigationSubscription?: Subscription;
-  
+
   constructor(
     private infoService: InfoService,
     private router: Router
   ) {}
-  
+
   ngOnInit(): void {
-    // Chargement initial
     this.fetchLatestInsights();
 
-    // Recharger les actualités à chaque retour sur cette route
     this.navigationSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -45,66 +43,64 @@ export class LatestComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.navigationSubscription) {
-      this.navigationSubscription.unsubscribe();
-    }
+    this.navigationSubscription?.unsubscribe();
   }
 
   resetPagination(): void {
     this.currentPage = 0;
     this.isLastPage = false;
+    this.insights = [];
   }
-  
+
   fetchLatestInsights(page: number = 0): void {
     console.log(`Chargement des actualités - Page: ${page}, Size: ${this.pageSize}`);
-    
-    // Si c'est la première page, afficher le loading principal
+
     if (page === 0) {
       this.loading = true;
+      this.insights = [];
     } else {
       this.loadingMore = true;
     }
-    
+
     this.error = false;
 
     this.infoService.getActualites(page, this.pageSize).subscribe({
       next: (response: any) => {
         console.log('Réponse API reçue:', response);
 
-        // Adaptez selon la structure de votre réponse
+        let newItems: ContentItem[] = [];
+
         if (Array.isArray(response)) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.insights = response;
-          this.currentPage = page;
-          this.isLastPage = response.length < this.pageSize;
-        } 
-        else if (response && response.content) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.insights = response.content;
-          this.currentPage = page;
+          newItems = response;
+          this.isLastPage = newItems.length < this.pageSize;
+        } else if (response && response.content) {
+          newItems = response.content;
           this.isLastPage = response.last || false;
-        } 
-        else if (response) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.insights = response;
-          this.currentPage = page;
-          this.isLastPage = response.length < this.pageSize;
+        } else if (response) {
+          newItems = response;
+          this.isLastPage = newItems.length < this.pageSize;
         } else {
           console.error('Format de réponse invalide:', response);
           this.error = true;
         }
 
+        // Ajouter les nouveaux éléments aux existants
+        if (page === 0) {
+          this.insights = newItems;
+        } else {
+          this.insights = [...this.insights, ...newItems];
+        }
+
+        this.currentPage = page;
+        this.loading = false;
+        this.loadingMore = false;
+
         console.log('Actualités chargées:', this.insights);
         console.log('Page actuelle:', this.currentPage);
         console.log('Dernière page:', this.isLastPage);
-
-        this.loading = false;
-        this.loadingMore = false;
       },
       error: (err) => {
-        console.error('Type d\'erreur:', err.status, err.statusText);
-        console.error('Message d\'erreur:', err.message);
-        console.error('Erreur complète:', err);
+        console.error('Erreur lors du chargement:', err);
         this.error = true;
         this.loading = false;
         this.loadingMore = false;
@@ -128,7 +124,7 @@ export class LatestComponent implements OnInit, OnDestroy {
   }
 
   shouldShowVoirMoins(): boolean {
-    return !this.loading && !this.error && this.isLastPage && this.currentPage > 0 && this.insights.length > 0;
+    return !this.loading && !this.error && this.currentPage > 0 && this.insights.length > 0;
   }
 
   getFullImageUrl(imagePath: string): string {
@@ -140,7 +136,7 @@ export class LatestComponent implements OnInit, OnDestroy {
       console.error('ID invalide:', id);
       return;
     }
-    
+
     this.router.navigate(['/details', id]).then(success => {
       if (!success) {
         console.error('Échec de navigation');

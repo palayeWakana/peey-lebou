@@ -1,19 +1,19 @@
 <div class="video-container">
   <h2 class="section-title">Vidéos</h2>
   
-  <!-- Loading state -->
+  <!-- Loading -->
   <div class="loading-container" *ngIf="loading">
     <div class="loader"></div>
     <p>Chargement des vidéos...</p>
   </div>
   
-  <!-- Error state -->
+  <!-- Erreur -->
   <div class="error-container" *ngIf="error">
     <p>Une erreur est survenue lors du chargement des vidéos. Veuillez réessayer plus tard.</p>
     <button class="retry-btn" (click)="retryLoading()">Réessayer</button>
   </div>
   
-  <!-- Content grid -->
+  <!-- Contenu -->
   <div class="videos-grid" *ngIf="!loading && !error && videos.length > 0">
     <div class="video-card" *ngFor="let video of videos" (click)="navigateToVideoDetails(video.id)">
       <div class="video-thumbnail">
@@ -39,9 +39,10 @@
     </div>
   </div>
   
+  <!-- Voir Plus / Moins -->
   <div class="show-more-container" *ngIf="!loading && !error && videos.length > 0">
     <button 
-      *ngIf="shouldShowVoirPlus()" 
+      *ngIf="shouldShowVoirPlus() && !isLastPage" 
       class="show-more-btn" 
       (click)="showMoreContent()"
       [disabled]="loadingMore">
@@ -49,11 +50,11 @@
     </button>
     
     <button 
-      *ngIf="shouldShowVoirMoins()" 
+      *ngIf="shouldShowVoirMoins() && isLastPage && !shouldShowVoirPlus()" 
       class="show-less-btn" 
       (click)="showLessContent()"
       [disabled]="loadingMore">
       Voir Moins
     </button>
-   
   </div>
+</div>

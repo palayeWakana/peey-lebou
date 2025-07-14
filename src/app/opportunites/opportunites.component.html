@@ -1,4 +1,3 @@
-<!-- opportunites.component.html -->
 <section class="opportunites-section">
   <h2 class="section-title">Opportunités</h2>
   
@@ -16,17 +15,17 @@
   <!-- Content grid -->
   <div class="opportunites-grid" *ngIf="!loading && !error && opportunites.length > 0">
     <div class="opportunite-card" *ngFor="let opportunite of opportunites">
-      <!-- Image maintenant au-dessus -->
       <div class="image-container">
         <img [src]="getFullImageUrl(opportunite.img)" [alt]="opportunite.titre" 
              onerror="this.src='assets/images/placeholder.jpg'">
         <div class="hover-overlay">
           <p class="overlay-text">Par: {{ opportunite.auteur }}</p>
-          <button class="learn-more" (click)="navigateToDetails(opportunite.id); $event.stopPropagation();">Savoir Plus</button>
+          <button class="learn-more" (click)="navigateToDetails(opportunite.id); $event.stopPropagation();">
+            Savoir Plus
+          </button>
         </div>
       </div>
       
-      <!-- Contenu textuel maintenant en dessous -->
       <div class="card-content" (click)="navigateToDetails(opportunite.id)">
         <div class="card-type">{{ opportunite.categorie }}</div>
         <h3 class="card-title">{{ opportunite.titre }}</h3>
@@ -35,23 +34,18 @@
     </div>
   </div>
   
-  <!-- Loading more state -->
-  <!-- <div class="loading-more-container" *ngIf="loadingMore">
-    <p>Chargement de plus d'opportunités...</p>
-  </div> -->
-  
-  <!-- Voir plus/moins buttons -->
+  <!-- Voir plus / Voir moins buttons -->
   <div class="voir-plus-container" *ngIf="!loading && !error && opportunites.length > 0">
     <button 
-      *ngIf="shouldShowVoirPlus()" 
+      *ngIf="shouldShowVoirPlus() && !isLastPage" 
       class="voir-plus-btn" 
       (click)="showMoreContent()"
       [disabled]="loadingMore">
       {{ loadingMore ? 'Chargement...' : 'Voir Plus' }}
     </button>
-    
+
     <button 
-      *ngIf="shouldShowVoirMoins()" 
+      *ngIf="shouldShowVoirMoins() && isLastPage && !shouldShowVoirPlus()" 
       class="voir-moins-btn" 
       (click)="showLessContent()"
       [disabled]="loadingMore">
@@ -60,7 +54,7 @@
   </div>
   
   <!-- No content state -->
-  <div class="no-content" *ngIf="!loading && !error && opportunites.length === 0">
+  <!-- <div class="no-content" *ngIf="!loading && !error && opportunites.length === 0">
     <p>Aucune opportunité disponible pour le moment.</p>
-  </div>
+  </div> -->
 </section>

@@ -53,6 +53,7 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
   resetPagination(): void {
     this.currentPage = 0;
     this.isLastPage = false;
+    this.opportunites = [];
   }
 
   fetchOpportunites(page: number = 0): void {
@@ -61,6 +62,7 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
     // Si c'est la première page, afficher le loading principal
     if (page === 0) {
       this.loading = true;
+      this.opportunites = [];
     } else {
       this.loadingMore = true;
     }
@@ -72,8 +74,13 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
         console.log('Réponse API reçue:', response);
 
         if (response && response.content) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.opportunites = response.content;
+          if (page === 0) {
+            // Première page : remplacer le contenu
+            this.opportunites = response.content;
+          } else {
+            // Pages suivantes : ajouter au contenu existant
+            this.opportunites = [...this.opportunites, ...response.content];
+          }
           
           this.currentPage = page;
           this.isLastPage = response.last || false;

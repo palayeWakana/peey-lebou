@@ -18,25 +18,24 @@ export class VideoComponent implements OnInit, OnDestroy {
   loading = true;
   error = false;
   imageBaseUrl = 'http://peeyconnect.net/repertoire_upload/';
-  
-  // Variables pour la pagination
+
+  // Pagination
   currentPage = 0;
   pageSize = 3;
   isLastPage = false;
   loadingMore = false;
 
   private navigationSubscription?: Subscription;
-  
+
   constructor(
     private videoService: VideoService,
     private router: Router
   ) {}
-  
+
   ngOnInit(): void {
-    // Chargement initial
     this.fetchVideos();
 
-    // Recharger les vidéos à chaque retour sur cette route
+    // Recharge lors du retour sur la route
     this.navigationSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -46,66 +45,59 @@ export class VideoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.navigationSubscription) {
-      this.navigationSubscription.unsubscribe();
-    }
+    this.navigationSubscription?.unsubscribe();
   }
 
   resetPagination(): void {
     this.currentPage = 0;
     this.isLastPage = false;
+    this.videos = [];
   }
-  
+
   fetchVideos(page: number = 0): void {
     console.log(`Chargement des vidéos - Page: ${page}, Size: ${this.pageSize}`);
-    
-    // Si c'est la première page, afficher le loading principal
+
     if (page === 0) {
       this.loading = true;
+      this.videos = [];
     } else {
       this.loadingMore = true;
     }
-    
+
     this.error = false;
 
     this.videoService.getVideos(page, this.pageSize).subscribe({
       next: (response: any) => {
         console.log('Réponse API reçue:', response);
 
-        // Adaptez selon la structure de votre réponse
+        let newVideos: Video[] = [];
+
         if (Array.isArray(response)) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.videos = response;
-          this.currentPage = page;
+          newVideos = response;
           this.isLastPage = response.length < this.pageSize;
-        } 
-        else if (response && response.content) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.videos = response.content;
-          this.currentPage = page;
+        } else if (response?.content) {
+          newVideos = response.content;
           this.isLastPage = response.last || false;
-        } 
-        else if (response) {
-          // Toujours remplacer le contenu par celui de la page actuelle
-          this.videos = response;
-          this.currentPage = page;
+        } else if (response) {
+          newVideos = response;
           this.isLastPage = response.length < this.pageSize;
         } else {
-          console.error('Format de réponse invalide:', response);
           this.error = true;
+          return;
         }
 
-        console.log('Vidéos chargées:', this.videos);
-        console.log('Page actuelle:', this.currentPage);
-        console.log('Dernière page:', this.isLastPage);
+        if (page === 0) {
+          this.videos = newVideos;
+        } else {
+          this.videos = [...this.videos, ...newVideos];
+        }
 
+        this.currentPage = page;
         this.loading = false;
         this.loadingMore = false;
       },
       error: (err) => {
-        console.error('Type d\'erreur:', err.status, err.statusText);
-        console.error('Message d\'erreur:', err.message);
-        console.error('Erreur complète:', err);
+        console.error('Erreur lors du chargement:', err);
         this.error = true;
         this.loading = false;
         this.loadingMore = false;
@@ -137,31 +129,20 @@ export class VideoComponent implements OnInit, OnDestroy {
   }
 
   navigateToVideoDetails(id: number): void {
-    if (!id || isNaN(id)) {
-      console.error('ID invalide:', id);
-      return;
-    }
-    
-    this.router.navigate(['/video-details', id]).then(success => {
-      if (!success) {
-        console.error('Échec de navigation');
-      }
-    }).catch(err => {
-      console.error('Erreur de navigation:', err);
+    if (!id || isNaN(id)) return;
+    this.router.navigate(['/video-details', id]).catch(err => {
+      console.error('Erreur navigation:', err);
     });
   }
 
   getYoutubeEmbedUrl(videoLink: string): string {
-    // Extraction de l'ID de la vidéo YouTube
     let videoId = '';
-    
     if (videoLink.includes('youtube.com')) {
       const urlParams = new URL(videoLink).searchParams;
       videoId = urlParams.get('v') || '';
     } else if (videoLink.includes('youtu.be')) {
       videoId = videoLink.split('/').pop() || '';
     }
-    
     return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
   }
 
