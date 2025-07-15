@@ -59,7 +59,7 @@ export class OpportuniteDetailsComponent implements OnInit {
     this.error = false;
     this.opportunite = null;
     
-    console.log(`Tentative de récupération de l'opportunité avec ID: ${id}`);
+    // console.log(`Tentative de récupération de l'opportunité avec ID: ${id}`);
     
     this.opportuniteService.getOpportuniteById(id).subscribe({
       next: (opportunite) => {
@@ -81,7 +81,7 @@ export class OpportuniteDetailsComponent implements OnInit {
 
   // Helper method to construct full image URL
   getFullImageUrl(imagePath: string): string {
-    if (!imagePath) return 'assets/images/placeholder.jpg';
+    if (!imagePath) return 'img/avatar.png';
     return this.imageBaseUrl + imagePath;
   }
 

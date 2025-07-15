@@ -778,17 +778,33 @@
                 
                 <div class="form-group form-group-half">
                   <label for="edit-password" class="form-label">
-                    <i class="fas fa-lock"></i> Nouveau mot de passe
+                    <i class="fas fa-lock"></i> Mot de passe
                   </label>
-                  <input 
-                    type="password" 
-                    id="edit-password" 
-                    formControlName="password" 
-                    class="form-control"
-                    placeholder="Laisser vide pour ne pas changer"
-                  >
-                  <div class="form-hint">
-                    Laisser vide pour ne pas modifier le mot de passe
+                  <div class="password-section">
+                    <div class="password-toggle">
+                      <input 
+                        type="checkbox" 
+                        id="change-password" 
+                        [(ngModel)]="changePassword"
+                        [ngModelOptions]="{standalone: true}"
+                        (change)="toggleChangePassword()"
+                      >
+                      <label for="change-password" class="checkbox-label">
+                        Changer le mot de passe
+                      </label>
+                    </div>
+                    <input 
+                      type="password" 
+                      id="edit-password" 
+                      formControlName="password" 
+                      class="form-control"
+                      [ngClass]="{'is-invalid': isFieldInvalid('password', editUserForm)}"
+                      [disabled]="!changePassword"
+                      placeholder="Nouveau mot de passe"
+                    >
+                    <div class="invalid-feedback" *ngIf="isFieldInvalid('password', editUserForm)">
+                      Le mot de passe doit contenir au moins 6 caractères
+                    </div>
                   </div>
                 </div>
               </div>
@@ -814,6 +830,9 @@
                     <option value="MAIN_ADMINISTRATOR">Administrateur Principal</option>
                     <option value="SUPER_ADMINISTRATOR">Super Administrateur</option>
                   </select>
+                  <div class="invalid-feedback" *ngIf="isFieldInvalid('role', editUserForm)">
+                    Le rôle est requis
+                  </div>
                 </div>
                 
                 <div class="form-group form-group-half">
@@ -853,6 +872,18 @@
                     class="form-control"
                     placeholder="Niveau d'étude"
                   >
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group form-group-half">
+                  <label for="edit-activated" class="form-label">
+                    <i class="fas fa-toggle-on"></i> Statut
+                  </label>
+                  <select id="edit-activated" formControlName="activated" class="form-control">
+                    <option [value]="true">Activé</option>
+                    <option [value]="false">Désactivé</option>
+                  </select>
                 </div>
               </div>
               

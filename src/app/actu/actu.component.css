@@ -15,6 +15,12 @@
   align-items: center;
   margin-bottom: 30px;
 }
+.udapte-icon{
+  background-color: red;
+display: flex;
+align-items: end;
+justify-content: space-between;
+}
 
 .section-title {
   position: relative;
@@ -390,6 +396,8 @@
 }
 
 .actu-date {
+  position: relative;
+  left: 41%;
   font-size: 12px;
   color: #777;
   display: flex;

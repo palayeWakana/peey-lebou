@@ -14,11 +14,11 @@
   </div>
   
   <!-- Content grid -->
-  <div class="insights-grid" *ngIf="!loading && !error && insights.length > 0">
-    <div class="insight-card" *ngFor="let insight of insights">
+  <div class="insights-grid"  *ngIf="!loading && !error && insights.length > 0" >
+    <div class="insight-card" *ngFor="let insight of insights" (click)="navigateToDetails(insight.id)"    >
       <div class="image-container">
         <img [src]="getFullImageUrl(insight.img)" [alt]="insight.titre" 
-             onerror="this.src='assets/images/placeholder.jpg'">
+             onerror="this.src='img/avatar.png'">
         <div class="hover-overlay">
           <p class="overlay-text">Par: {{ insight.auteur }}</p>
           <button class="learn-more" (click)="navigateToDetails(insight.id); $event.stopPropagation();">

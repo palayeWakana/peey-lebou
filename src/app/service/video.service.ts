@@ -103,6 +103,10 @@ export class VideoService {
     );
   }
 
+    updateVideo(id: number, formData: FormData): Observable<ValidationResponse> {
+      return this.http.post<ValidationResponse>(`${this.apiUrl}/video/update/${id}`, formData);
+    }
+
   createVideo(videoData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/video/save`, videoData, {
       reportProgress: true,

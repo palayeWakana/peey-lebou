@@ -112,10 +112,17 @@ export class DetailsComponent implements OnInit {
   }
 
   getFullImageUrl(imagePath: string): string {
-    if (!imagePath) return 'assets/images/placeholder.jpg';
+    if (!imagePath) return 'assets/images/avatar.png';
     return this.imageBaseUrl + imagePath;
   }
-
+  getAuthorImageUrl(): string {
+    const baseUrl = 'http://peeyconnect.net/repertoire_upload/';
+    return this.article?.auteurimg ? baseUrl + this.article.auteurimg : 'assets/images/avatar.png';
+  }
+  onAuthorImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/images/avatar.png';
+  }
+  
   goBack(): void {
     this.router.navigate(['/accueil']);
   }

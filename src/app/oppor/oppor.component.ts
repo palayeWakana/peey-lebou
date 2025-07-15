@@ -14,6 +14,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./oppor.component.css']
 })
 export class OpporComponent implements OnInit {
+toggleAddForm() {
+throw new Error('Method not implemented.');
+}
   opporList: OpportuniteItem[] = [];
   currentPage = 0;
   pageSize = 4;
@@ -36,14 +39,27 @@ export class OpporComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
+  // Propriétés pour le popup de modification
+  showEditPopup = false;
+  editOpportuniteForm: FormGroup;
+  editSelectedImage: File | null = null;
+  editPreviewImage: string | null = null;
+  editCurrentImage: string | null = null;
+  editLoading = false;
+  editErrorMessage: string | null = null;
+  editSuccessMessage: string | null = null;
+  currentEditOpportunite: OpportuniteItem | null = null;
+
   // URL de base pour les images provenant du backend
   imageBaseUrl = 'https://peeyconnect.net/repertoire_upload/';
+formSubmitting: any;
 
   constructor(
     private opportuniteService: OpportuniteService,
     private router: Router,
     private fb: FormBuilder
   ) {
+    // Formulaire d'ajout
     this.opportuniteForm = this.fb.group({
       titre: ['', [Validators.required, Validators.minLength(3)]],
       descr: ['', [Validators.required, Validators.minLength(10)]],
@@ -51,20 +67,28 @@ export class OpporComponent implements OnInit {
       categorie: ['', Validators.required],
       date: [new Date().toISOString().split('T')[0], Validators.required]
     });
+
+    // Formulaire de modification
+    this.editOpportuniteForm = this.fb.group({
+      titre: ['', [Validators.required, Validators.minLength(3)]],
+      descr: ['', [Validators.required, Validators.minLength(10)]],
+      lien: ['', Validators.required],
+      categorie: ['', Validators.required],
+      date: ['', Validators.required],
+      isvalid: [false],
+      alaune: [false]
+    });
   }
 
   ngOnInit(): void {
     this.loadOpportunites(this.currentPage);
   }
 
-  // MÉTHODE PRINCIPALE: Utilise getAllOpportunite comme demandé
   loadOpportunites(page: number): void {
     this.loading = true;
     
     this.opportuniteService.getAllOpportunite().subscribe({
       next: (opportunites: OpportuniteItem[]) => {
-        console.log('Réponse API (toutes les opportunités)', opportunites);
-        
         // Traiter les images
         const processedOpportunites = opportunites.map(oppor => ({
           ...oppor,
@@ -92,31 +116,6 @@ export class OpporComponent implements OnInit {
     });
   }
 
-  // MÉTHODE ALTERNATIVE: Utilise getOpportunites avec pagination serveur (si besoin)
-  loadOpportunitesWithServerPagination(page: number): void {
-    this.loading = true;
-    
-    this.opportuniteService.getOpportunites(page, this.pageSize).subscribe({
-      next: (response: OpportuniteResponse) => {
-        console.log('Réponse API avec pagination serveur', response);
-        this.opporList = response.content.map(oppor => ({
-          ...oppor,
-          img: oppor.img ? `${this.imageBaseUrl}${oppor.img}` : 'assets/images/placeholder.jpg',
-          auteurimg: oppor.auteurimg ? `${this.imageBaseUrl}${oppor.auteurimg}` : 'assets/images/user-placeholder.jpg'
-        }));
-        this.totalPages = response.totalPages;
-        this.totalItems = response.totalElements;
-        this.currentPage = response.number;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement des opportunités', err);
-        this.error = true;
-        this.loading = false;
-      }
-    });
-  }
-
   toggleValidation(event: Event, oppor: OpportuniteItem): void {
     event.stopPropagation();
     this.processingId = oppor.id;
@@ -124,7 +123,6 @@ export class OpporComponent implements OnInit {
     
     this.opportuniteService.toggleValidation(oppor.id, newStatus).subscribe({
       next: (updatedOppor) => {
-        console.log('Opportunité mise à jour:', updatedOppor);
         const index = this.opporList.findIndex(o => o.id === oppor.id);
         if (index !== -1) {
           this.opporList[index].isvalid = updatedOppor.isvalid;
@@ -150,7 +148,10 @@ export class OpporComponent implements OnInit {
     this.resetForm();
     document.body.style.overflow = '';
   }
-
+  openEditPopup(oppor: OpportuniteItem): void {
+    this.openEditOpportunitePopup(oppor);
+  }
+  
   resetForm(): void {
     this.opportuniteForm.reset({
       date: new Date().toISOString().split('T')[0]
@@ -164,17 +165,6 @@ export class OpporComponent implements OnInit {
   onImageSelect(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // Utiliser les méthodes utilitaires du service
-      if (!this.opportuniteService.isValidImageFile(file)) {
-        this.showErrorMessage('Type de fichier non supporté. Utilisez JPG, PNG, GIF ou WebP.');
-        return;
-      }
-
-      if (!this.opportuniteService.isValidFileSize(file, 5)) {
-        this.showErrorMessage('Le fichier est trop volumineux. Taille maximale: 5MB.');
-        return;
-      }
-
       this.selectedImage = file;
       
       // Aperçu de l'image
@@ -186,7 +176,6 @@ export class OpporComponent implements OnInit {
     }
   }
 
-  // MÉTHODE AMÉLIORÉE: Utilise createOpportuniteAuto pour une gestion automatique
   saveOpportunite(): void {
     if (this.opportuniteForm.invalid || this.saveLoading) {
       this.opportuniteForm.markAllAsTouched();
@@ -197,7 +186,6 @@ export class OpporComponent implements OnInit {
     this.errorMessage = null;
     this.successMessage = null;
 
-    // Créer l'objet de données
     const opportuniteData = {
       titre: this.opportuniteForm.get('titre')?.value || '',
       descr: this.opportuniteForm.get('descr')?.value || '',
@@ -212,12 +200,6 @@ export class OpporComponent implements OnInit {
       auteurimg: ''
     };
 
-    console.log('Données envoyées:', {
-      ...opportuniteData,
-      hasFile: !!this.selectedImage
-    });
-
-    // Utiliser la méthode automatique du service
     this.opportuniteService.createOpportuniteAuto(opportuniteData, this.selectedImage || undefined).subscribe({
       next: (response) => {
         this.saveLoading = false;
@@ -228,7 +210,6 @@ export class OpporComponent implements OnInit {
       error: (err) => {
         this.saveLoading = false;
         console.error('Erreur lors de l\'ajout de l\'opportunité:', err);
-        console.error('Détails de l\'erreur:', err.error);
         
         let errorMsg = 'Erreur lors de l\'ajout de l\'opportunité';
         if (err.status === 415) {
@@ -241,6 +222,160 @@ export class OpporComponent implements OnInit {
       }
     });
   }
+
+  // Méthodes pour la gestion du popup de modification
+  openEditOpportunitePopup(opportunite: OpportuniteItem): void {
+    this.currentEditOpportunite = opportunite;
+    this.editCurrentImage = opportunite.img;
+    
+    // Formater la date pour l'input date
+    const dateFormatted = new Date(opportunite.date).toISOString().split('T')[0];
+    
+    // Remplir le formulaire avec les données existantes
+    this.editOpportuniteForm.patchValue({
+      titre: opportunite.titre,
+      descr: opportunite.descr,
+      lien: opportunite.lien || '',
+      categorie: opportunite.categorie,
+      date: dateFormatted,
+      isvalid: opportunite.isvalid,
+      alaune: opportunite.alaune
+    });
+    
+    // Réinitialiser les variables d'image
+    this.editSelectedImage = null;
+    this.editPreviewImage = null;
+    this.editErrorMessage = null;
+    this.editSuccessMessage = null;
+    
+    this.showEditPopup = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeEditOpportunitePopup(): void {
+    this.showEditPopup = false;
+    this.currentEditOpportunite = null;
+    this.editCurrentImage = null;
+    this.editSelectedImage = null;
+    this.editPreviewImage = null;
+    this.editErrorMessage = null;
+    this.editSuccessMessage = null;
+    this.editOpportuniteForm.reset();
+    document.body.style.overflow = '';
+  }
+
+  onEditImageSelect(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.editSelectedImage = file;
+      
+      // Aperçu de l'image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.editPreviewImage = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeEditImage(): void {
+    this.editSelectedImage = null;
+    this.editPreviewImage = null;
+    // Réinitialiser l'input file
+    const input = document.getElementById('edit-image') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+  }
+// Méthode corrigée pour submitEditOpportunite
+submitEditOpportunite(): void {
+  if (!this.currentEditOpportunite || this.editLoading) {
+    return;
+  }
+
+  if (this.editOpportuniteForm.invalid) {
+    this.editOpportuniteForm.markAllAsTouched();
+    this.editErrorMessage = 'Veuillez remplir correctement tous les champs obligatoires';
+    return;
+  }
+
+  this.editLoading = true;
+  this.editErrorMessage = null;
+  this.editSuccessMessage = null;
+
+  const formData = new FormData();
+  
+  // Ajouter les champs du formulaire à FormData avec validation
+  Object.keys(this.editOpportuniteForm.controls).forEach(key => {
+    const value = this.editOpportuniteForm.get(key)?.value;
+    
+    // Convertir les booléens en string pour FormData
+    if (typeof value === 'boolean') {
+      formData.append(key, value.toString());
+    } else if (value !== null && value !== undefined && value !== '') {
+      formData.append(key, value.toString());
+    }
+  });
+
+  // Ajouter l'ID de l'opportunité
+  formData.append('id', this.currentEditOpportunite.id.toString());
+
+  // Ajouter les champs obligatoires manquants
+  formData.append('idauteur', this.currentEditOpportunite.idauteur?.toString() || '1');
+  formData.append('auteur', this.currentEditOpportunite.auteur || 'Admin');
+  formData.append('role', this.currentEditOpportunite.role || 'ADMIN');
+  formData.append('auteurimg', this.currentEditOpportunite.auteurimg || '');
+
+  // Ajouter l'image seulement si une nouvelle image a été sélectionnée
+  if (this.editSelectedImage) {
+    formData.append('file', this.editSelectedImage, this.editSelectedImage.name);
+  }
+
+  // Debug: Afficher le contenu de FormData
+  console.log('FormData content:');
+  formData.forEach((value, key) => {
+    console.log(`${key}: ${value}`);
+  });
+  
+  // Envoyer la requête de modification
+  this.opportuniteService.updateOpportunite(this.currentEditOpportunite.id, formData).subscribe({
+    next: (updatedOpportunite) => {
+      // Mettre à jour l'opportunité dans la liste
+      const index = this.opporList.findIndex(o => o.id === this.currentEditOpportunite!.id);
+      if (index !== -1) {
+        this.opporList[index] = {
+          ...updatedOpportunite,
+          img: updatedOpportunite.img ? `${this.imageBaseUrl}${updatedOpportunite.img}` : 'assets/images/placeholder.jpg',
+          auteurimg: updatedOpportunite.auteurimg ? `${this.imageBaseUrl}${updatedOpportunite.auteurimg}` : 'assets/images/user-placeholder.jpg'
+        };
+      }
+      
+      this.editLoading = false;
+      this.editSuccessMessage = 'Opportunité modifiée avec succès!';
+      
+      // Fermer le formulaire après 2 secondes
+      setTimeout(() => {
+        this.closeEditOpportunitePopup();
+      }, 2000);
+    },
+    error: (err) => {
+      this.editLoading = false;
+      console.error('Erreur lors de la modification de l\'opportunité', err);
+      console.error('Détails de l\'erreur:', err.error);
+      
+      let errorMsg = 'Erreur lors de la modification de l\'opportunité';
+      if (err.status === 400) {
+        errorMsg = 'Données invalides. Vérifiez les champs saisis.';
+      } else if (err.status === 415) {
+        errorMsg = 'Format de données non supporté par le serveur';
+      } else if (err.error?.message) {
+        errorMsg = err.error.message;
+      }
+      
+      this.editErrorMessage = errorMsg;
+    }
+  });
+}
 
   showSuccessMessage(message: string): void {
     this.successMessage = message;
@@ -319,7 +454,6 @@ export class OpporComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
-  // MÉTHODE CORRIGÉE: Tronquer la description à 3 lignes
   getTruncatedDescription(description: string, maxLength: number = 150): string {
     if (!description) return '';
     
@@ -327,24 +461,18 @@ export class OpporComponent implements OnInit {
       return description;
     }
     
-    // Tronquer au dernier espace pour éviter de couper un mot
     const truncated = description.substring(0, maxLength);
     const lastSpaceIndex = truncated.lastIndexOf(' ');
     
-    if (lastSpaceIndex > maxLength * 0.8) { // Si le dernier espace n'est pas trop loin
+    if (lastSpaceIndex > maxLength * 0.8) {
       return truncated.substring(0, lastSpaceIndex) + '...';
     }
     
     return truncated + '...';
   }
 
-  // MÉTHODE CORRIGÉE: Vérifier si la description dépasse 3 lignes - RETOURNE TOUJOURS UN BOOLEAN
   shouldShowSeeMore(description: string, maxLength: number = 150): boolean {
     if (!description) return false;
     return description.length > maxLength;
   }
-
-  // MÉTHODE SUPPRIMÉE: getDescriptionStyle() car on utilise CSS directement
-  
-  // MÉTHODE SUPPRIMÉE: supportsLineClamp() car pas nécessaire
 }

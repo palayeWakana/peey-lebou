@@ -66,7 +66,6 @@ export class LatestComponent implements OnInit, OnDestroy {
 
     this.infoService.getActualites(page, this.pageSize).subscribe({
       next: (response: any) => {
-        console.log('Réponse API reçue:', response);
 
         let newItems: ContentItem[] = [];
 
@@ -128,7 +127,7 @@ export class LatestComponent implements OnInit, OnDestroy {
   }
 
   getFullImageUrl(imagePath: string): string {
-    return imagePath ? this.imageBaseUrl + imagePath : 'assets/images/placeholder.jpg';
+    return this.imageBaseUrl + imagePath ;
   }
 
   navigateToDetails(id: number): void {

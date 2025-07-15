@@ -1,119 +1,100 @@
 <div class="flex">
   <app-sidebar></app-sidebar>
-    <div class="oppor-container">
-      <!-- Messages de succès/erreur -->
-      <div *ngIf="successMessage" class="success-message">
-        <i class="fa fa-check-circle"></i>
-        {{ successMessage }}
+  <div class="oppor-container">
+    <!-- Messages de succès/erreur -->
+    <div *ngIf="successMessage" class="success-message">
+      <i class="fa fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message-notification">
+      <i class="fa fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Opportunités</h2>
       </div>
-      
-      <div *ngIf="errorMessage" class="error-message-notification">
-        <i class="fa fa-exclamation-circle"></i>
-        {{ errorMessage }}
-      </div>
-  
-      <div class="section-header">
-        <div class="section-title">
-          <h2>Opportunités</h2>
-          <!-- <div class="underline"></div> -->
+      <button class="add-opportunity-btn" (click)="openAddOpportunitePopup()">
+        <i class="fa fa-plus"></i>
+        Ajouter une opportunité
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des opportunités...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+      <p>Une erreur est survenue lors du chargement des opportunités. Veuillez réessayer plus tard.</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="oppor-list">
+      <div class="oppor-card" *ngFor="let oppor of opporList">
+        <div class="oppor-image" (click)="goToOpporDetail(oppor.id)">
+          <img [src]="oppor.img" [alt]="oppor.titre" (error)="oppor.img='assets/images/placeholder.jpg'">
         </div>
-        <button class="add-opportunity-btn" (click)="openAddOpportunitePopup()">
-          <i class="fa fa-plus"></i>
-          Ajouter une opportunité
-        </button>
-      </div>
-  
-      <div *ngIf="loading" class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Chargement des opportunités...</p>
-      </div>
-  
-      <div *ngIf="error" class="error-message">
-        <p>Une erreur est survenue lors du chargement des opportunités. Veuillez réessayer plus tard.</p>
-      </div>
-  
-      <div *ngIf="!loading && !error" class="oppor-list">
-        <div class="oppor-card" *ngFor="let oppor of opporList">
-          <div class="oppor-image" (click)="goToOpporDetail(oppor.id)">
-            <img [src]="oppor.img" [alt]="oppor.titre" (error)="oppor.img='assets/images/placeholder.jpg'">
+        <div class="oppor-content">
+          <h3 (click)="goToOpporDetail(oppor.id)">{{ oppor.titre }}</h3>
+          <div class="description-wrapper">
+            <p class="oppor-description line-clamp-3" (click)="goToOpporDetail(oppor.id)">
+              {{ oppor.descr }}
+            </p>
+            <button *ngIf="shouldShowSeeMore(oppor.descr)" class="see-more-btn" 
+                    (click)="openDescriptionPopup(oppor.descr); $event.stopPropagation()">
+              Voir plus
+            </button>
           </div>
-          <div class="oppor-content">
-            <h3 (click)="goToOpporDetail(oppor.id)">{{ oppor.titre }}</h3>
-            <div class="description-wrapper">
-              <p class="oppor-description line-clamp-3" (click)="goToOpporDetail(oppor.id)">
-                {{ oppor.descr }}
-              </p>
-              <button *ngIf="shouldShowSeeMore(oppor.descr)" class="see-more-btn" 
-                      (click)="openDescriptionPopup(oppor.descr); $event.stopPropagation()">
-                Voir plus
-              </button>
+          <div class="oppor-info">
+            <div class="oppor-author">
+              <img [src]="oppor.auteurimg" [alt]="oppor.auteur" (error)="oppor.auteurimg='img/avatar.png'">
+              <span>{{ oppor.auteur }}</span>
             </div>
-            <div class="oppor-info">
-              <div class="oppor-author">
-                <img [src]="oppor.auteurimg" [alt]="oppor.auteur" (error)="oppor.auteurimg='assets/images/user-placeholder.jpg'">
-                <span>{{ oppor.auteur }}</span>
-              </div>
-              <div class="oppor-date">
-                <i class="fa fa-calendar"></i>
-                <span>{{ formatDate(oppor.date) }}</span>
-              </div>
+            <div class="oppor-date">
+              <i class="fa fa-calendar"></i>
+              <span>{{ formatDate(oppor.date) }}</span>
             </div>
-            <div class="validation-action">
-              <button 
-                  [ngClass]="oppor.isvalid ? 'btn-invalid' : 'btn-valid'" 
-                  (click)="toggleValidation($event, oppor)"
-                  [disabled]="processingId === oppor.id">
-                <span *ngIf="processingId !== oppor.id">
-                  {{ oppor.isvalid ? 'Invalider' : 'Valider' }}
-                </span>
-                <span *ngIf="processingId === oppor.id" class="btn-spinner"></span>
-              </button>
-            </div>
+            <button class="edit-btn" (click)="openEditPopup(oppor); $event.stopPropagation()">
+              <i class="fa fa-pen"></i>
+            </button>
+          </div>
+          <div class="validation-action">
+            <button 
+                [ngClass]="oppor.isvalid ? 'btn-invalid' : 'btn-valid'" 
+                (click)="toggleValidation($event, oppor)"
+                [disabled]="processingId === oppor.id">
+              <span *ngIf="processingId !== oppor.id">
+                {{ oppor.isvalid ? 'Invalider' : 'Valider' }}
+              </span>
+              <span *ngIf="processingId === oppor.id" class="btn-spinner"></span>
+            </button>
           </div>
         </div>
-      </div>
-  
-      <!-- Pagination -->
-      <div *ngIf="totalPages > 1" class="pagination">
-        <button 
-            [disabled]="currentPage === 0" 
-            (click)="previousPage()" 
-            class="pagination-btn"
-            [class.disabled]="currentPage === 0">
-          <i class="fa fa-chevron-left"></i>
-        </button>
-  
-        <div class="page-numbers">
-          <button *ngFor="let page of getPageNumbers()" 
-              (click)="goToPage(page)"
-              class="page-number"
-              [class.active]="currentPage === page">
-            {{ page + 1 }}
-          </button>
-        </div>
-  
-        <button 
-            [disabled]="currentPage === totalPages - 1" 
-            (click)="nextPage()" 
-            class="pagination-btn"
-            [class.disabled]="currentPage === totalPages - 1">
-          <i class="fa fa-chevron-right"></i>
-        </button>
       </div>
     </div>
-  </div>
-  
-  <!-- Popup pour la description complète -->
-  <div class="popup-overlay" *ngIf="showPopup" (click)="closeDescriptionPopup()">
-    <div class="description-popup" (click)="$event.stopPropagation()">
-      <button class="close-popup-btn" (click)="closeDescriptionPopup()">&times;</button>
-      <div class="popup-content">
-        <h3>Description complète</h3>
-        <p>{{ popupDescription }}</p>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button [disabled]="currentPage === 0" (click)="previousPage()" class="pagination-btn">
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      <div class="page-numbers">
+        <button *ngFor="let page of getPageNumbers()" 
+                (click)="goToPage(page)"
+                class="page-number"
+                [class.active]="currentPage === page">
+          {{ page + 1 }}
+        </button>
       </div>
+      <button [disabled]="currentPage === totalPages - 1" (click)="nextPage()" class="pagination-btn">
+        <i class="fa fa-chevron-right"></i>
+      </button>
     </div>
   </div>
-  
+</div>
+
   <!-- Popup pour ajouter une nouvelle opportunité -->
   <div class="popup-overlay" *ngIf="showAddPopup" (click)="closeAddOpportunitePopup()">
     <div class="add-opportunity-popup" (click)="$event.stopPropagation()">
@@ -238,6 +219,47 @@
     </div>
   </div>
 
-  <!-- <style>
-    
-  </style> -->
+
+  <!-- Popup Modification -->
+  <div *ngIf="showEditPopup" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-2xl p-6 rounded-xl relative">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Modifier une opportunité</h2>
+
+      <form [formGroup]="editOpportuniteForm" (ngSubmit)="submitEditOpportunite()">
+        <div class="grid grid-cols-1 gap-4">
+          <input formControlName="titre" type="text" placeholder="Titre" class="border p-2 rounded">
+          <textarea formControlName="descr" rows="4" placeholder="Description" class="border p-2 rounded"></textarea>
+          <input formControlName="lien" type="text" placeholder="Lien" class="border p-2 rounded">
+          <input formControlName="categorie" type="text" placeholder="Catégorie" class="border p-2 rounded">
+          <input formControlName="date" type="date" class="border p-2 rounded">
+
+          <!-- Image preview -->
+          <div *ngIf="editPreviewImage || editCurrentImage" class="mb-2">
+            <img [src]="editPreviewImage || editCurrentImage" alt="Image actuelle" class="w-full h-40 object-cover rounded">
+          </div>
+
+          <input type="file" id="edit-image" (change)="onEditImageSelect($event)" class="border p-2 rounded">
+          <button *ngIf="editSelectedImage" type="button" (click)="removeEditImage()" class="text-red-500 text-sm">Supprimer l'image sélectionnée</button>
+
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center space-x-1">
+              <input type="checkbox" formControlName="isvalid">
+              <span>Valider</span>
+            </label>
+            <label class="flex items-center space-x-1">
+              <input type="checkbox" formControlName="alaune">
+              <span>À la une</span>
+            </label>
+          </div>
+
+          <div *ngIf="editErrorMessage" class="text-red-500 text-sm">{{ editErrorMessage }}</div>
+          <div *ngIf="editSuccessMessage" class="text-green-600 text-sm">{{ editSuccessMessage }}</div>
+
+          <div class="flex justify-end mt-4 space-x-2">
+            <button type="submit" [disabled]="editLoading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Modifier</button>
+            <button type="button" (click)="closeEditOpportunitePopup()" class="text-gray-600">Annuler</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>

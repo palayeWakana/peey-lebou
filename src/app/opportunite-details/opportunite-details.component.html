@@ -43,11 +43,10 @@
                 [src]="getFullImageUrl(opportunite.auteurimg)" 
                 alt="{{ opportunite.auteur }}"
                 class="author-img"
-                onerror="this.src='assets/images/user-placeholder.jpg'"
+                onerror="this.src='img/avatar.png'"
               >
               <span>
                 <strong>Par:</strong> {{ opportunite.auteur }}
-                <span *ngIf="opportunite.role" class="author-role">({{ opportunite.role }})</span>
               </span>
             </div>
           </div>
@@ -57,7 +56,7 @@
           <img 
             [src]="getFullImageUrl(opportunite.img)" 
             alt="{{ opportunite.titre }}"
-            onerror="this.src='assets/images/placeholder.jpg'"
+            onerror="this.src='img/avatar.png'"
           >
         </div>
         
@@ -65,16 +64,18 @@
           <div [innerHTML]="opportunite.descr"></div>
         </div>
         
-        <div class="opportunite-actions" *ngIf="opportunite.lien">
+        <div class="external-link" *ngIf="opportunite.lien">
           <a [href]="opportunite.lien" target="_blank" rel="noopener noreferrer" class="action-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
               <polyline points="15 3 21 3 21 9"></polyline>
               <line x1="10" y1="14" x2="21" y2="3"></line>
             </svg>
-            En savoir plus
+            <span class="text-blue-500">lien: {{ opportunite.lien }}</span>
           </a>
         </div>
+        
+        
         
         <div class="opportunite-footer">
           <div class="share-links">

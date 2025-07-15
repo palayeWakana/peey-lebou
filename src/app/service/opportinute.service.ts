@@ -117,7 +117,7 @@ export class OpportuniteService {
 
   // Méthode pour mettre à jour une opportunité complète
   updateOpportunite(id: number, formData: FormData): Observable<OpportuniteItem> {
-    return this.http.put<OpportuniteItem>(`${this.baseUrl}/opportunite/update/${id}`, formData);
+    return this.http.post<OpportuniteItem>(`${this.baseUrl}/opportunite/update/${id}`, formData);
   }
 
   // Méthode pour mettre à jour une opportunité avec JSON
@@ -182,4 +182,6 @@ export class OpportuniteService {
     const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
     return file.size <= maxSizeInBytes;
   }
+
+  // /opportunite/update/{id}
 }

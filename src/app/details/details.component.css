@@ -100,6 +100,7 @@
   transform: translateY(-5px);
 }
 
+
 /* Article header */
 .article-header {
   padding: 0 0 1.5rem;
@@ -160,6 +161,7 @@
 .author {
   display: flex;
   align-items: center;
+
   background-color: rgba(243, 244, 246, 0.7);
   padding: 0.75rem 1.25rem;
   border-radius: var(--radius-lg);
@@ -188,6 +190,18 @@
 }
 
 /* Article image */
+/* .article-image {
+  margin: 3rem 0;
+ 
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition);
+  transform: translateY(0);
+  position: relative;
+  max-height: 500px;
+} */
+/* Article image */
 .article-image {
   margin: 3rem 0;
   border-radius: var(--radius-lg);
@@ -197,20 +211,44 @@
   transform: translateY(0);
   position: relative;
   max-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa; /* Couleur de fond au cas où l'image ne remplit pas tout l'espace */
 }
 
+.article-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Garde les proportions sans couper l'image */
+  object-position: center;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Alternative si vous voulez que l'image s'adapte à la hauteur du conteneur */
+.article-image.fit-height {
+  height: 500px;
+}
+
+.article-image.fit-height img {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
 .article-image:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.article-image img {
+/* .article-image img {
   width: 100%;
   height: auto;
   display: block;
   transition: transform 0.8s ease;
   object-fit: cover;
-}
+} */
 
 .article-image:hover img {
   transform: scale(1.03);

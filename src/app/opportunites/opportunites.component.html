@@ -14,7 +14,7 @@
   
   <!-- Content grid -->
   <div class="opportunites-grid" *ngIf="!loading && !error && opportunites.length > 0">
-    <div class="opportunite-card" *ngFor="let opportunite of opportunites">
+    <div class="opportunite-card" *ngFor="let opportunite of opportunites" (click)="navigateToDetails(opportunite.id)">
       <div class="image-container">
         <img [src]="getFullImageUrl(opportunite.img)" [alt]="opportunite.titre" 
              onerror="this.src='assets/images/placeholder.jpg'">

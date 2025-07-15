@@ -6,6 +6,7 @@ import { tap } from 'rxjs/operators';
 
 // Interface for individual content item
 export interface ContentItem {
+  
   imagePath: any;
   id: number;
   auteur: string;
@@ -180,6 +181,9 @@ export class InfoService {
     return this.http.post<ContentItem>(`${this.baseApiUrl}/actu/save`, formData);
   }
 
+   updateActu(id: number, formData: FormData): Observable<ContentItem> {
+      return this.http.post<ContentItem>(`${this.baseUrl}/actu/update/${id}`, formData);
+    }
   /**
    * Crée une nouvelle actualité avec un objet JSON
    * @param actuData Les données de l'actualité au format JSON
@@ -199,3 +203,5 @@ export class InfoService {
     return this.http.post<T>(`${this.baseApiUrl}${endpoint}`, formData);
   }
 }
+
+// le ts
