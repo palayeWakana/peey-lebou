@@ -229,51 +229,7 @@
   color: #20a439; /* Couleur au survol pour indiquer l'interactivité */
 }
 
-.oppor-info {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  bottom: 15px;
-  align-items: center;
-  padding-top: 8px;
-  /* border-top: 1px solid #f0f0f0; */
-  margin-top: auto;
-  min-height: 40px;
-}
 
-.oppor-author {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  max-width: 60%;
-}
-
-.oppor-author img {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 6px;
-  flex-shrink: 0;
-}
-
-.oppor-author span {
-  font-size: 12px;
-  color: #555;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.oppor-date {
-  position: relative;
-  left: 41%;
-  font-size: 12px;
-  color: #777;
-  display: flex;
-  align-items: center;
-}
 
 .oppor-date i {
   margin-right: 4px;
@@ -888,4 +844,536 @@
 .popup-content p {
   line-height: 1.6;
   color: #666;
+}
+
+/* Styles de base pour oppor-info */
+.oppor-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  margin-top: auto;
+  min-height: 40px;
+  gap: 10px; /* Espacement entre les éléments */
+  flex-wrap: wrap; /* Permet le retour à la ligne si nécessaire */
+}
+
+.oppor-author {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex-shrink: 0; /* Empêche le rétrécissement */
+  max-width: 45%; /* Limite la largeur sur grands écrans */
+}
+
+.oppor-author img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.oppor-author span {
+  font-size: 12px;
+  color: #555;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oppor-date {
+  font-size: 12px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0; /* Empêche le rétrécissement */
+  margin-left: auto; /* Pousse vers la droite */
+  margin-right: 10px; /* Espacement avec le bouton */
+}
+
+.oppor-date i {
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* Styles pour le bouton d'édition */
+.edit-btn {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  flex-shrink: 0; /* Empêche le rétrécissement */
+  color: #6c757d;
+}
+
+.edit-btn:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+  color: #495057;
+  transform: translateY(-1px);
+}
+
+.edit-btn:active {
+  transform: translateY(0);
+}
+
+.edit-btn i {
+  font-size: 14px;
+}
+
+/* Responsive Design */
+
+/* MacBook Pro et grands écrans (1200px à 1440px) */
+@media screen and (min-width: 1200px) and (max-width: 1440px) {
+  .oppor-info {
+    gap: 12px;
+  }
+  
+  .oppor-author {
+    max-width: 50%;
+  }
+  
+  .oppor-date {
+    margin-right: 12px;
+  }
+  
+  .edit-btn {
+    min-width: 34px;
+    height: 34px;
+  }
+}
+
+/* Tablettes et écrans moyens (769px à 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .oppor-info {
+    gap: 8px;
+  }
+  
+  .oppor-author {
+    max-width: 40%;
+  }
+  
+  .oppor-author span {
+    font-size: 11px;
+  }
+  
+  .oppor-date {
+    font-size: 11px;
+    margin-right: 8px;
+  }
+  
+  .edit-btn {
+    min-width: 30px;
+    height: 30px;
+    padding: 5px 6px;
+  }
+  
+  .edit-btn i {
+    font-size: 12px;
+  }
+}
+
+/* Tablettes et petits écrans (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .oppor-info {
+    gap: 6px;
+    min-height: 36px;
+  }
+  
+  .oppor-author {
+    max-width: 35%;
+  }
+  
+  .oppor-author span {
+    font-size: 10px;
+  }
+  
+  .oppor-date {
+    font-size: 10px;
+    margin-right: 6px;
+  }
+  
+  .edit-btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 4px 5px;
+  }
+  
+  .edit-btn i {
+    font-size: 11px;
+  }
+}
+
+/* Très petits écrans (max-width: 576px) */
+@media screen and (max-width: 576px) {
+  .oppor-info {
+    gap: 4px;
+    min-height: 34px;
+  }
+  
+  .oppor-author {
+    max-width: 30%;
+  }
+  
+  .oppor-author span {
+    font-size: 9px;
+  }
+  
+  .oppor-date {
+    font-size: 9px;
+    margin-right: 4px;
+  }
+  
+  .edit-btn {
+    min-width: 26px;
+    height: 26px;
+    padding: 3px 4px;
+  }
+  
+  .edit-btn i {
+    font-size: 10px;
+  }
+}
+
+/* Écrans très petits (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .oppor-info {
+    gap: 3px;
+    min-height: 32px;
+  }
+  
+  .oppor-author {
+    max-width: 25%;
+  }
+  
+  .oppor-author span {
+    font-size: 8px;
+  }
+  
+  .oppor-date {
+    font-size: 8px;
+    margin-right: 3px;
+  }
+  
+  .edit-btn {
+    min-width: 24px;
+    height: 24px;
+    padding: 2px 3px;
+  }
+  
+  .edit-btn i {
+    font-size: 9px;
+  }
+}
+
+/* Alternative : Layout en colonne pour très petits écrans */
+@media screen and (max-width: 400px) {
+  .oppor-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: auto;
+  }
+  
+  .oppor-author {
+    max-width: 100%;
+    order: 1;
+  }
+  
+  .oppor-date {
+    order: 2;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  .edit-btn {
+    order: 3;
+    align-self: flex-end;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+  }
+}
+
+/* Classe utilitaire pour forcer le layout inline sur mobile */
+.oppor-info.mobile-inline {
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+.oppor-info.mobile-inline .edit-btn {
+  position: static !important;
+  align-self: auto !important;
+}
+
+/* Styles pour le bouton de suppression sur la carte */
+.delete-btn {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+}
+
+.bg-white:hover .delete-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Overlay du popup de suppression */
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Popup de confirmation */
+.delete-confirmation-popup {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* En-tête du popup */
+.delete-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 24px;
+}
+
+.delete-popup-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.delete-popup-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.delete-popup-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Contenu du popup */
+.delete-popup-content {
+  padding: 0 24px;
+  text-align: center;
+}
+
+.delete-popup-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.delete-popup-text {
+  margin-bottom: 24px;
+}
+
+.delete-popup-text p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Message d'erreur */
+.delete-error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 16px;
+  text-align: left;
+}
+
+/* Actions du popup */
+.delete-popup-actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid #f3f4f6;
+  justify-content: flex-end;
+}
+
+.delete-cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #374151;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.delete-cancel-btn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.delete-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-confirm-btn {
+  padding: 10px 20px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  min-width: 120px;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.delete-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animation de chargement */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .delete-confirmation-popup {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .delete-popup-header,
+  .delete-popup-content,
+  .delete-popup-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .delete-popup-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .delete-cancel-btn,
+  .delete-confirm-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+/* Wolof copy button & fields */
+.wolof-hint-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.copy-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.copy-prompt-btn:hover {
+  background: #e5e7eb;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.char-count {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+  margin-top: 3px;
 }

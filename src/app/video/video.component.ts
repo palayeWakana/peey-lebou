@@ -55,7 +55,6 @@ export class VideoComponent implements OnInit, OnDestroy {
   }
 
   fetchVideos(page: number = 0): void {
-    console.log(`Chargement des vidéos - Page: ${page}, Size: ${this.pageSize}`);
 
     if (page === 0) {
       this.loading = true;
@@ -68,7 +67,6 @@ export class VideoComponent implements OnInit, OnDestroy {
 
     this.videoService.getVideos(page, this.pageSize).subscribe({
       next: (response: any) => {
-        console.log('Réponse API reçue:', response);
 
         let newVideos: Video[] = [];
 

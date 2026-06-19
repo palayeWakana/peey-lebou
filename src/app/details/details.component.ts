@@ -82,7 +82,6 @@ export class DetailsComponent implements OnInit {
       next: (data) => {
         this.article = data;
         this.loading = false;
-        console.log('Article chargé:', this.article);
       },
       error: (err) => {
         console.error('Erreur lors du chargement de l\'article:', err);

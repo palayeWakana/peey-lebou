@@ -8,6 +8,7 @@ export interface VideoCategorie {
 }
 
 export interface Video {
+  selected: unknown;
   id: number;
   auteur: string;
   auteurimg: string;
@@ -104,9 +105,11 @@ export class VideoService {
   }
 
     updateVideo(id: number, formData: FormData): Observable<ValidationResponse> {
-      return this.http.post<ValidationResponse>(`${this.apiUrl}/video/update/${id}`, formData);
+      return this.http.put<ValidationResponse>(`${this.apiUrl}/video/update/${id}`, formData);
     }
-
+    deleteVideo(id: number): Observable<any> {
+      return this.http.delete(`${this.apiUrl}/video/delete/${id}`);
+    }
   createVideo(videoData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/video/save`, videoData, {
       reportProgress: true,

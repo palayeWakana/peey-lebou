@@ -74,18 +74,21 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
         console.log('Réponse API reçue:', response);
 
         if (response && response.content) {
+          // Trier les opportunités par ID décroissant (du plus récent au plus ancien)
+          const sortedContent = this.sortItemsByIdDescending(response.content);
+          
           if (page === 0) {
             // Première page : remplacer le contenu
-            this.opportunites = response.content;
+            this.opportunites = sortedContent;
           } else {
             // Pages suivantes : ajouter au contenu existant
-            this.opportunites = [...this.opportunites, ...response.content];
+            this.opportunites = [...this.opportunites, ...sortedContent];
           }
           
           this.currentPage = page;
           this.isLastPage = response.last || false;
           
-          console.log('Opportunités chargées:', this.opportunites);
+          console.log('Opportunités chargées (triées):', this.opportunites);
           console.log('Page actuelle:', this.currentPage);
           console.log('Dernière page:', this.isLastPage);
         } else {
@@ -104,6 +107,17 @@ export class OpportunitesComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loadingMore = false;
       }
+    });
+  }
+
+  private sortItemsByIdDescending(items: OpportuniteItem[]): OpportuniteItem[] {
+    return items.sort((a, b) => {
+      // Convertir les IDs en nombres pour une comparaison numérique correcte
+      const idA = Number(a.id);
+      const idB = Number(b.id);
+      
+      // Tri décroissant : les IDs les plus élevés (plus récents) en premier
+      return idB - idA;
     });
   }
 

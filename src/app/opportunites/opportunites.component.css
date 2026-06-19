@@ -1,56 +1,29 @@
 /* opportunites.component.css */
 .opportunites-section {
-  padding: 2rem 0;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .section-title {
-  /* text-align: center; */
   margin-bottom: 2rem;
   font-size: 2.5rem;
   font-weight: bold;
   position: relative;
-  left: 17.5%;
+  /* Alignement naturel avec les cartes */
 }
 
 .opportunites-grid {
   display: grid;
-  /* Modifier pour 3 cartes par ligne et centrer */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2rem;
-  padding: 0 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Ajustement responsive */
-@media (max-width: 1200px) {
-  .opportunites-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-width: 1000px;
-  }
-}
-
-@media (max-width: 900px) {
-  .opportunites-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 800px;
-  }
-}
-
-@media (max-width: 600px) {
-  .opportunites-grid {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
 }
 
 .opportunite-card {
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   height: 100%;
@@ -61,10 +34,10 @@
 
 .opportunite-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Image maintenant au-dessus */
+/* Image */
 .image-container {
   position: relative;
   height: 200px;
@@ -82,7 +55,7 @@
   transform: scale(1.05);
 }
 
-/* Texte maintenant en dessous */
+/* Contenu de la carte */
 .card-content {
   padding: 1.5rem;
   flex-grow: 1;
@@ -95,6 +68,7 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .card-title {
@@ -102,12 +76,48 @@
   margin-bottom: 0.75rem;
   line-height: 1.4;
   font-weight: bold;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .card-date {
   color: #888;
   font-size: 0.875rem;
   margin-top: auto;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.card-location {
+  color: #01651a;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.card-deadline {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .hover-overlay {
@@ -162,6 +172,9 @@
 
 .error-container {
   color: #e74c3c;
+  background-color: #fdecea;
+  border-radius: 8px;
+  margin: 20px 0;
 }
 
 /* Styles pour le bouton "Voir Plus" */
@@ -184,4 +197,30 @@
 
 .voir-plus-btn:hover, .voir-moins-btn:hover {
   background-color: #1a7e33;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .opportunites-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .opportunites-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-content {
+    padding: 12px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+  }
 }

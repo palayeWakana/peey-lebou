@@ -1,56 +1,29 @@
 /* latest.component.css */
 .latest-section {
-  padding: 2rem 0;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .section-title {
-  /* text-align: center; */
   margin-bottom: 2rem;
   font-size: 2.5rem;
   font-weight: bold;
   position: relative;
-  left: 17.5%;
+  /* Alignement naturel avec les cartes */
 }
 
 .insights-grid {
   display: grid;
-  /* Modifier pour 3 cartes par ligne et centrer */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2rem;
-  padding: 0 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Ajustement responsive */
-@media (max-width: 1200px) {
-  .insights-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-width: 1000px;
-  }
-}
-
-@media (max-width: 900px) {
-  .insights-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 800px;
-  }
-}
-
-@media (max-width: 600px) {
-  .insights-grid {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
 }
 
 .insight-card {
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   height: 100%;
@@ -61,7 +34,7 @@
 
 .insight-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Image maintenant au-dessus */
@@ -95,6 +68,7 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 .card-title {
@@ -102,6 +76,11 @@
   margin-bottom: 0.75rem;
   line-height: 1.4;
   font-weight: bold;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-date {
@@ -162,6 +141,9 @@
 
 .error-container {
   color: #e74c3c;
+  background-color: #fdecea;
+  border-radius: 8px;
+  margin: 20px 0;
 }
 
 /* Styles pour le bouton "Voir Plus" */
@@ -183,5 +165,31 @@
 }
 
 .voir-plus-btn:hover, .voir-moins-btn:hover {
-  background-color: #01651a;
+  background-color: #1c782d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-content {
+    padding: 12px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+  }
 }

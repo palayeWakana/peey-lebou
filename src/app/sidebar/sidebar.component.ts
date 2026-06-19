@@ -1,4 +1,3 @@
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -56,22 +55,22 @@ export class SidebarComponent implements OnInit, OnDestroy {
       path: '/utilisateurs', 
       label: 'Utilisateurs', 
       icon: 'users',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR'],
-      requiredLevel: 4
+      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR','MODERATOR'],
+      requiredLevel: 2
     },
     { 
       path: '/campagne', 
       label: 'Campagnes', 
       icon: 'campaigns',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'TREASURER',],
+      requiredRoles: ['SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'TREASURER',],
       requiredLevel: 2
     },
     { 
       path: '/actu', 
       label: 'Actualités', 
       icon: 'news',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR', 'ADMIN'],
-      requiredLevel: 3
+      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR', 'ADMIN', 'MODERATOR'],
+      requiredLevel: 2
     },
     { 
       path: '/parametres', 
@@ -90,15 +89,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
       path: '/oppor', 
       label: 'Opportunités', 
       icon: 'opportunities',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR'],
-      requiredLevel: 3
+      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR', 'MODERATOR'],
+      requiredLevel: 2
     },
     { 
       path: '/full-video', 
       label: 'Vidéos', 
       icon: 'videos',
-      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR'],
-      requiredLevel: 3
+      requiredRoles: ['ADMIN','SUPER_ADMINISTRATOR', 'MAIN_ADMINISTRATOR', 'CONTENT_ADMINISTRATOR', 'MODERATOR'],
+      requiredLevel: 2
     }
   ];
 

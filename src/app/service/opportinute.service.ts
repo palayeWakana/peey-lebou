@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface OpportuniteItem {
+  selected: unknown;
   id: number;
   auteur: string;
   auteurimg: string;
@@ -10,6 +11,7 @@ export interface OpportuniteItem {
   lien: string;
   date: string;
   descr: string;
+  wolofdescr: string;
   idauteur: number;
   img: string;
   isvalid: boolean;
@@ -19,6 +21,7 @@ export interface OpportuniteItem {
 }
 
 export interface OpportuniteResponse {
+  id: any;
   content: OpportuniteItem[];
   pageable: {
     pageNumber: number;
@@ -67,7 +70,7 @@ export interface CreateOpportuniteData {
   providedIn: 'root'
 })
 export class OpportuniteService {
-  private baseUrl = 'https://peeyconnect.net/api/v1';
+  private baseUrl = 'https://peey.innovimpactdev.cloud/api/v1';
   
   constructor(private http: HttpClient) { }
 
@@ -109,6 +112,9 @@ export class OpportuniteService {
   uploadImage(opportuniteId: number, formData: FormData): Observable<OpportuniteItem> {
     return this.http.post<OpportuniteItem>(`${this.baseUrl}/opportunite/${opportuniteId}/upload-image`, formData);
   }
+  deleteOppor(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/opportunite/delete/${id}`);
+  }
 
   // Alternative pour l'upload d'image si l'endpoint est différent
   uploadImageAlternative(opportuniteId: number, formData: FormData): Observable<any> {
@@ -117,7 +123,7 @@ export class OpportuniteService {
 
   // Méthode pour mettre à jour une opportunité complète
   updateOpportunite(id: number, formData: FormData): Observable<OpportuniteItem> {
-    return this.http.post<OpportuniteItem>(`${this.baseUrl}/opportunite/update/${id}`, formData);
+    return this.http.put<OpportuniteItem>(`${this.baseUrl}/opportunite/update/${id}`, formData);
   }
 
   // Méthode pour mettre à jour une opportunité avec JSON

@@ -2,11 +2,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 
 // Interface for individual content item
 export interface ContentItem {
-  
+  selected: unknown;
+
   imagePath: any;
   id: number;
   auteur: string;
@@ -15,13 +16,14 @@ export interface ContentItem {
   lien: string;
   date: string;
   descr: string;
+  wolofdescr: string;
   idauteur: number;
   img: string;
   isvalid: boolean;
   role: string;
   titre: string;
   alaUne: boolean;
-  contenu: string; // Contenu HTML de l'article
+  contenu: string;
 }
 
 // Interface pour la création d'actualité
@@ -78,8 +80,8 @@ export interface ActuResponse {
 })
 export class InfoService {
   // URL de base de l'API
-  private readonly baseApiUrl = 'https://peeyconnect.net/api/v1';
-  private baseUrl = 'https://peeyconnect.net/api/v1';
+  private readonly baseApiUrl = 'https://peey.innovimpactdev.cloud/api/v1';
+  private baseUrl = 'https://peey.innovimpactdev.cloud/api/v1';
 
   
   // URL pour les actualités - Nouvelle URL
@@ -96,7 +98,7 @@ export class InfoService {
    * @param size Nombre d'éléments par page (non utilisé car pagination côté client)
    * @returns Observable de type ContentItem[]
    */
-  getActus(page: number = 0, size: number = 12): Observable<ContentItem[]> {
+  getActus(): Observable<ContentItem[]> {
     // Plus besoin de paramètres de pagination car ils ne sont pas pris en charge
     return this.http.get<ContentItem[]>(this.actuApiUrl);
   }
@@ -122,7 +124,9 @@ export class InfoService {
   getActuById(id: number): Observable<ContentItem> {
     return this.http.get<ContentItem>(`${this.baseApiUrl}/actu/${id}`);
   }
-
+    deleteActu(id: number): Observable<any> {
+      return this.http.delete(`${this.baseUrl}/actu/delete/${id}`);
+    }
   /**
    * Récupère les actualités filtrées par catégorie
    * @param category La catégorie à filtrer
@@ -181,9 +185,55 @@ export class InfoService {
     return this.http.post<ContentItem>(`${this.baseApiUrl}/actu/save`, formData);
   }
 
-   updateActu(id: number, formData: FormData): Observable<ContentItem> {
-      return this.http.post<ContentItem>(`${this.baseUrl}/actu/update/${id}`, formData);
+/**
+ * Met à jour une actualité existante
+ * @param id L'ID de l'actualité à modifier
+ * @param formData Les données de l'actualité au format FormData
+ * @returns Observable de type ContentItem
+ */
+updateActu(id: number, formData: FormData): Observable<ContentItem> {
+  return this.http.put<ContentItem>(`${this.baseUrl}/actu/update/${id}`, formData)
+    .pipe(
+      tap((updatedActu) => {
+        console.log('Actualité mise à jour:', updatedActu);
+      }),
+      // Ajout de gestion d'erreur
+      catchError((error) => {
+        console.error('Erreur lors de la mise à jour:', error);
+        throw error;
+      })
+    );
+}
+
+/**
+ * Alternative: Méthode pour mettre à jour une actualité avec gestion séparée de l'image
+ * @param id L'ID de l'actualité à modifier
+ * @param actuData Les données de l'actualité
+ * @param imageFile Le fichier image (optionnel)
+ * @returns Observable de type ContentItem
+ */
+updateActuWithImage(id: number, actuData: Partial<ContentItem>, imageFile?: File): Observable<ContentItem> {
+  const formData = new FormData();
+  
+  // Ajouter les données de l'actualité
+  Object.keys(actuData).forEach(key => {
+    const value = actuData[key as keyof ContentItem];
+    if (value !== undefined && value !== null) {
+      if (typeof value === 'boolean') {
+        formData.append(key, value.toString());
+      } else {
+        formData.append(key, value.toString());
+      }
     }
+  });
+  
+  // Ajouter l'image seulement si fournie
+  if (imageFile) {
+    formData.append('file', imageFile, imageFile.name);
+  }
+  
+  return this.http.post<ContentItem>(`${this.baseUrl}/actu/update/${id}`, formData);
+}
   /**
    * Crée une nouvelle actualité avec un objet JSON
    * @param actuData Les données de l'actualité au format JSON

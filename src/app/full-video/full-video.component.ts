@@ -5,7 +5,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SidebarComponent } from "../sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
 import { TrustUrlPipe } from "../trust-url.pipe";
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -28,6 +28,8 @@ export class FullVideoComponent implements OnInit {
   currentPage: number = 0;
   pageSize: number = 3;
   totalPages: number = 0;
+  totalItems = 0;
+
   paginatedVideos: Video[] = [];
   
   // Popup description
@@ -57,9 +59,19 @@ export class FullVideoComponent implements OnInit {
   editSuccessMessage: string | null = null;
   currentEditVideo: Video | null = null;
 
+    // Variables pour la suppression
+  showDeleteConfirm = false;
+  deleteLoading = false;
+  deleteError = false;
+  deleteErrorMessage = '';
+  deleteMultiple = false;
+  videoToDelete: Video | null = null;
+  
+
   // Messages
   successMessage: string | null = null;
   errorMessage: string | null = null;
+  // totalItems: number;
 
   constructor(
     private videoService: VideoService,
@@ -500,4 +512,179 @@ export class FullVideoComponent implements OnInit {
     this.errorMessage = message;
     setTimeout(() => this.errorMessage = null, 5000);
   }
+
+  /**
+ * Ouvre la confirmation de suppression pour une seule actualité
+ */
+openDeleteConfirm(video: Video): void {
+  this.videoToDelete = video;
+  this.deleteMultiple = false;
+  this.showDeleteConfirm = true;
+  this.deleteError = false;
+  this.deleteErrorMessage = '';
+  document.body.style.overflow = 'hidden'; // Empêche le défilement
+}
+/**
+ * Extrait le message d'erreur depuis différents formats de réponse
+ */
+private extractErrorMessage(errorBody: any): string | null {
+  if (!errorBody) return null;
+  
+  // Si c'est une string, la retourner directement
+  if (typeof errorBody === 'string') {
+    return errorBody;
+  }
+  
+  // Si c'est un objet, chercher le message
+  if (typeof errorBody === 'object') {
+    return errorBody.message || errorBody.error || errorBody.details || null;
+  }
+  
+  return null;
+}
+/**
+ * Ferme le popup de confirmation de suppression
+ */
+closeDeleteConfirm(): void {
+  this.showDeleteConfirm = false;
+  this.videoToDelete = null;
+  this.deleteLoading = false;
+  this.deleteError = false;
+  this.deleteErrorMessage = '';
+  this.deleteMultiple = false;
+  document.body.style.overflow = ''; // Rétablit le défilement
+}
+
+/**
+ * Confirme et exécute la suppression
+ */
+confirmDelete(): void {
+  this.deleteLoading = true;
+  this.deleteError = false;
+  this.deleteErrorMessage = '';
+  
+  if (this.deleteMultiple) {
+    // Pour la suppression multiple (à implémenter si nécessaire)
+    const selectedActuIds = this.videosList
+      .filter(actu => actu.selected)
+      .map(actu => actu.id);
+      
+    if (selectedActuIds.length === 0) {
+      this.deleteError = true;
+      this.deleteErrorMessage = "Aucune actualité sélectionnée";
+      this.deleteLoading = false;
+      return;
+    }
+    
+    // À implémenter : this.infoService.deleteMultipleActus(selectedActuIds)
+    this.deleteError = true;
+    this.deleteErrorMessage = "Suppression multiple non implémentée";
+    this.deleteLoading = false;
+    
+  } else if (this.videoToDelete) {
+    // Suppression d'une seule actualité
+    this.videoService.deleteVideo(this.videoToDelete.id).subscribe({
+      next: () => {
+        this.handleDeleteSuccess();
+      },
+      error: (err) => {
+        this.handleDeleteError(err);
+      }
+    });
+  }
+}
+
+/**
+ * Gère le succès de la suppression
+ */
+private handleDeleteSuccess(): void {
+  if (this.videoToDelete) {
+    // Supprimer de la liste complète
+    this.videosList = this.videosList.filter(actu => actu.id !== this.videoToDelete!.id);
+    
+    // Recalculer la pagination
+    this.totalItems = this.videosList.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    
+    // Vérifier si la page actuelle est toujours valide
+    if (this.currentPage >= this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages - 1;
+    }
+    
+    // Appliquer la nouvelle pagination
+    this.applyPagination();
+  }
+  
+  // Fermer le popup et réinitialiser
+  this.closeDeleteConfirm();
+}
+
+applyPagination(): void {
+  const startIndex = this.currentPage * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.videosList = this.videosList.slice(startIndex, endIndex);
+}
+/**
+ * Gère les erreurs de suppression avec gestion spéciale pour les réponses texte
+ */
+private handleDeleteError(error: any): void {
+  console.error('Erreur lors de la suppression:', error);
+  
+  // Cas spécial : Si le statut est 200, c'est un succès même si ok = false
+  if (error instanceof HttpErrorResponse && error.status === 200) {
+    console.log('Suppression réussie (statut 200 détecté)');
+    this.handleDeleteSuccess();
+    return;
+  }
+  
+  // Sinon, traiter comme une vraie erreur
+  this.deleteError = true;
+  const errorMessage = this.handleFormError(error);
+  this.deleteErrorMessage = errorMessage || 'Erreur lors de la suppression';
+  this.deleteLoading = false;
+}
+/**
+ * Gestion d'erreur améliorée pour gérer les réponses texte et JSON
+ */
+private handleFormError(error: any): string {
+  console.error('Erreur complète:', error);
+  
+  if (error instanceof HttpErrorResponse) {
+    console.error('Status:', error.status);
+    console.error('Status Text:', error.statusText);
+    console.error('Error body:', error.error);
+    
+    // Gestion spécifique des erreurs HTTP
+    switch (error.status) {
+      case 200:
+        // Cas spécial : Status 200 = succès, ne devrait pas être traité comme erreur
+        return ''; // Pas d'erreur, c'est un succès
+        
+      case 400:
+        return this.extractErrorMessage(error.error) || 'Données invalides. Veuillez vérifier les champs.';
+      case 401:
+        return 'Vous n\'êtes pas autorisé à effectuer cette action.';
+      case 403:
+        return 'Accès refusé. Vérifiez vos permissions.';
+      case 404:
+        return 'Service non trouvé. Veuillez contacter l\'administrateur.';
+      case 413:
+        return 'Fichier trop volumineux. Veuillez choisir une image plus petite.';
+      case 422:
+        return this.extractErrorMessage(error.error) || 'Données non traitables. Vérifiez le format de vos données.';
+      case 500:
+        return 'Erreur interne du serveur. Veuillez réessayer plus tard.';
+      default:
+        return this.extractErrorMessage(error.error) || `Erreur HTTP ${error.status}: ${error.statusText}`;
+    }
+  }
+  
+  // Erreur réseau ou autre
+  if (error.name === 'NetworkError' || error.message?.includes('Network')) {
+    return 'Erreur de connexion. Vérifiez votre connexion Internet.';
+  }
+  
+  // Erreur générique
+  return error.message || 'Une erreur inattendue s\'est produite.';
+}
 }

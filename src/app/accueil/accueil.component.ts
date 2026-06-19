@@ -180,7 +180,6 @@ export class AccueilComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       // Vérifier si la carte n'est pas déjà initialisée
       if (mapElement.hasChildNodes() && mapElement.children.length > 0) {
-        console.log('Carte déjà initialisée');
         return;
       }
 

@@ -172,24 +172,24 @@
   text-overflow: ellipsis;
 }
 
-/* Informations vidéo */
+/* Informations vidéo - MODIFIÉ POUR RÉDUIRE L'ESPACEMENT */
 .video-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
   margin-top: auto;
-  min-height: 40px;
+  min-height: 32px; /* Réduit de 40px à 32px */
   position: relative;
-  bottom: 15px;
+  bottom: 10px; /* Réduit de 15px à 10px */
+  gap: 8px; /* Ajout d'un gap pour contrôler l'espacement */
 }
 
 .video-author {
   display: flex;
   align-items: center;
   min-width: 0;
-  max-width: 60%;
+  max-width: 50%; /* Réduit pour laisser plus de place aux actions */
+  flex-shrink: 1;
 
   img {
     width: 24px;
@@ -210,11 +210,37 @@
   }
 }
 
+/* Container pour la date et les actions - NOUVEAU */
+.video-meta-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espacement réduit entre la date et les icônes */
+  flex-shrink: 0;
+}
+
 .video-date {
   font-size: 12px;
   color: #777;
   display: flex;
+  position: relative;
+  left: 51%;
   align-items: center;
+  white-space: nowrap;
+}
+
+/* Container pour les boutons d'action - NOUVEAU */
+.video-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Espacement très réduit entre les icônes */
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.3s ease;
+}
+
+.video-card:hover .video-actions {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* ============================================= */
@@ -632,6 +658,24 @@ input[type="file"] {
   .cancel-btn, .submit-btn {
     width: 100%;
   }
+
+  /* Ajustement mobile pour les actions vidéo */
+  .video-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: auto;
+  }
+
+  .video-meta-actions {
+    align-self: flex-end;
+    gap: 8px;
+  }
+
+  .video-actions {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @media screen and (max-width: 576px) {
@@ -686,6 +730,45 @@ input[type="file"] {
   overflow-y: auto;
   position: relative;
   animation: fadeIn 0.3s ease-out;
+}
+.delete-btn{
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px; /* Réduit de 32px à 28px */
+  height: 28px; /* Réduit de 32px à 28px */
+  flex-shrink: 0;
+  color: #6c757d;
+}
+/* Styles pour le bouton d'édition - OPTIMISÉ */
+.edit-btn {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px; /* Réduit de 32px à 28px */
+  height: 28px; /* Réduit de 32px à 28px */
+  flex-shrink: 0;
+  color: #6c757d;
+  position: relative;
+  left: 26%;
+
+  &:hover {
+    background-color: #e9ecef;
+    color: #495057;
+    transform: translateY(-1px);
+  }
 }
 
 @keyframes fadeIn {
@@ -1011,4 +1094,221 @@ input[type="file"] {
 
 .alert i {
   font-size: 20px;
+}
+
+/* Styles pour le bouton de suppression sur la carte - OPTIMISÉ */
+
+
+.bg-white:hover .delete-btn,
+.video-card:hover .delete-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Overlay du popup de suppression */
+.delete-confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Popup de confirmation */
+.delete-confirmation-popup {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* En-tête du popup */
+.delete-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 24px;
+}
+
+.delete-popup-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.delete-popup-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.delete-popup-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Contenu du popup */
+.delete-popup-content {
+  padding: 0 24px;
+  text-align: center;
+}
+
+.delete-popup-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.delete-popup-text {
+  margin-bottom: 24px;
+}
+
+.delete-popup-text p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Message d'erreur */
+.delete-error-message {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 16px;
+  text-align: left;
+}
+
+/* Actions du popup */
+.delete-popup-actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid #f3f4f6;
+  justify-content: flex-end;
+}
+
+.delete-cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #374151;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.delete-cancel-btn:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.delete-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-confirm-btn {
+  padding: 10px 20px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  min-width: 120px;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.delete-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animation de chargement */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+
+/* Responsive */
+@media (max-width: 480px) {
+  .delete-confirmation-popup {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .delete-popup-header,
+  .delete-popup-content,
+  .delete-popup-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .delete-popup-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .delete-cancel-btn,
+  .delete-confirm-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

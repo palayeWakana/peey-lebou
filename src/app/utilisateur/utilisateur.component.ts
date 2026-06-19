@@ -356,7 +356,7 @@ toggleChangePassword(): void {
     /**
  * Soumettre les modifications d'un utilisateur
  */
-submitEditUser(): void {
+submitEditUser(): void { 
   if (this.editUserForm.invalid) {
     this.markFormGroupTouched(this.editUserForm);
     return;
@@ -396,13 +396,14 @@ submitEditUser(): void {
     mere: formData.mere || '',
     linkdin: formData.linkdin || '',
     x: formData.x || '',
-    centreinteret: [] // Vous pouvez adapter selon vos besoins
+    centreinteret: [], // Vous pouvez adapter selon vos besoins
+    password:formData.password
   };
 
   // Ajouter le mot de passe seulement si l'utilisateur souhaite le changer
-  if (this.changePassword && formData.password) {
-    updateData.password = formData.password;
-  }
+  // if (this.changePassword && formData.password) {
+  //   updateData.password = formData.password;
+  // }
 
   // Appeler le service pour mettre à jour l'utilisateur
   this.userService.updateUser(this.userToEdit.id, updateData).subscribe({
@@ -535,7 +536,7 @@ submitEditUser(): void {
         if (selectedUserIds.length === 0) {
           this.deleteError = true;
           this.deleteErrorMessage = "Aucun utilisateur sélectionné";
-          this.deleteLoading = false;
+          this.deleteLoading = false; 
           return;
         }
         

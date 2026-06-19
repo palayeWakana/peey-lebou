@@ -59,6 +59,12 @@
             <button class="edit-btn" (click)="openEditPopup(oppor); $event.stopPropagation()">
               <i class="fa fa-pen"></i>
             </button>
+            <button 
+            class="edit-btn"
+            (click)="openDeleteConfirm(oppor); $event.stopPropagation()"
+            title="Supprimer l'opprtunite">
+            <i class="fa fa-trash"></i>
+          </button>
           </div>
           <div class="validation-action">
             <button 
@@ -140,8 +146,8 @@
   
           <div class="form-group full-width">
             <label for="descr">Description *</label>
-            <textarea 
-              id="descr" 
+            <textarea
+              id="descr"
               formControlName="descr"
               class="form-control"
               rows="4"
@@ -151,7 +157,34 @@
               La description est requise (minimum 10 caractères)
             </div>
           </div>
-  
+
+          <div class="form-group full-width">
+            <p class="wolof-hint-text">Copiez votre description et passez-la à une IA (ChatGPT, Claude, etc.) pour la traduire en wolof.</p>
+            <button type="button" class="copy-prompt-btn" (click)="copyWolofPrompt()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              {{ copySuccess ? 'Copié !' : 'Copier description' }}
+            </button>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="wolofdescr">Description en Wolof <span class="field-hint">(max 200 caractères)</span></label>
+            <textarea
+              id="wolofdescr"
+              formControlName="wolofdescr"
+              class="form-control"
+              rows="2"
+              maxlength="200"
+              placeholder="Collez ici la traduction en wolof (≤ 200 caractères)">
+            </textarea>
+            <div class="char-count">{{ opportuniteForm.get('wolofdescr')?.value?.length || 0 }}/200</div>
+            <div *ngIf="opportuniteForm.get('wolofdescr')?.errors?.['maxlength']" class="error-text">
+              La description en wolof ne doit pas dépasser 200 caractères.
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="lien">Lien *</label>
             <input 
@@ -228,7 +261,27 @@
       <form [formGroup]="editOpportuniteForm" (ngSubmit)="submitEditOpportunite()">
         <div class="grid grid-cols-1 gap-4">
           <input formControlName="titre" type="text" placeholder="Titre" class="border p-2 rounded">
-          <textarea formControlName="descr" rows="4" placeholder="Description" class="border p-2 rounded"></textarea>
+
+          <div>
+            <textarea formControlName="descr" rows="4" placeholder="Description" class="border p-2 rounded w-full"></textarea>
+            <p class="wolof-hint-text" style="margin-top:6px">Copiez votre description et passez-la à une IA (ChatGPT, Claude, etc.) pour la traduire en wolof.</p>
+            <button type="button" class="copy-prompt-btn" (click)="copyEditWolofPrompt()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              {{ editCopySuccess ? 'Copié !' : 'Copier description' }}
+            </button>
+          </div>
+
+          <div>
+            <label style="font-size:13px;font-weight:600">Description en Wolof <span class="field-hint">(max 200 caractères)</span></label>
+            <textarea formControlName="wolofdescr" rows="2" maxlength="200"
+                      placeholder="Collez ici la traduction en wolof (≤ 200 caractères)"
+                      class="border p-2 rounded w-full"></textarea>
+            <div class="char-count">{{ editOpportuniteForm.get('wolofdescr')?.value?.length || 0 }}/200</div>
+          </div>
+
           <input formControlName="lien" type="text" placeholder="Lien" class="border p-2 rounded">
           <input formControlName="categorie" type="text" placeholder="Catégorie" class="border p-2 rounded">
           <input formControlName="date" type="date" class="border p-2 rounded">
@@ -256,10 +309,68 @@
           <div *ngIf="editSuccessMessage" class="text-green-600 text-sm">{{ editSuccessMessage }}</div>
 
           <div class="flex justify-end mt-4 space-x-2">
-            <button type="submit" [disabled]="editLoading" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Modifier</button>
+            <button type="submit" [disabled]="editLoading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Modifier</button>
             <button type="button" (click)="closeEditOpportunitePopup()" class="text-gray-600">Annuler</button>
           </div>
         </div>
       </form>
     </div>
   </div>
+
+
+
+
+<!-- Popup de confirmation de suppression -->
+<div *ngIf="showDeleteConfirm" class="delete-confirmation-overlay">
+  <div class="delete-confirmation-popup">
+    <div class="delete-popup-header">
+      <h3 class="delete-popup-title">Confirmer la suppression</h3>
+      <button class="delete-popup-close" (click)="closeDeleteConfirm()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="delete-popup-content">
+      <div class="delete-popup-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+      </div>
+      
+      <div class="delete-popup-text">
+        <p class="text-lg font-medium text-gray-900 mb-2">Êtes-vous sûr ?</p>
+        <p class="text-gray-600" *ngIf="opporList">
+          Vous êtes sur le point de supprimer définitivement l'actualité 
+          Cette action est irréversible.
+        </p>
+      </div>
+      
+      <!-- Message d'erreur -->
+      <div *ngIf="deleteError" class="delete-error-message">
+        {{ deleteErrorMessage }}
+      </div>
+    </div>
+    
+    <div class="delete-popup-actions">
+      <button class="delete-cancel-btn" 
+              (click)="closeDeleteConfirm()"
+              [disabled]="deleteLoading">
+        Annuler
+      </button>
+      <button class="delete-confirm-btn" 
+              (click)="confirmDelete()"
+              [disabled]="deleteLoading">
+        <span *ngIf="!deleteLoading">Supprimer</span>
+        <span *ngIf="deleteLoading" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Suppression...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
