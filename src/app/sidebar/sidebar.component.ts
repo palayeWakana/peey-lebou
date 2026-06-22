@@ -347,7 +347,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   confirmLogout() {
     // Votre logique de déconnexion existante
     this.authService.logout();
-    this.router.navigate(['/accueil']);
+    this.router.navigate(['/login']);
     this.showLogoutConfirmation = false;
   }
   
