@@ -15,9 +15,9 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { RegionComponent } from './region/region.component';
 
 export const routes: Routes = [
-  { 
-    path: '', 
-    redirectTo: 'accueil',
+  {
+    path: '',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
   { 

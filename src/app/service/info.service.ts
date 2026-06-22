@@ -75,6 +75,12 @@ export interface ActuResponse {
   empty: boolean;
 }
 
+export interface Categorie {
+  id: number;
+  libelle: string;
+  type: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -251,6 +257,15 @@ updateActuWithImage(id: number, actuData: Partial<ContentItem>, imageFile?: File
    */
   saveFormData<T>(formData: FormData, endpoint: string): Observable<T> {
     return this.http.post<T>(`${this.baseApiUrl}${endpoint}`, formData);
+  }
+
+  /**
+   * Récupère les catégories par type (ex: 'Actualités', 'Opportunités')
+   * @param type Le type de catégorie à récupérer (path param)
+   * @returns Observable de type Categorie[]
+   */
+  getCategorieByType(type: string): Observable<Categorie[]> {
+    return this.http.get<Categorie[]>(`${this.baseApiUrl}/parameters/categorie/all/${type}`);
   }
 }
 

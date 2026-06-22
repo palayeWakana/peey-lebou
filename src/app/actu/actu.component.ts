@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { InfoService, ContentItem } from '../service/info.service';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { InfoService, ContentItem, Categorie } from '../service/info.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from "../sidebar/sidebar.component";
@@ -32,6 +32,15 @@ export class ActuComponent implements OnInit {
   loading = true;
   error = false;
   validationLoading: { [key: number]: boolean } = {};
+
+  // Catégories dynamiques
+  categories: Categorie[] = [];
+  filteredCategories: Categorie[] = [];
+  filteredEditCategories: Categorie[] = [];
+  showCategoryDropdown = false;
+  showEditCategoryDropdown = false;
+  categorySearchTerm = '';
+  editCategorySearchTerm = '';
 
   // Variables pour le formulaire d'ajout d'actualité
   showAddForm = false;
@@ -66,6 +75,7 @@ export class ActuComponent implements OnInit {
   popupDescription: string = '';
 
   copySuccess = false;
+  hasClickedCopyAdd = false;
 
   constructor(
     private infoService: InfoService,
@@ -104,6 +114,7 @@ export class ActuComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllActus();
+    this.loadCategories();
   }
 
   /**
@@ -497,6 +508,9 @@ export class ActuComponent implements OnInit {
 
   toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
+    this.showCategoryDropdown = false;
+    this.categorySearchTerm = '';
+    this.filteredCategories = [...this.categories];
     if (!this.showAddForm) {
       this.actualiteForm.reset({
         date: new Date().toISOString().split('T')[0],
@@ -510,6 +524,7 @@ export class ActuComponent implements OnInit {
       this.imagePreview = null;
       this.formError = '';
       this.formSuccess = '';
+      this.hasClickedCopyAdd = false;
     }
   }
 
@@ -583,6 +598,7 @@ export class ActuComponent implements OnInit {
     const prompt = `Tu es un expert en traduction et résumé en langue wolof (Sénégal).\nRésume le texte suivant en wolof en maximum 200 caractères (espaces inclus). Le résumé doit être fluide, naturel et compréhensible par un locuteur wolof natif. N'utilise pas de mots français sauf si le terme n'existe pas en wolof. Ne dépasse jamais 200 caractères.\nTexte à résumer :\n${description}`;
     navigator.clipboard.writeText(prompt).then(() => {
       this.copySuccess = true;
+      this.hasClickedCopyAdd = true;
       setTimeout(() => { this.copySuccess = false; }, 2000);
     }).catch(() => {});
   }
@@ -679,10 +695,16 @@ export class ActuComponent implements OnInit {
     this.editFormError = '';
     this.editFormSuccess = '';
     this.showEditForm = true;
+    this.showEditCategoryDropdown = false;
+    this.editCategorySearchTerm = '';
+    this.filteredEditCategories = [...this.categories];
   }
 
   toggleEditForm(): void {
     this.showEditForm = !this.showEditForm;
+    this.showEditCategoryDropdown = false;
+    this.editCategorySearchTerm = '';
+    this.filteredEditCategories = [...this.categories];
     if (!this.showEditForm) {
       this.currentEditActu = null;
       this.currentEditImage = null;
@@ -834,5 +856,93 @@ export class ActuComponent implements OnInit {
     formData.forEach((value, key) => {
       console.log(`${key}:`, value);
     });
+  }
+
+  // Chargement des catégories depuis le service
+  loadCategories(): void {
+    this.infoService.getCategorieByType('Actualités').subscribe({
+      next: (data: Categorie[]) => {
+        this.categories = data;
+        this.filteredCategories = [...data];
+        this.filteredEditCategories = [...data];
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des catégories:', err);
+      }
+    });
+  }
+
+  // Toggle du dropdown pour l'ajout
+  toggleCategoryDropdown(): void {
+    this.showCategoryDropdown = !this.showCategoryDropdown;
+    if (this.showCategoryDropdown) {
+      this.categorySearchTerm = '';
+      this.filteredCategories = [...this.categories];
+      this.showEditCategoryDropdown = false;
+    }
+  }
+
+  // Toggle du dropdown pour l'édition
+  toggleEditCategoryDropdown(): void {
+    this.showEditCategoryDropdown = !this.showEditCategoryDropdown;
+    if (this.showEditCategoryDropdown) {
+      this.editCategorySearchTerm = '';
+      this.filteredEditCategories = [...this.categories];
+      this.showCategoryDropdown = false;
+    }
+  }
+
+  // Filtrage des catégories (Ajout)
+  filterCategories(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.categorySearchTerm = input.value;
+    const term = this.categorySearchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredCategories = [...this.categories];
+    } else {
+      this.filteredCategories = this.categories.filter(cat => 
+        cat.libelle.toLowerCase().includes(term) || 
+        cat.type.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  // Filtrage des catégories (Modification)
+  filterEditCategories(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.editCategorySearchTerm = input.value;
+    const term = this.editCategorySearchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredEditCategories = [...this.categories];
+    } else {
+      this.filteredEditCategories = this.categories.filter(cat => 
+        cat.libelle.toLowerCase().includes(term) || 
+        cat.type.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  // Sélection d'une catégorie (Ajout)
+  selectCategory(cat: Categorie): void {
+    this.actualiteForm.patchValue({ categorie: cat.libelle });
+    this.actualiteForm.get('categorie')?.markAsTouched();
+    this.showCategoryDropdown = false;
+  }
+
+  // Sélection d'une catégorie (Modification)
+  selectEditCategory(cat: Categorie): void {
+    this.editForm.patchValue({ categorie: cat.libelle });
+    this.editForm.get('categorie')?.markAsTouched();
+    this.showEditCategoryDropdown = false;
+  }
+
+  // Fermeture des dropdowns si clic à l'extérieur
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-select-container')) {
+      this.showCategoryDropdown = false;
+      this.showEditCategoryDropdown = false;
+    }
   }
 }

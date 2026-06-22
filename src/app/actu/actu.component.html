@@ -73,13 +73,29 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="categorie">Catégorie*</label>
-                <select id="categorie" formControlName="categorie">
-                  <option value="">Sélectionner une catégorie</option>
-                  <option value="Actualité">Actualité</option>
-                  <option value="Événement">Événement</option>
-                  <option value="Opportunité">Opportunité</option>
-                  <option value="Formation">Formation</option>
-                </select>
+                <div class="custom-select-container">
+                  <div class="custom-select-trigger" (click)="toggleCategoryDropdown()" [class.active]="showCategoryDropdown" [class.error]="actualiteForm.get('categorie')?.invalid && actualiteForm.get('categorie')?.touched">
+                    <span>{{ actualiteForm.get('categorie')?.value || 'Sélectionner une catégorie' }}</span>
+                    <i class="fa" [class.fa-chevron-down]="!showCategoryDropdown" [class.fa-chevron-up]="showCategoryDropdown"></i>
+                  </div>
+                  
+                  <div class="custom-select-dropdown" *ngIf="showCategoryDropdown" (click)="$event.stopPropagation()">
+                    <div class="custom-select-search">
+                      <i class="fa fa-search"></i>
+                      <input type="text" placeholder="Rechercher une catégorie..." [value]="categorySearchTerm" (input)="filterCategories($event)">
+                    </div>
+                    
+                    <ul class="custom-select-options">
+                      <li *ngIf="filteredCategories.length === 0" class="no-options">
+                        Aucune catégorie trouvée
+                      </li>
+                      <li *ngFor="let cat of filteredCategories" (click)="selectCategory(cat)" [class.selected]="actualiteForm.get('categorie')?.value === cat.libelle">
+                        <span class="option-bold">{{ cat.libelle }}</span>
+                        <span class="option-sub">{{ cat.type }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
                 <div class="error-message" *ngIf="actualiteForm.get('categorie')?.invalid && actualiteForm.get('categorie')?.touched">
                   La catégorie est obligatoire
                 </div>
@@ -148,12 +164,17 @@
             <!-- Form Actions -->
             <div class="form-actions">
               <button type="button" class="cancel-btn" (click)="toggleAddForm()">Annuler</button>
-              <button type="submit" class="submit-btn" [disabled]="formSubmitting">
-                <span *ngIf="!formSubmitting">Publier</span>
-                <span *ngIf="formSubmitting">
-                  <i class="fa fa-spinner fa-spin"></i> Publication...
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span *ngIf="!hasClickedCopyAdd && actualiteForm.valid" style="font-size:12px; color:#e67e22;">
+                  ⚠️ Cliquez d'abord sur "Copier description" pour traduire en wolof
                 </span>
-              </button>
+                <button type="submit" class="submit-btn" [disabled]="actualiteForm.invalid || formSubmitting || !hasClickedCopyAdd">
+                  <span *ngIf="!formSubmitting">Publier</span>
+                  <span *ngIf="formSubmitting">
+                    <i class="fa fa-spinner fa-spin"></i> Publication...
+                  </span>
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -208,14 +229,29 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="form-group">
                 <label for="edit-categorie" class="block text-sm font-medium text-gray-700 mb-1">Catégorie*</label>
-                <select id="edit-categorie" formControlName="categorie" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">Sélectionner une catégorie</option>
-                  <option value="Actualité">Actualité</option>
-                  <option value="Événement">Événement</option>
-                  <option value="Opportunité">Opportunité</option>
-                  <option value="Formation">Formation</option>
-                </select>
+                <div class="custom-select-container">
+                  <div class="custom-select-trigger" (click)="toggleEditCategoryDropdown()" [class.active]="showEditCategoryDropdown" [class.error]="editForm.get('categorie')?.invalid && editForm.get('categorie')?.touched">
+                    <span>{{ editForm.get('categorie')?.value || 'Sélectionner une catégorie' }}</span>
+                    <i class="fa" [class.fa-chevron-down]="!showEditCategoryDropdown" [class.fa-chevron-up]="showEditCategoryDropdown"></i>
+                  </div>
+                  
+                  <div class="custom-select-dropdown" *ngIf="showEditCategoryDropdown" (click)="$event.stopPropagation()">
+                    <div class="custom-select-search">
+                      <i class="fa fa-search"></i>
+                      <input type="text" placeholder="Rechercher une catégorie..." [value]="editCategorySearchTerm" (input)="filterEditCategories($event)">
+                    </div>
+                    
+                    <ul class="custom-select-options">
+                      <li *ngIf="filteredEditCategories.length === 0" class="no-options">
+                        Aucune catégorie trouvée
+                      </li>
+                      <li *ngFor="let cat of filteredEditCategories" (click)="selectEditCategory(cat)" [class.selected]="editForm.get('categorie')?.value === cat.libelle">
+                        <span class="option-bold">{{ cat.libelle }}</span>
+                        <span class="option-sub">{{ cat.type }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
                 <div class="text-red-500 text-sm mt-1" *ngIf="editForm.get('categorie')?.invalid && editForm.get('categorie')?.touched">
                   La catégorie est obligatoire
                 </div>
