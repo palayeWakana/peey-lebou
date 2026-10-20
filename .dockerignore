@@ -1,0 +1,10 @@
+node_modules
+dist
+dist.zip
+.angular
+.git
+.vscode
+.DS_Store
+*.log
+Dockerfile
+.dockerignore
