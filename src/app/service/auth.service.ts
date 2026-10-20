@@ -194,6 +194,12 @@ export class AuthService {
 
   /** 🚪  Logout */
   logout(): void {
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
+  /** 🧹  Supprime token & utilisateur sans rediriger (utilisé par les guards) */
+  clearSession(): void {
     if (this.isBrowser) {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
@@ -204,7 +210,6 @@ export class AuthService {
     }
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/login']);
   }
 
   /* ─────────── Getters & helpers ─────────── */
@@ -252,10 +257,26 @@ export class AuthService {
   isTokenValid(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    
-    // Vous pourriez ajouter une vérification de l'expiration du token ici
-    // si votre JWT contient une date d'expiration
+
+    // Si le token est un JWT avec une date d'expiration, on la vérifie
+    const exp = this.getTokenExpiration(token);
+    if (exp !== null && Date.now() >= exp * 1000) {
+      return false;
+    }
     return true;
+  }
+
+  /** ⏱️  Lit le champ `exp` (en secondes) d'un JWT, ou null si absent / illisible */
+  private getTokenExpiration(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const exp = JSON.parse(json)?.exp;
+      return typeof exp === 'number' ? exp : null;
+    } catch {
+      return null;
+    }
   }
 
   isLoggedIn(): boolean {

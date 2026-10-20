@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../service/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +19,20 @@ export class LoginComponent {
   isLoading: boolean = false;
   showAccessDeniedPopup: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  /** Page demandée avant la redirection vers /login (chemin interne uniquement) */
+  private getReturnUrl(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//') && !returnUrl.startsWith('/login')) {
+      return returnUrl;
+    }
+    return '/dashboards';
+  }
 
   isValidPhoneNumber(phone: string): boolean {
     const phoneRegex = /^7[05678]\d{7}$/;
@@ -64,7 +77,7 @@ export class LoginComponent {
                   } else {
                     // Rediriger les autres rôles
                     console.log('Redirection vers dashboard pour rôle:', user.role);
-                    this.router.navigate(['/dashboards']).then(
+                    this.router.navigateByUrl(this.getReturnUrl()).then(
                       success => {
                         console.log('Navigation réussie:', success);
                         this.isLoading = false;
